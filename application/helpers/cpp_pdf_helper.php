@@ -11,28 +11,43 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * Entry point utama: cpp_render_pdf($data) -> string biner PDF.
  */
 
-require_once cpp_vendor_autoload_path();
+// Root project = FCPATH (folder tempat index.php CI). Fallback ke path relatif
+// helper kalau FCPATH belum terdefinisi (mis. dipanggil di luar bootstrap CI).
+if (!function_exists('cpp_project_root')) {
+    function cpp_project_root()
+    {
+        if (defined('FCPATH')) {
+            return rtrim(FCPATH, '/\\');
+        }
+        return dirname(dirname(dirname(__FILE__)));
+    }
+}
 
-use Dompdf\Dompdf;
-use Dompdf\Options;
+// DomPDF 0.8.x di-install di application/libraries/dompdf/ (bukan vendor composer).
+// Load autoloader-nya sekali; return true kalau berhasil.
+if (!function_exists('cpp_load_dompdf')) {
+    function cpp_load_dompdf()
+    {
+        if (class_exists('Dompdf\\Dompdf')) {
+            return true;
+        }
+
+        $autoload = cpp_project_root() . '/application/libraries/dompdf/autoload.inc.php';
+        if (!is_file($autoload)) {
+            throw new RuntimeException('DomPDF autoloader tidak ditemukan: ' . $autoload);
+        }
+
+        require_once $autoload;
+        return true;
+    }
+}
+
+cpp_load_dompdf();
 
 // PHP 5.4 melempar warning fatal saat instantiate DateTime bila date.timezone
 // belum di-set di php.ini. Set default aman kalau belum dikonfigurasi.
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('Asia/Jakarta');
-}
-
-// Lokasi vendor/autoload.php. Di CI, helper ada di application/helpers/,
-// vendor & template ada di root project (dua level di atas).
-function cpp_project_root()
-{
-    return dirname(dirname(__DIR__));
-}
-
-function cpp_vendor_autoload_path()
-{
-    // return dirname(dirname(__FILE__)) . '/../vendor/autoload.php';
-    require_once(realpath(".") . '/application/libraries/dompdf/autoload.inc.php');
 }
 
 function cpp_template_dir()
@@ -676,13 +691,15 @@ function cpp_render_pdf(array $data)
 
     $html = cpp_render_html($data);
 
-    $options = new Options();
+    cpp_load_dompdf();
+
+    $options = new \Dompdf\Options();
     $options->set('isRemoteEnabled', true);
     $options->set('isHtml5ParserEnabled', true);
     $options->set('defaultMediaType', 'print');
     $options->set('defaultFont', 'Calibri');
 
-    $dompdf = new Dompdf($options);
+    $dompdf = new \Dompdf\Dompdf($options);
     $dompdf->loadHtml($html);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
