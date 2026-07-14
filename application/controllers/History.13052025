@@ -1,0 +1,1741 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+DEFINE('DS', DIRECTORY_SEPARATOR);
+class History extends CI_Controller {
+
+	private $doc_filename="";
+	private $doc_filename_arr=array();
+
+	public function __construct(){
+		parent::__construct();
+	}
+	/*
+	public function test(){
+		$this->load->database();
+		$agen_code="PFA005";
+		$limit="";
+		$date="2021-04-28";
+		$this->db->query("SET @row_number:=0;");
+		$str_product="
+		
+			SELECT ID,trx_id,spaj_code,ifnull(no_polis,'') as no_polis,product_code,
+			concat('(',(@row_number:=@row_number + 1),') ',nama_pp) as nama_pp,
+			effective_dt,DATE_FORMAT(last_change_dt,'%d %M %Y %H:%i %p') as last_change_dt,status_qc,
+concat(case when ifnull(s.no_polis_reff,'')='' then 'New' else 'Exisisting' end,' | ',(select reason from tbl_spaj_history where ID=s.ID order by status_dt desc  limit 1)) as status_spaj
+						FROM tbl_spaj s
+						WHERE (s.agen_code=? or s.pfa_code=?) ".($date!="" ? " and cast(s.last_change_dt as date)='".$date."'":"")."
+						ORDER BY last_change_dt DESC ".($limit=="" ? "":"limit ".$limit).";";
+			$query=$this->db->query($str_product,array($agen_code,$agen_code));
+			$rows=$query->result_array();
+			echo"<pre>";
+			print_r($rows);
+	}*/
+	
+	public function spaj_pending(){
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		
+		$agen_code=isset($data["agen_code"]) ? $data["agen_code"]:"";
+		$limit=isset($data["limit"]) ? $data["limit"]:"";
+		$date=isset($data["date"]) ? $data["date"]:"";
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		if($agen_code!=""){
+			$this->load->database();
+			//SET @row_number = 0;
+			//concat('(',(@row_number:=@row_number + 1),') ',nama_pp) as nama_pp,
+			$this->db->query("SET @row_number:=0;");
+			
+$str_product="select 
+data.ID,data.trx_id,data.spaj_code,data.no_polis,data.product_code,
+concat('(',(@row_number:=@row_number + 1),') ',data.nama_pp) as nama_pp,
+data.effective_dt,
+data.last_change_dt,
+data.status_qc,
+data.status_spaj 
+from (
+select 
+s.ID,s.trx_id,s.spaj_code,ifnull(s.no_polis,'') as no_polis,s.product_code,
+			nama_pp,
+			effective_dt,DATE_FORMAT(last_change_dt,'%d %M %Y %H:%i %p') as last_change_dt,status_qc,
+concat(case when ifnull(s.no_polis_reff,'')='' then 'New' else 'Exisisting' end,' | ',h.reason) as status_spaj,
+ s.last_change_dt as last_change_dt_ori
+from tbl_spaj_history h
+join tbl_spaj s on s.spaj_code=h.spaj_code
+where 1=1 
+".($agen_code=="PFA009" ? "":" and (s.agen_code=? or s.pfa_code=?) ")." ".($date!="" ? " and cast(s.last_change_dt as date)='".$date."'":"")."
+and (h.reason like'%take out%' or h.reason like'%unclean%'  or h.reason like'%pending%') 
+and (h.reason not like'%Reply%' and h.reason not like'%Submit Dokumen%')
+and s.inforce_dt is null
+and s.spaj_code not like'%DEL%') as data limit 10";
+
+
+$str_product_count="
+			select 
+count(1) as total
+from tbl_spaj_history h
+join tbl_spaj s on s.spaj_code=h.spaj_code
+where 1=1 
+".($agen_code=="PFA009" ? "":" and (s.agen_code=? or s.pfa_code=?) ")." ".($date!="" ? " and cast(s.last_change_dt as date)='".$date."'":"")."
+and (h.reason like'%take out%' or h.reason like'%unclean%'  or h.reason like'%pending%') 
+and (h.reason not like'%Reply%' and h.reason not like'%Submit Dokumen%')
+and s.inforce_dt is null
+and s.spaj_code not like'%DEL%'
+";
+
+			
+
+			if($agen_code=="PFA009"){
+				$query_count=$this->db->query($str_product_count);
+				$query=$this->db->query($str_product);
+			}else{
+				$query_count=$this->db->query($str_product_count,array($agen_code,$agen_code));
+				$query=$this->db->query($str_product,array($agen_code,$agen_code));
+			}
+			//$rows_count[0]['total']=10;
+			$rows_count=$query_count->result_array();
+			$rows=$query->result_array();
+			$count_row=count($rows);
+			if($count_row>0){
+				$message=array('error'=>0,'message'=>'success','data'=>$rows,'agen_code'=>$agen_code,'count'=>$rows_count[0]['total']);
+			}else{
+				//$message=array('error'=>1,'message'=>'Failed');
+				$message=array('error'=>0,'message'=>'success','data'=>array(),'agen_code'=>$agen_code,'count'=>0);
+			}
+		}
+		
+		//$message=array('error'=>0,'message'=>'success','data'=>array(),'agen_code'=>$agen_code,'count'=>0);
+		echo json_encode($message);
+	}
+
+	public function spaj_pending_all(){
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		
+		$agen_code=isset($data["agen_code"]) ? $data["agen_code"]:"";
+		$limit=isset($data["limit"]) ? $data["limit"]:"";
+		$date=isset($data["date"]) ? $data["date"]:"";
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		if($agen_code!=""){
+			$this->load->database();
+			//SET @row_number = 0;
+			//concat('(',(@row_number:=@row_number + 1),') ',nama_pp) as nama_pp,
+			$this->db->query("SET @row_number:=0;");
+			/*
+			$str_product="
+			select 
+data.ID,data.trx_id,data.spaj_code,data.no_polis,data.product_code,
+concat('(',(@row_number:=@row_number + 1),') ',data.nama_pp) as nama_pp,
+data.effective_dt,
+data.last_change_dt,
+data.status_qc,
+data.status_spaj 
+from (
+SELECT s.ID,trx_id,s.spaj_code,ifnull(no_polis,'') as no_polis,product_code,
+			nama_pp,
+			effective_dt,DATE_FORMAT(last_change_dt,'%d %M %Y %H:%i %p') as last_change_dt,status_qc,
+concat(case when ifnull(s.no_polis_reff,'')='' then 'New' else 'Exisisting' end,' | ',(select reason from tbl_spaj_history where ID=s.ID and status_type_nmbr not in('220','400') order by status_dt desc  limit 1)) as status_spaj,s.last_change_dt as last_change_dt_ori
+						FROM tbl_spaj s
+						left join tbl_spaj_history sh on sh.spaj_code=s.spaj_code and sh.status_type_nmbr='410'
+						WHERE sh.spaj_code is null ".($agen_code=="PFA009" ? "":" and (s.agen_code=? or s.pfa_code=?) ")." ".($date!="" ? " and cast(s.last_change_dt as date)='".$date."'":"")."
+
+) as data
+where 
+(data.status_spaj like'%take out%' or data.status_spaj like'%unclean%'  or data.status_spaj like'%pending%') 
+and (data.status_spaj not like'%Reply%' and data.status_spaj not like'%Submit Dokumen%')
+order by data.effective_dt desc,data.last_change_dt_ori desc
+";
+*/
+$str_product="select 
+data.ID,data.trx_id,data.spaj_code,data.no_polis,data.product_code,
+concat('(',(@row_number:=@row_number + 1),') ',data.nama_pp) as nama_pp,
+data.effective_dt,
+data.last_change_dt,
+data.status_qc,
+data.status_spaj 
+from (
+select 
+s.ID,s.trx_id,s.spaj_code,ifnull(s.no_polis,'') as no_polis,s.product_code,
+			nama_pp,
+			effective_dt,DATE_FORMAT(last_change_dt,'%d %M %Y %H:%i %p') as last_change_dt,status_qc,
+concat(case when ifnull(s.no_polis_reff,'')='' then 'New' else 'Exisisting' end,' | ',h.reason) as status_spaj,
+ s.last_change_dt as last_change_dt_ori
+from tbl_spaj_history h
+join tbl_spaj s on s.spaj_code=h.spaj_code
+where 1=1 
+".($agen_code=="PFA009" ? "":" and (s.agen_code=? or s.pfa_code=?) ")." ".($date!="" ? " and cast(s.last_change_dt as date)='".$date."'":"")."
+and (h.reason like'%take out%' or h.reason like'%unclean%'  or h.reason like'%pending%') 
+and (h.reason not like'%Reply%' and h.reason not like'%Submit Dokumen%')
+and s.inforce_dt is null
+and s.spaj_code not like'%DEL%') as data";
+			if($agen_code=="PFA009"){
+				$query=$this->db->query($str_product);
+			}else{
+				$query=$this->db->query($str_product,array($agen_code,$agen_code));
+			}
+
+			$rows=$query->result_array();
+			$count_row=count($rows);
+			if($count_row>0){
+				$message=array('error'=>0,'message'=>'success','data'=>$rows,'agen_code'=>$agen_code,'count'=>$count_row);
+			}else{
+				//$message=array('error'=>1,'message'=>'Failed');
+				$message=array('error'=>0,'message'=>'success','data'=>array(),'agen_code'=>$agen_code,'count'=>0);
+			}
+		}
+		echo json_encode($message);
+	}
+	
+	public function spaj_surrender_pro(){
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		
+		$agen_code=isset($data["agen_code"]) ? $data["agen_code"]:"";
+		$no_spaj=isset($data["no_spaj"]) ? $data["no_spaj"]:"";
+		$paid_date=isset($data["paid_date"]) ? $data["paid_date"]:"";
+		$paid_date=$this->fix_human_date($paid_date);
+		
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		if($agen_code!=""){
+			$this->load->database();
+			$query=$this->db->query("call usp_spaj_surrender_confirmation_i(?,?,?,?)",array($no_spaj,$paid_date,$agen_code,'Cair'));
+			if($query){
+				$message=array('error'=>0,'message'=>'success');
+			}else{
+				//$message=array('error'=>1,'message'=>'Failed');
+				$message=array('error'=>1,'message'=>'failed');
+			}
+		}
+		echo json_encode($message);
+	
+	}
+	public function spaj_surrender(){
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		
+		$agen_code=isset($data["agen_code"]) ? $data["agen_code"]:"";
+		$limit=isset($data["limit"]) ? $data["limit"]:"";
+		$start_date=isset($data["start_date"]) ? $data["start_date"]:"";
+		$end_date=isset($data["end_date"]) ? $data["end_date"]:"";
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		if($agen_code!=""){
+			$this->load->database();
+			
+			$this->db->query("SET @row_number:=0;");
+			$str_product="
+SELECT 
+		
+		b.ID as ID,
+		p.policy_no as NO_POLIS,
+		b.spaj_code as NO_SPAJ,
+		concat('(',(@row_number:=@row_number + 1),') ',b.policy_holder_name) as NAMA_PEMPOL,
+		b.product_name as NAMA_PRODUK,
+		b.currency as KD_VALUTA,
+		r.periode_pencairan as PERIODE_CAIR,
+		DATE_FORMAT(r.periode_tgl_awal,'%d/%m/%Y') as TGL_MULAI_ASURANSI,	
+		DATE_FORMAT(ss.polis_print_dt,'%d/%m/%Y') as TGL_CETAK_POLIS,
+		DATE_FORMAT(h.start_date,'%d/%m/%Y') as TGL_MTI_AWAL,
+		DATE_FORMAT(h.end_date,'%d/%m/%Y') as TGL_MTI_AKHIR,
+DATE_FORMAT(h.end_date,'%d/%m/%Y') as TGL_JATUH_TEMPO,
+DATE_FORMAT(r.periode_tgl_akhir,'%d/%m/%Y') as TGL_JATUH_TEMPO_AKHIR_PERIOD,	
+replace(pp.rate_polis,'.',',') as RATE_BUNGA_SESUAI_POLIS,	
+replace(cast((pp.rate_polis-r.rate_bunga) as decimal(4,2)),'.',',') as PINALTI_SURR,
+		DATE_FORMAT(h.paid_date,'%d/%m/%Y') as TGL_BAYAR,
+case when h.period=12 then 
+concat('MATURITY-KLAIM BUNGA INVESTASI (',h.period,'/',r.periode_pencairan,')')
+when b.product_name in('Asuransi Capital Proteksi Link (3/6 bulan)') and h.period=r.periode_pencairan then 
+concat('MATURITY-KLAIM BUNGA INVESTASI (',h.period,'/',r.periode_pencairan,')')
+when h.period=r.periode_pencairan then 
+concat('SURRENDER-KLAIM BUNGA INVESTASI (',h.period,'/',r.periode_pencairan,')') 
+else 
+concat('KLAIM BUNGA INVESTASI (',h.period,'/',r.periode_pencairan,')')
+end as JENIS_TRANSAKSI,
+		replace(r.rate_bunga,'.',',') as RATE_BUNGA,
+		replace(r.premi,'.',',') as PREMI,
+		replace(h.mti_amount+h.adjust_mti_amount,'.',',') as BUNGA_MTI,
+		replace((h.total_paid_amount),'.',',') as TOTAL_BAYAR,
+		r.jumlah_hari_setahun as JML_HARI_SETAHUN,
+		(h.day_count+coalesce(h.adjust_day_count,0)) as JML_HARI_MTI,
+		(r.jumlah_hari_mti+coalesce(h.adjust_day_count,0)) as JML_HARI_MTI_SAMPAI_AKHIR_PERIOD,
+		b.agen_reff_code as KD_AGEN_REFF,
+		b.agen_reff_name as NAMA_AGEN_REFF,
+		b.branch_reff_code as KD_CABANG,
+		b.branch_reff_name as NAMA_CABANG,
+		b.agen_level as AGEN_REFF_LEVEL,
+		b.cluster_code as NAMA_CLUSTER,
+		b.pfa as PIC_CLI,
+		b.bbc_code as KD_BBC,
+		b.bbc_name as NAMA_BBC,
+		b.bm_code as KD_BM,
+		b.bm_name as NAMA_BM,
+		b.bbh_code as KD_BBH,
+		b.bbh_name as NAMA_BBH,
+		datediff(NOW(),h.end_date) as AGING,
+		pp.NAMA_BANK,	
+concat('`',pp.NOMOR_REKENING) NOMOR_REKENING,
+pp.PEMILIK_REKENING,	
+pp.BANK_CABANG,
+DATE_FORMAT(ms.status_dt,'%d/%m/%Y') as TGL_UPLOAD_FORM_SURRENDER,
+DATE_FORMAT(pfa.create_date,'%d/%m/%Y') as TGL_MS_CONFIRM_FORM_SURRENDER,
+coalesce(concat(ee.remarks,', tgl konfirmasi :',DATE_FORMAT(ee.create_dt,'%d/%m/%Y')),'') as KOFIRMASI_SURRENDER
+		FROM `tbl_spaj_book` b
+		join tbl_spaj_book_reference r on b.ID=r.book_id and trim(r.spaj_code)=trim(b.spaj_code)
+		join tbl_spaj_book_reference_hst h on b.ID=h.book_id and r.book_id=h.book_id
+                left join tbl_spaj_pending p on trim(p.span_no)=trim(r.spaj_code) and trim(p.span_no)=trim(b.spaj_code) and h.spaj_code=p.span_no and p.source_id='100'
+left join tbl_policy_promo pp on pp.spaj_code=b.spaj_code and pp.spaj_code=h.spaj_code and cast(pp.periode_tgl_awal as date)=cast(r.periode_tgl_awal as date)
+left join tbl_spaj ss on ss.spaj_code=b.spaj_code and ss.spaj_code=r.spaj_code and ss.spaj_code=h.spaj_code and trim(p.span_no)=ss.spaj_code
+left join (select spaj_code,max(status_dt) as status_dt from tbl_spaj_history where status_type_nmbr='600' group by spaj_code) ms on ms.spaj_code=b.spaj_code and ms.spaj_code=r.spaj_code and ms.spaj_code=h.spaj_code and ms.spaj_code=p.span_no		
+left join (select spaj_code,max(create_date) as create_date from tbl_spaj_doc where doc_type_nmbr='D043' group by spaj_code) pfa on pfa.spaj_code=b.spaj_code and pfa.spaj_code=r.spaj_code and pfa.spaj_code=h.spaj_code and pfa.spaj_code=p.span_no		
+left join tbl_spaj_surrender_confirmation ee on ee.spaj_code=h.spaj_code and ee.paid_date=h.paid_date
+		WHERE trim(b.`product_name`) in(
+            'CAPITAL PROTEKSI PLUS (IDR) (1/12b bulan)',
+            'CAPITAL PROTEKSI PLUS (IDR) (3/12 bulan)',
+            'CAPITAL PROTEKSI PLUS (USD) (3/12 bulan)',
+            'Asuransi Capital Proteksi Link (3/6 bulan)'
+            )
+		and b.reverse_date is null and b.issued_date is not null
+		and b.cluster_code in(
+SELECT cluster
+FROM `tbl_bank_data_ms`
+WHERE `PIC_CLI` LIKE concat('%',(select pfa_desc from tbl_pfa where pfa_code='".$agen_code."' limit 1),'%')
+group by cluster
+)
+	and cast(h.paid_date as date) between ? and ?
+";
+			$query=$this->db->query($str_product,array($start_date,$end_date));
+
+			$rows=$query->result_array();
+			$count_row=count($rows);
+			if($count_row>0){
+				$message=array('error'=>0,'message'=>'success','data'=>$rows,'agen_code'=>$agen_code,'count'=>$count_row);
+			}else{
+				//$message=array('error'=>1,'message'=>'Failed');
+				$message=array('error'=>0,'message'=>'success','data'=>array(),'agen_code'=>$agen_code,'count'=>0);
+			}
+		}
+		echo json_encode($message);
+	}
+	
+	public function spaj(){
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		$agen_code=isset($data["agen_code"]) ? $data["agen_code"]:"";
+		$limit=isset($data["limit"]) ? $data["limit"]:"";
+		$date=isset($data["date"]) ? $data["date"]:"";
+		$policy_no=isset($data["policy_no"]) ? $data["policy_no"]:"";
+		$fullname=isset($data["fullname"]) ? $data["fullname"]:"";
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		$wh_agen="";
+		
+		/*if($agen_code!="PFA009"){
+			$limit=($date!="" ? "150":"50");
+		}*/
+		$limit=($date!="" ? "150":"50");
+		
+		if($agen_code!=""){
+			if($agen_code!="PFA009"){
+				$wh_agen=" AND (s.agen_code='$agen_code' or s.pfa_code='$agen_code') ";
+			}
+			
+			$this->load->database();
+			//SET @row_number = 0;
+			//concat('(',(@row_number:=@row_number + 1),') ',nama_pp) as nama_pp,
+			$this->db->query("SET @row_number:=0;");
+			$str_product="
+			SELECT  ID,trx_id,spaj_code,ifnull(no_polis,'') as no_polis,product_code,
+			concat('(',(@row_number:=@row_number + 1),') ',nama_pp) as nama_pp,
+			effective_dt,DATE_FORMAT(last_change_dt,'%d %M %Y %H:%i %p') as last_change_dt,status_qc,
+/*
+concat(case when ifnull(s.no_polis_reff,'')='' then 'New' else 'Exisisting' end,' | ',(select reason from tbl_spaj_history where ID=s.ID order by status_dt desc  limit 1)) as status_spaj,s.no_polis */
+
+concat(case when ifnull(s.no_polis_reff,'')='' then 'New' else 'Existing' end,' | ','') as status_spaj,s.no_polis
+						FROM tbl_spaj s
+						WHERE 1=1  ".$wh_agen."
+						".($date!="" ? " and cast(s.last_change_dt as date)='".$date."'":"")." 
+						
+						".($policy_no!="" ? " and (s.spaj_code='".$policy_no."' or s.no_polis='".$policy_no."')":"")." 
+						".(($fullname!="" and strlen($fullname)>=4) ? " and ( s.nama_pp like'%".$fullname."%' )":"")." 
+						
+						ORDER BY s.last_change_dt DESC ".($limit=="" ? "":"limit ".$limit).";";
+						//".($policy_no!="" ? " and (s.spaj_code='".$policy_no."' or s.no_polis='".$policy_no."')":"")." 
+						
+			$query=$this->db->query($str_product,array($agen_code,$agen_code));
+			$rows=$query->result_array();
+			
+			
+			
+			if(count($rows)>0){
+				$message=array('error'=>0,'message'=>'success','data'=>$rows);
+			}else{
+				$message=array('error'=>1,'message'=>'Failed');
+			}
+		}
+		echo json_encode($message);
+	}
+	
+	public function spajpr(){
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		$agen_code=isset($data["agen_code"]) ? $data["agen_code"]:"";
+		$limit=isset($data["limit"]) ? $data["limit"]:"";
+		$fullname=isset($data["fullname"]) ? $data["fullname"]:"";
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		$wh_agen="";
+		
+		if($agen_code!=""){
+			$this->load->database();
+			$this->db->query("SET @row_number:=0;");
+			$str_product="
+			select 
+(@row_number:=@row_number + 1) as No,ticket_id,a.agen_name,d.agen_code_request,d.spaj_code,d.client_name,d.client_insured_name,d.product_name,d.create_date,
+concat(fnAmountIndo(d.premium),' (',d.product_name,' (',d.invesment_period,'))') as premium,fnDateIndo(d.tanggal_masuk) as tanggal_masuk,
+d.product_name as ori_product,
+d.invesment_period as ori_period,
+#replace(fnAmountIndo(d.premium),',','') as ori_premi,
+replace(replace(replace(fnAmountIndo(d.premium),'.','|'),',','.'),'|',',') as ori_premi,
+cast(d.tanggal_masuk as date) as ori_tgl_masuk,
+(select group_concat(concat(dx.doc_path,'|',t.doc_name))
+from tbl_agen_pengajuan_bisnis_doc dx
+join tbl_agen_pengajuan_bisnis_doc_type t on t.doc_type=dx.doc_type
+where dx.ticket_id=d.ticket_id) as document_name,
+ifnull((select KODE_CAB from tbl_bank_data_ms where KODE_RM=d.agen_code_request limit 1),'') as branch_code,
+ifnull(d.no_slip,'-') as no_slip,
+case when coalesce(d.dob_ctu,'1900-01-01')='1900-01-01' then '-' else fnDateIndo(d.dob_ctu) end as dob_ctu_indo,
+cast(d.dob_ctu as date) as dob_ctu_ori,
+ifnull(d.jenis_nasabah,'-') as jenis_nasabah,
+ifnull(d.konfirmasi_pakai_data_cli,'-') as konfirmasi_pakai_data_cli,
+ifnull(d.alasan_pengajuan,'-') as alasan_pengajuan,
+(select concat('Cab: ',NAMA_CABANG,'<br>BBC: ',CLUSTER) from tbl_bank_data_ms where KODE_RM=d.agen_code_request limit 1) as cabang
+from tbl_agen_pengajuan_bisnis d 
+left join tbl_spaj s on s.spaj_code=d.spaj_code
+join tbl_agen a on a.agen_code=d.agen_code_request
+where coalesce(d.is_submited,0)=1 and agen_code_request in(select KODE_RM from tbl_bank_data_ms where pfa_desc='$agen_code')
+and s.spaj_code is null
+and coalesce(d.reject_status,0)=0
+order by d.tanggal_masuk,d.create_date asc";
+						
+						
+			$query=$this->db->query($str_product,array($agen_code,$agen_code));
+			$rows=$query->result_array();
+			
+			
+			
+			if(count($rows)>0){
+				$message=array('error'=>0,'message'=>'success','data'=>$rows);
+			}else{
+				$message=array('error'=>1,'message'=>'Failed');
+			}
+		}
+		echo json_encode($message);
+	}
+	
+	public function spajpr_doc(){
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		$agen_code=isset($data["agen_code"]) ? $data["agen_code"]:"";
+		$no_ticket=isset($data["no_ticket"]) ? $data["no_ticket"]:"";
+		
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		$wh_agen="";
+		
+		if($agen_code!=""){
+			$this->load->database();
+			$str_product="
+			select 
+			dx.doc_path,
+			t.doc_name,
+			dx.doc_type
+			from tbl_agen_pengajuan_bisnis d 
+			left join tbl_spaj s on s.spaj_code=d.spaj_code
+			join tbl_agen a on a.agen_code=d.agen_code_request
+			join tbl_agen_pengajuan_bisnis_doc dx on dx.ticket_id=d.ticket_id
+			join tbl_agen_pengajuan_bisnis_doc_type t on t.doc_type=dx.doc_type
+			where coalesce(d.is_submited,0)=1 and d.ticket_id='".$no_ticket."'
+			order by t.sort_order asc";
+						
+						
+			$query=$this->db->query($str_product);
+			$rows=$query->result_array();
+			
+			
+			
+			if(count($rows)>0){
+				$message=array('error'=>0,'message'=>'success','data'=>$rows);
+			}else{
+				$message=array('error'=>1,'message'=>'Failed');
+			}
+		}
+		echo json_encode($message);
+	}
+	
+	public function spaj_detail(){
+		error_reporting(0);
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		$product_code="";
+		$trx_idx="";
+		$spaj_id="";
+		$spaj_code="";
+		if($_SERVER['REQUEST_METHOD']!=="POST"){
+			$message=array('error'=>1,'message'=>'Invalid Request Method');
+		}else{
+			$cases=$this->input->post("data",true);
+			$cases=base64_decode($cases);
+			$cases=json_decode($cases,true);
+			$agen_code=isset($cases['agen_code']) ? $cases['agen_code']:"";
+			$id=isset($cases['id']) ? $cases['id']:"";
+			$trx_id="";
+			try{
+				$this->load->database();
+				
+				$str_product="SELECT
+				e.spaj_code as spaj_code_exclude,
+				h.status_type_nmbr,
+				#'' as status_type_nmbr,
+				s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,concat(a.intermediary_name,' Cabang : ',cab.NAMA_CABANG,' - ',a.cluster) as nama_referal,concat(f.nama_agen,' (',f.kode_agen,')') as nama_agen_penutup,s.product_code
+							FROM tbl_spaj s
+left join (
+(select 
+		kode_bbc as intermediary_code, 
+		concat(nama_bbc,' (',kode_bbc,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bbc' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bbc,nama_bbc)
+union		
+(select 
+		kode_bm as intermediary_code, 
+		concat(nama_bm,' (',kode_bm,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bm' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bm,nama_bm)
+union		
+(select 
+		kode_rm as intermediary_code, 
+		concat(nama_rm,' (',kode_rm,')') as intermediary_name,pic_cli,cluster,LEVEL_AGEN as level,KODE_CAB,NAMA_CABANG
+		from tbl_bank_data_ms)) a on a.intermediary_code=s.agen_code 
+join tbl_pfa f on f.pfa_code=s.pfa_code
+left join tbl_spaj_edit_exclude e on e.spaj_code=s.spaj_code and now() between e.start_date and e.end_date
+left join (select KODE_CAB,NAMA_CABANG from tbl_bank_data_ms group by KODE_CAB,NAMA_CABANG) cab on cab.KODE_CAB=s.branch_code
+
+left join (select h.spaj_code,h.status_type_nmbr,h.reason from tbl_spaj_history h
+join (
+select spaj_code,max(status_dt) as status_dt 
+from tbl_spaj_history  where status_type_nmbr not in('201','202','203','220','400','410','420','430')
+group by spaj_code) a on h.spaj_code=a.spaj_code and a.status_dt=h.status_dt) h on s.spaj_code=h.spaj_code
+
+							WHERE s.ID=?";
+				$query=$this->db->query($str_product,array($id));
+				$rows=$query->row_array();
+				$product_code=$rows['product_code'];
+				$trx_idx=$rows['trx_id'];
+				$spaj_id=$rows['ID'];
+				$spaj_code=$rows['spaj_code'];
+				$trx_id=$rows['docdir']."/".$rows['trx_id'];
+
+
+				
+				
+				$str_status="select ID,status_type_nmbr,spaj_code,reason,DATE_FORMAT(l.status_dt,'%d %M %Y %H:%i %p') as status_dt from tbl_spaj_history l where ID=? order by l.status_dt desc";
+				$query_status=$this->db->query($str_status,array($id));
+				$rows_status=$query_status->result_array();
+				
+				$str_doclist="
+				select t.doc_type_desc,d.path from tbl_spaj s
+				join tbl_spaj_doc d on d.spaj_code=s.spaj_code
+				join tbl_doc_type t on d.doc_type_nmbr=t.doc_type_nmbr
+				where s.ID=?
+				";
+				$query_doclist=$this->db->query($str_doclist,array($id));
+				$rows_doclist=$query_doclist->result_array();
+				
+				
+				$str_doclist_pr="
+				select t.doc_name,d.doc_path,coalesce(b.no_slip,s.payment_remarks) as no_slip from tbl_spaj s
+				left join tbl_agen_pengajuan_bisnis b on b.spaj_code=s.spaj_code
+				left join tbl_agen_pengajuan_bisnis_doc d on d.ticket_id=b.ticket_id
+				left join tbl_agen_pengajuan_bisnis_doc_type t on t.doc_type=d.doc_type
+				where s.ID=?
+				order by d.create_date asc
+				";
+				$query_doclist_pr=$this->db->query($str_doclist_pr,array($id));
+				$rows_doclist_pr=$query_doclist_pr->result_array();
+				
+				
+
+				//get jt promo
+				$query_jt_promo=$this->db->query("select date_format(surrender_date,'%d/%m/%Y') as surrender_date from tbl_spaj_book_reference 
+				where spaj_code='".$spaj_code."'");
+				$rowsjt=$query_jt_promo->row_array();
+				$rowsjt['surrender_date']=(isset($rowsjt['surrender_date']) ? $rowsjt['surrender_date']:"");
+				
+				
+			}catch(Exception $er){
+				
+			}
+			
+			
+			$doc=$this->doclist($trx_id);
+			$ahliwaris=json_decode($this->other_doc($trx_id,"AHLI"),true);
+			$alamat=json_decode($this->other_doc($trx_id,"ALAMAT"),true);
+			$rekening=json_decode($this->other_doc($trx_id,"REKENING"),true);
+			$data_pengajuan=json_decode($this->other_doc($trx_id,"DATA"),true);
+			
+			$str_data_pengajuan="";
+			if(count($data_pengajuan)>0){
+				foreach($data_pengajuan as $rdata){
+					$str_data_pengajuan.='<li class="item-content">
+										<div class="item-inner">
+										  <div class="item-title-row">
+											<div class="item-title">'.ucwords(str_replace("_"," ",strtolower($this->column_name($rdata['name'])))).'</div>
+										  </div>
+										  <div class="item-text">'.$rdata['value'].'</div>
+										</div>
+									</li>';
+				}
+				
+				
+				
+
+			}
+			
+			$str_alamat="";
+			if(count($alamat)>0){
+			foreach($alamat as $rkey=>$rvalue){
+				$str_alamat.='<li class="item-content">
+									<div class="item-inner">
+									  <div class="item-title-row">
+										<div class="item-title">'.str_replace("_"," ",strtoupper($rkey)).'</div>
+									  </div>
+									  <div class="item-text">'.$rvalue.'</div>
+									</div>
+								</li>';
+			}
+			}
+			
+			$str_ahliwaris="";
+			
+			if(count($ahliwaris)>0){
+				$aa_i=0;
+				foreach($ahliwaris as $subahliwaris){
+					$aa_i++;
+					$str_ahliwaris.='<li><strong>Data Ahli Waris '.$aa_i.'</strong></li>';
+					foreach($subahliwaris as $aakey=>$aavalue){
+						$str_ahliwaris.='<li class="item-content">
+											<div class="item-inner">
+											  <div class="item-title-row">
+												<div class="item-title">'.str_replace("_"," ",strtoupper($aakey)).'</div>
+											  </div>
+											  <div class="item-text">'.$aavalue.'</div>
+											</div>
+										</li>';
+							
+					}
+				}
+			}
+			
+			$str_rekening="";
+			if(count($rekening)>0){
+			foreach($rekening as $rrkey=>$rrvalue){
+				$str_rekening.='<li class="item-content">
+									<div class="item-inner">
+									  <div class="item-title-row">
+										<div class="item-title">'.str_replace("_"," ",strtoupper($rrkey)).'</div>
+									  </div>
+									  <div class="item-text">'.$rrvalue.'</div>
+									</div>
+								</li>';
+			}
+			}
+			
+			$json=realpath(".")."/submission/".$trx_id."/".$doc['SPAJ'];
+			//echo $json;
+			//exit;
+			$json=file_get_contents($json);
+			$json=json_decode($json,true);
+			
+			$str_detail='';
+			$str_detail.='<li>
+						  <a href="#" class="item-link item-content">
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">ID</div>
+								'.$rows['trx_id'].'
+							  </div>
+							</div>
+						  </a>
+						</li>';
+			
+			$str_detail.='<li>
+						  <a href="#" class="item-link item-content">
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">No SPAJ</div>
+								'.$rows['spaj_code'].'
+							  </div>
+							</div>
+						  </a>
+						</li>';
+			
+			$str_detail.='<li>
+						  <a href="#" class="item-link item-content">
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">No Polis</div>
+								'.$rows['no_polis'].'
+							  </div>
+							</div>
+						  </a>
+						</li>';			
+			foreach($json as $key=>$value){
+				if(!in_array($key,array(
+				'cpp_promo',
+				'j_cpp_promo_periode_result',
+				'j_cpp_promo_masa_asu',
+				'j_cpp_promo_akhir_asu',
+				'j_cpp_promo_mti_hari',
+				'j_cpp_promo_mti_pa',
+				'j_cpp_promo_mti_nilai',
+				'j_cpp_promo_total_cair',
+				))){
+					if($key!="data_tabel" && $key!="cpp_no_spaj" && $key!="No_SPAJ"){
+						$str_detail.='<li>
+							  <a href="#" class="item-link item-content">
+								<div class="item-inner">
+								  <div class="item-title">
+									<div class="item-header">'.$this->column_name($key).'</div>
+									'.$value.'
+								  </div>
+								</div>
+							  </a>
+							</li>';
+					}
+				}
+			}
+			
+			//$rows
+			if($rowsjt['surrender_date']!=""){
+			$str_detail.='<li>
+						  <a href="#" class="item-link item-content">
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">Tgl. Jatuh Tempo Program Relaksasi</div>
+								'.$rowsjt['surrender_date'].'
+							  </div>
+							</div>
+						  </a>
+						</li>';
+			}	
+			$str_detail.='<li>
+						  <a href="#" class="item-link item-content">
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">Pemberi Referensi</div>
+								'.$rows['nama_referal'].'
+							  </div>
+							</div>
+						  </a>
+						</li>';	
+			$str_detail.='<li>
+						  <a href="#" class="item-link item-content">
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">Agen Penutup</div>
+								'.$rows['nama_agen_penutup'].'
+							  </div>
+							</div>
+						  </a>
+						</li>';				
+			$str_detail.='<li>
+						  <a href="#" class="item-link item-content">
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">Nomor Slip (PB)</div>
+								'.(isset($rows_doclist_pr[0]['no_slip']) ? $rows_doclist_pr[0]['no_slip']:"-").'
+							  </div>
+							</div>
+						  </a>
+						</li>';			
+						
+			
+			$str_doc="";
+			$docurl="submission/".$trx_id;
+			if($rows['product_code']!="CPL3"){
+			$str_doc.='<li>
+					  <a href="#" onclick="downloadDOCSIL(\''.$docurl.'\',\''.$this->config->item('api_outgoing_url').'/poolout/report/'.($rows['product_code']=="CPP" ? "report.php":"reportcpl.php").'?q='.$docurl.'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">ILUSTRASI</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+			}
+			$str_doc.='<li>
+					  <a href="#" onclick="downloadDOCSIL(\''.$docurl.'\',\''.$this->config->item('api_outgoing_url').'/index.php/espajcpp/cpp?id='.base64_encode($id).'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">E-SPAJ-OLD</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+			$str_doc.='<li>
+					  <a href="#" onclick="downloadDOCSIL(\''.$docurl.'\',\''.$this->config->item('api_outgoing_url').'/index.php/espajcppnew/cppnew?id='.base64_encode($id).'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">E-SPAJ-NEW</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';	
+			$str_doc.='<li>
+					  <a href="#" onclick="downloadDOCSIL(\''.$docurl.'\',\''.$this->config->item('api_outgoing_url').'/index.php/espajcppnew/kyc_live?id='.base64_encode($id).'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">E-KYC</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';			
+			$str_doc.='<li>
+					  <a href="#" data-popup=".popup-ahliwaris" class="item-link item-content popup-open">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">AHLI WARIS</div>
+						  </div>
+						  <div class="item-after">Lihat</div>
+						</div>
+					  </a>
+					</li>';
+			$str_doc.='<li>
+					  <a href="#" data-popup=".popup-data_pengajuan" class="item-link item-content popup-open">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">DATA PENGAJUAN</div>
+						  </div>
+						  <div class="item-after">Lihat</div>
+						</div>
+					  </a>
+					</li>';		
+			/*		
+			$str_doc.='<li>
+					  <a href="#" data-popup=".popup-rekening" class="item-link item-content popup-open">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">REKENING</div>
+						  </div>
+						  <div class="item-after">Lihat</div>
+						</div>
+					  </a>
+					</li>';	
+			
+			$str_doc.='<li>
+					  <a href="#" data-popup=".popup-alamat" class="item-link item-content popup-open">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">Alamat Pengiriman Polis</div>
+						  </div>
+						  <div class="item-after">Lihat</div>
+						</div>
+					  </a>
+					</li>';		
+			*/			
+			foreach($doc as $key=>$value){
+				
+				if($key!="SPAJ" && $key!="AHLI" && $key!="ALAMAT" && $key!="REKENING" && $key!="DATA"){
+				 if($key=="IDENTITAS1"){
+					$str_doc.='<li>
+					  <a href="#" onclick="downloadDOC(\''.$value.'\',\''.$this->config->item('api_outgoing_url').'/poolout/report/docout.php?q='.$docurl.'&f='.$value.'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">PEMPOL : IDENTITAS1</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+				 }else if($key=="IDENTITAS2"){
+					 $str_doc.='<li>
+					  <a href="#" onclick="downloadDOC(\''.$value.'\',\''.$this->config->item('api_outgoing_url').'/poolout/report/docout.php?q='.$docurl.'&f='.$value.'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">PEMPOL : IDENTITAS2</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+				}else if($key=="IDENTITAS3"){
+					 $str_doc.='<li>
+					  <a href="#" onclick="downloadDOC(\''.$value.'\',\''.$this->config->item('api_outgoing_url').'/poolout/report/docout.php?q='.$docurl.'&f='.$value.'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">TERTANGGUNG : IDENTITAS1</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+				}else if($key=="IDENTITAS4"){
+					 $str_doc.='<li>
+					  <a href="#" onclick="downloadDOC(\''.$value.'\',\''.$this->config->item('api_outgoing_url').'/poolout/report/docout.php?q='.$docurl.'&f='.$value.'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">TERTANGGUNG : IDENTITAS2</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+				 }else{
+					 	//show only string
+					 	if(!preg_match('/\d/i', $key)){			
+								 $str_doc.='<li>
+									  <a href="#" onclick="downloadDOC(\''.$value.'\',\''.$this->config->item('api_outgoing_url').'/poolout/report/docout.php?q='.$docurl.'&f='.$value.'\')" class="item-link item-content">
+										<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+										<div class="item-inner">
+										  <div class="item-title">
+											<div class="item-header">'.$key.'</div>
+										  </div>
+										  <div class="item-after">Unduh</div>
+										</div>
+									  </a>
+									</li>';
+						}
+				 }
+				}
+			}
+			
+			foreach($rows_doclist as $rdlist){
+				$str_doc.='<li>
+					  <a href="#" onclick="downloadDOC(\''.$rdlist['doc_type_desc'].'\',\''.$this->config->item('api_outgoing_url').'/'.$rdlist['path'].'?'.time().'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">'.$rdlist['doc_type_desc'].'</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+			}
+			
+			$str_doc_pr="";
+			//$rows_doclist_pr
+			foreach($rows_doclist_pr as $rdlist_pr){
+				$str_doc_pr.='<li>
+					  <a href="#" onclick="downloadDOC(\''.$rdlist_pr['doc_name'].'\',\''.$this->config->item('api_outgoing_url').'/'.$rdlist_pr['doc_path'].'?'.time().'\')" class="item-link item-content">
+						<div class="item-media"><i class="f7-icons">document_text_fill</i></div>
+						<div class="item-inner">
+						  <div class="item-title">
+							<div class="item-header">'.$rdlist_pr['doc_name'].'</div>
+						  </div>
+						  <div class="item-after">Unduh</div>
+						</div>
+					  </a>
+					</li>';
+			}
+			
+			/*
+			$str_doc.='
+			<li class="list-group-title">Upload Dokumen</li>
+			<li>
+					  <div class="block">
+						  <p class="row">
+							<a href="/cli-sil-doc-revisi/" class="col button  button-big  button-fill color-blue"><i class="f7-icons">images</i> Pilih File</a>
+							<button class="col button  button-big  button-fill color-green" onclick="upload_revisi_document(\''.$trx_idx.'\',\''.$spaj_id.'\',\''.$trx_id.'\',\''.$spaj_code.'\')"><i class="f7-icons">cloud_upload</i> Upload</button>
+						  </p>
+						</div>  
+					</li>';
+			*/		
+			$str_doc.='
+			<li class="list-group-title">Upload Dokumen/Catatan</li>
+			
+			
+			<li>
+					  <div class="block">
+						  <p class="row">
+							<a href="/cli-sil-doc-revisi/" class="col button  button-big  button-fill color-blue"><i class="f7-icons">images</i> Pilih File</a>
+							<a href="#" data-popup=".popup-message-chat" class="col button  button-big  button-fill color-green popup-open"><i class="f7-icons">chat_bubble</i> Kirim Pesan</a>
+						  </p>
+						</div>  
+			</li>';
+			
+			if((int)$rows['status_type_nmbr']<210 or (int)$rows['status_type_nmbr']==212 or $rows['spaj_code_exclude']!=NULL){
+					$str_doc.='<li>
+							  <div class="block">
+								  <p class="row">
+									<a href="/'.($rows['product_code']=="CPP" ? 'cli-sil-cpprev':'cli-sil-cplrev').'/?s='.$spaj_code.'" class="col button  button-big  button-fill color-deeporange"><i class="f7-icons">edit</i> Revisi Ilustrasi</a>
+
+									<a href="/cli-sil-docrev/?s='.$spaj_code.'"  class="col button  button-big  button-fill color-orange"><i class="f7-icons">edit</i> Revisi Pengajuan</a>
+								  </p>
+								</div>  
+					</li>';
+			}
+					
+					/*
+					<li>
+					  <div class="block">
+						  <p class="row">
+							<a href="/cli-sil-doc-revisi/" class="col button  button-big  button-fill color-orange"><i class="f7-icons">compose</i> EDIT DATA PENGAJUAN</a>
+						  </p>
+						</div>  
+					</li>
+					*/
+			
+			$str_spaj_status='';
+			foreach($rows_status as $rs){
+				$str_spaj_status.='<li class="accordion-item">
+						  <a href="#" class="item-link item-content">
+							<div class="item-media"><i class="f7-icons">time</i></div>
+							<div class="item-inner">
+							  <div class="item-title">
+								<div class="item-header">Tgl. '.$rs['status_dt'].'</div>
+								<div class="item-text-wrap">'.$rs['reason'].'</div>
+							  </div>
+							</div>
+						  </a>
+						  <div class="accordion-item-content">
+							<div class="block">
+							  <p>
+								'.$rs['reason'].'
+							  </p>
+							</div>
+						  </div>
+						  
+						</li>';		
+			}
+			
+			$str='<div class="list">
+				  <div class="list-group">
+					<ul>
+					  <li class="list-group-title">Data Peserta Asuransi</li>
+					  '.$str_detail.'
+						
+						<li class="list-group-title">Dokumen by PFA</li>
+					  '.$str_doc.'
+						
+						<li class="list-group-title">Dokumen by PR</li>
+						'.$str_doc_pr.'
+						
+					  <li class="list-group-title">Status</li>
+					  '.$str_spaj_status.'
+						
+					  </ul>
+					  </div>
+					  </div>
+					  
+					  <div class="popup popup-ahliwaris" style="overflow:auto;">
+						<div class="navbar">
+						<div class="navbar-inner">
+						<div class="left"></div>
+						<div class="title">Ahli Waris</div>
+						<div class="right"><a href="#" class="link popup-close"><i class="f7-icons">close_round</i></a></div>
+						</div>
+						</div>
+						<div class="block" >
+						   
+						   <div class="list media-list">
+							  <ul>
+								'.$str_ahliwaris.'
+								</ul>
+							</div>	
+						   
+						   
+						</div>
+					  </div>
+					  
+					  
+					  
+					  <div class="popup popup-message-chat" style="overflow:auto;">
+						<div class="navbar">
+						<div class="navbar-inner">
+						<div class="left"></div>
+						<div class="title">Kirim Pesan</div>
+						<div class="right"><a href="#" class="link popup-close"><i class="f7-icons">close_round</i></a></div>
+						</div>
+						</div>
+						
+						
+						
+						<div class="block">
+						   <form >
+						  <div class="list">
+						  <ul>
+						   <li class="item-content item-input">
+							  <div class="item-inner">
+								<div class="item-title item-floating-label">Ketik Pesan anda...</div>
+								<div class="item-input-wrap">
+								  <input name="chat-message" id="chat-message" type="text"  placeholder="" required validate>
+								  <span class="input-clear-button"></span>
+								</div>
+							  </div>
+							</li>
+							<li>
+							<a  class="col button  button-big  button-fill color-green" href="#" onclick="send_message_chat('.$id.')">KIRIM</a>
+							</li>
+						   </ul>
+						   
+						 
+						   
+						   </div>
+						   </form>
+						   
+						</div>
+					  </div>
+					  
+					  <div class="popup popup-rekening" style="overflow:auto;">
+						<div class="navbar">
+						<div class="navbar-inner">
+						<div class="left"></div>
+						<div class="title">Rekening</div>
+						<div class="right"><a href="#" class="link popup-close"><i class="f7-icons">close_round</i></a></div>
+						</div>
+						</div>
+						<div class="block">
+						   
+						   <div class="list media-list">
+							  <ul>
+								'.$str_rekening.'
+								</ul>
+							</div>	
+						   
+						   
+						</div>
+					  </div>
+					  
+					  <div class="popup popup-alamat" style="overflow:auto;">
+						<div class="navbar">
+						<div class="navbar-inner">
+						<div class="left"></div>
+						<div class="title">Alamat Pengiriman Polis</div>
+						<div class="right"><a href="#" class="link popup-close"><i class="f7-icons">close_round</i></a></div>
+						</div>
+						</div>
+						<div class="block">
+						   
+						   <div class="list media-list">
+							  <ul>
+								'.$str_alamat.'
+								</ul>
+							</div>	
+						   
+						   
+						</div>
+					  </div>
+					  
+					  
+					  <div class="popup popup-data_pengajuan" style="overflow:auto;">
+						<div class="navbar">
+						<div class="navbar-inner">
+						<div class="left"></div>
+						<div class="title">Data Pengajuan</div>
+						<div class="right"><a href="#" class="link popup-close"><i class="f7-icons">close_round</i></a></div>
+						</div>
+						</div>
+						<div class="block">
+						   
+						   <div class="list media-list">
+							  <ul>
+								'.$str_data_pengajuan.'
+								</ul>
+							</div>	
+						   
+						   
+						</div>
+					  </div>
+					  ';
+					  
+			$tab_str='';		  
+			
+			$message=array('error'=>0,'product_name'=>$product_code,'trx_id'=>$trx_idx,'spaj_id'=>$spaj_id,'message'=>$str);
+		}
+		//$str_data_pengajuan
+		echo json_encode($message);
+	}
+	
+	public function data_doc_detail_pengajuan(){
+		$this->load->database();
+				
+				$id=$this->input->post("spaj_code");
+				
+				if($_SERVER['REQUEST_METHOD']!=="POST"){
+				 exit;
+				}
+				
+				$str_product="SELECT     s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,concat(a.intermediary_name,' Cabang : ',cab.NAMA_CABANG,' - ',a.cluster) as nama_referal,concat(f.nama_agen,' (',f.kode_agen,')') as nama_agen_penutup,s.product_code,
+				s.agen_code,cab.KODE_CAB,s.pfa_code,s.no_polis_reff,pb.ticket_id
+							FROM tbl_spaj s
+join (
+(select 
+		kode_bbc as intermediary_code, 
+		concat(nama_bbc,' (',kode_bbc,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bbc' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bbc,nama_bbc)
+union		
+(select 
+		kode_bm as intermediary_code, 
+		concat(nama_bm,' (',kode_bm,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bm' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bm,nama_bm)
+union		
+(select 
+		kode_rm as intermediary_code, 
+		concat(nama_rm,' (',kode_rm,')') as intermediary_name,pic_cli,cluster,LEVEL_AGEN as level,KODE_CAB,NAMA_CABANG
+		from tbl_bank_data_ms)) a on a.intermediary_code=s.agen_code 
+join tbl_pfa f on f.pfa_code=s.pfa_code
+left join (select KODE_CAB,NAMA_CABANG from tbl_bank_data_ms group by KODE_CAB,NAMA_CABANG) cab on cab.KODE_CAB=s.branch_code
+left join tbl_agen_pengajuan_bisnis pb on pb.spaj_code=s.spaj_code
+							WHERE s.spaj_code=?";
+				$query=$this->db->query($str_product,array($id));
+				$rows=$query->row_array();
+				$product_code=$rows['product_code'];
+				$trx_idx=$rows['trx_id'];
+				$spaj_id=$rows['ID'];
+				$spaj_code=$rows['spaj_code'];
+				$trx_id=$rows['docdir']."/".$rows['trx_id'];
+				$detail_spaj=$this->other_doc($trx_id,"SPAJ");
+				$json=json_decode($detail_spaj,true);
+				$pengajuan=$this->other_doc($trx_id,"DATA");
+				$ahliwaris=$this->other_doc($trx_id,"AHLI");
+				
+				$pengajuan = preg_replace("/[\r\n]+/", " ", $pengajuan);
+				$pengajuan = utf8_encode($pengajuan);
+
+				if($rows['product_code']=="CPL"){
+					$json['Program_Relaksasi']=isset($json['Program_Relaksasi']) ? $json['Program_Relaksasi']:"-";
+					
+					echo json_encode(array(
+					"no_spaj"=>$json['No_SPAJ'],
+					"nama_pp"=>$json['Nama_Pemegang_Polis'],
+					"nama_tt"=>$json['Nama_Tertanggung'],
+					"tgl_asu"=>$this->fix_doc_date($json['Tanggal_Mulai_Pertanggungan']),
+					"dbo"=>$this->fix_doc_date($json['Tanggal_Lahir']),
+					"premi"=>$this->fix_doc_premi($json['Premi']),
+					"periode"=>$this->fix_doc_mgi($json['Masa_Target_Investasi']),
+					"currency"=>$json['Mata_Uang'],
+					"promo_bunga"=>$json['Program_Relaksasi'],
+					"trx_id"=>$rows['trx_id'],
+					"filename_espaj"=>$this->doc_filename_arr['DATA'],
+					"filename_ahliwaris"=>$this->doc_filename_arr['AHLI'],
+					"docdir"=>$rows['docdir'],
+					"id"=>$rows['ID'],
+					"agen_code"=>$rows['agen_code'],
+					"KODE_CAB"=>$rows['KODE_CAB'],
+					"product_code"=>$rows['product_code'],
+					"pfa_code"=>$rows['pfa_code'],
+					"SPAJ"=>$detail_spaj,
+					"DATA"=>$pengajuan,
+					"AHLI"=>$ahliwaris,
+					"no_polis_reff"=>$rows['no_polis_reff'],
+					"ticket_id"=>$rows['ticket_id']
+					));
+				}else{
+					echo json_encode(array(
+					"no_spaj"=>$json['cpp_no_spaj'],
+					"nama_pp"=>$json['cpp_nama_pp'],
+					"nama_tt"=>$json['cpp_nama_tt'],
+					"tgl_asu"=>$this->fix_doc_date($json['cpp_tgl_asu']),
+					"dbo"=>$this->fix_doc_date($json['cpp_dbo']),
+					"premi"=>$this->fix_doc_premi($json['cpp_premi']),
+					"periode"=>$this->fix_doc_mgi($json['cpp_periode']),
+					"currency"=>$json['cpp_currency'],
+					"promo_bunga"=>$json['cpp_promo_bunga'],
+					"trx_id"=>$rows['trx_id'],
+					"filename_espaj"=>$this->doc_filename_arr['DATA'],
+					"filename_ahliwaris"=>$this->doc_filename_arr['AHLI'],
+					"docdir"=>$rows['docdir'],
+					"id"=>$rows['ID'],
+					"agen_code"=>$rows['agen_code'],
+					"KODE_CAB"=>$rows['KODE_CAB'],
+					"product_code"=>$rows['product_code'],
+					"pfa_code"=>$rows['pfa_code'],
+					"SPAJ"=>$detail_spaj,
+					"DATA"=>$pengajuan,
+					"AHLI"=>$ahliwaris,
+					"no_polis_reff"=>$rows['no_polis_reff'],
+					"ticket_id"=>$rows['ticket_id']
+					));
+
+				}
+
+	}
+	
+	
+	public function data_doc_detail_pengajuan_test(){
+		$this->load->database();
+				/*
+				$id=$this->input->post("spaj_code");
+				
+				if($_SERVER['REQUEST_METHOD']!=="POST"){
+				 exit;
+				}
+				*/
+				$id="PP11111174";
+				$str_product="SELECT     s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,concat(a.intermediary_name,' Cabang : ',cab.NAMA_CABANG,' - ',a.cluster) as nama_referal,concat(f.nama_agen,' (',f.kode_agen,')') as nama_agen_penutup,s.product_code,
+				s.agen_code,cab.KODE_CAB,s.pfa_code,s.no_polis_reff,pb.ticket_id
+							FROM tbl_spaj s
+join (
+(select 
+		kode_bbc as intermediary_code, 
+		concat(nama_bbc,' (',kode_bbc,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bbc' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bbc,nama_bbc)
+union		
+(select 
+		kode_bm as intermediary_code, 
+		concat(nama_bm,' (',kode_bm,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bm' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bm,nama_bm)
+union		
+(select 
+		kode_rm as intermediary_code, 
+		concat(nama_rm,' (',kode_rm,')') as intermediary_name,pic_cli,cluster,LEVEL_AGEN as level,KODE_CAB,NAMA_CABANG
+		from tbl_bank_data_ms)) a on a.intermediary_code=s.agen_code 
+join tbl_pfa f on f.pfa_code=s.pfa_code
+left join (select KODE_CAB,NAMA_CABANG from tbl_bank_data_ms group by KODE_CAB,NAMA_CABANG) cab on cab.KODE_CAB=s.branch_code
+left join tbl_agen_pengajuan_bisnis pb on pb.spaj_code=s.spaj_code
+							WHERE s.spaj_code=?";
+				$query=$this->db->query($str_product,array($id));
+				$rows=$query->row_array();
+				
+				
+				$product_code=$rows['product_code'];
+				$trx_idx=$rows['trx_id'];
+				$spaj_id=$rows['ID'];
+				$spaj_code=$rows['spaj_code'];
+				$trx_id=$rows['docdir']."/".$rows['trx_id'];
+				$detail_spaj=$this->other_doc($trx_id,"SPAJ");
+				$json=json_decode($detail_spaj,true);
+				
+				$ahliwaris=$this->other_doc($trx_id,"AHLI");
+				$pengajuan=$this->other_doc($trx_id,"DATA");
+				
+				$pengajuan = preg_replace("/[\r\n]+/", " ", $pengajuan);
+				$pengajuan = utf8_encode($pengajuan);
+
+				
+				if($rows['product_code']=="CPL"){
+					$json['Program_Relaksasi']=isset($json['Program_Relaksasi']) ? $json['Program_Relaksasi']:"-";
+					
+					echo json_encode(array(
+					"no_spaj"=>$json['No_SPAJ'],
+					"nama_pp"=>$json['Nama_Pemegang_Polis'],
+					"nama_tt"=>$json['Nama_Tertanggung'],
+					"tgl_asu"=>$this->fix_doc_date($json['Tanggal_Mulai_Pertanggungan']),
+					"dbo"=>$this->fix_doc_date($json['Tanggal_Lahir']),
+					"premi"=>$this->fix_doc_premi($json['Premi']),
+					"periode"=>$this->fix_doc_mgi($json['Masa_Target_Investasi']),
+					"currency"=>$json['Mata_Uang'],
+					"promo_bunga"=>$json['Program_Relaksasi'],
+					"trx_id"=>$rows['trx_id'],
+					"filename_espaj"=>$this->doc_filename_arr['DATA'],
+					"filename_ahliwaris"=>$this->doc_filename_arr['AHLI'],
+					"docdir"=>$rows['docdir'],
+					"id"=>$rows['ID'],
+					"agen_code"=>$rows['agen_code'],
+					"KODE_CAB"=>$rows['KODE_CAB'],
+					"product_code"=>$rows['product_code'],
+					"pfa_code"=>$rows['pfa_code'],
+					"SPAJ"=>$detail_spaj,
+					"DATA"=>$pengajuan,
+					"AHLI"=>$ahliwaris,
+					"no_polis_reff"=>$rows['no_polis_reff']
+					));
+				}else{
+					
+					
+					
+					echo json_encode(array(
+					"no_spaj"=>$json['cpp_no_spaj'],
+					"nama_pp"=>$json['cpp_nama_pp'],
+					"nama_tt"=>$json['cpp_nama_tt'],
+					"tgl_asu"=>$this->fix_doc_date($json['cpp_tgl_asu']),
+					"dbo"=>$this->fix_doc_date($json['cpp_dbo']),
+					"premi"=>$this->fix_doc_premi($json['cpp_premi']),
+					"periode"=>$this->fix_doc_mgi($json['cpp_periode']),
+					"currency"=>$json['cpp_currency'],
+					"promo_bunga"=>$json['cpp_promo_bunga'],
+					"trx_id"=>$rows['trx_id'],
+					"filename_espaj"=>$this->doc_filename_arr['DATA'],
+					"filename_ahliwaris"=>$this->doc_filename_arr['AHLI'],
+					"docdir"=>$rows['docdir'],
+					"id"=>$rows['ID'],
+					"agen_code"=>$rows['agen_code'],
+					"KODE_CAB"=>$rows['KODE_CAB'],
+					"product_code"=>$rows['product_code'],
+					"pfa_code"=>$rows['pfa_code'],
+					"SPAJ"=>$detail_spaj,
+					"DATA"=>$pengajuan,
+					"AHLI"=>$ahliwaris,
+					"no_polis_reff"=>$rows['no_polis_reff']
+					));
+
+				}
+
+	}
+
+	public function data_doc_ilustrasi(){
+				$this->load->database();
+				
+				$id=$this->input->post("spaj_code");
+				
+				if($_SERVER['REQUEST_METHOD']!=="POST"){
+				 exit;
+				}
+				
+				$str_product="SELECT     s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,concat(a.intermediary_name,' Cabang : ',cab.NAMA_CABANG,' - ',a.cluster) as nama_referal,concat(f.nama_agen,' (',f.kode_agen,')') as nama_agen_penutup,s.product_code,s.agen_code,s.pfa_code
+							FROM tbl_spaj s
+join (
+(select 
+		kode_bbc as intermediary_code, 
+		concat(nama_bbc,' (',kode_bbc,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bbc' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bbc,nama_bbc)
+union		
+(select 
+		kode_bm as intermediary_code, 
+		concat(nama_bm,' (',kode_bm,')') as intermediary_name,min(pic_cli) as pic_cli,min(cluster) as cluster,'bm' as level,min(KODE_CAB) as KODE_CAB,min(NAMA_CABANG) as NAMA_CABANG
+		from tbl_bank_data_ms group by kode_bm,nama_bm)
+union		
+(select 
+		kode_rm as intermediary_code, 
+		concat(nama_rm,' (',kode_rm,')') as intermediary_name,pic_cli,cluster,LEVEL_AGEN as level,KODE_CAB,NAMA_CABANG
+		from tbl_bank_data_ms)) a on a.intermediary_code=s.agen_code 
+join tbl_pfa f on f.pfa_code=s.pfa_code
+left join (select KODE_CAB,NAMA_CABANG from tbl_bank_data_ms group by KODE_CAB,NAMA_CABANG) cab on cab.KODE_CAB=s.branch_code
+							WHERE s.spaj_code=?";
+				$query=$this->db->query($str_product,array($id));
+				$rows=$query->row_array();
+				$product_code=$rows['product_code'];
+				$trx_idx=$rows['trx_id'];
+				$spaj_id=$rows['ID'];
+				$spaj_code=$rows['spaj_code'];
+				$trx_id=$rows['docdir']."/".$rows['trx_id'];
+				$json=json_decode($this->other_doc($trx_id,"SPAJ"),true);
+				//echo"<pre>";
+				//print_r($json);
+				/*
+				CPP
+				[cpp_no_spaj] => PP11235870
+				[cpp_nama_pp] => INDRA GUNAWAN
+				[cpp_nama_tt] => INDRA GUNAWAN
+				[cpp_tgl_asu] => 25 Oktober 2021
+				[cpp_dbo] => 2 Agustus 1962
+				[cpp_age] => 59 Tahun
+				[cpp_premi] => 250.000.000,00 IDR
+				[cpp_periode] => 12 Bulan
+				[cpp_currency] => IDR
+				[cpp_promo_bunga]
+				
+				CPL
+				[No_SPAJ] => PL04233150
+				[Nama_Pemegang_Polis] => YENNY HOO
+				[Nama_Tertanggung] => YENNY HOO
+				[Tanggal_Lahir] => 28 Desember 1961
+				[Usia_Tertanggung] => 60 Tahun
+				[Tanggal_Mulai_Pertanggungan] => 25 Oktober 2021
+				[Masa_Pertanggungan] => 10 (Sepuluh) Tahun
+				[Uang_Pertanggungan] => 25.000.000,00 IDR
+				[Premi] => 2.425.000.000,00 IDR
+				[Premi_Sekaligus] => 20.000.000,00 IDR
+				[Premi_Top_Up_Sekaligus] => 2.405.000.000,00 IDR
+				[Masa_Target_Investasi] => 6 Bulan
+				[Tingkat_Target_Investasi] => 5,00 %
+				[Tanggal_Awal_MTI] => 25 Oktober 2021
+				[Tanggal_Jatuh_Tempo_MTI] => 25 April 2022
+				[Jenis_Dana_Investasi] => Capital Managed Fund
+				[Alokasi_Premi] => 100 %
+				[Mata_Uang] => IDR
+				[Program_Relaksasi] => 
+				*/
+				$json['Program_Relaksasi']=isset($json['Program_Relaksasi']) ? $json['Program_Relaksasi']:"";
+				
+				if($rows['product_code']=="CPL"){
+					echo json_encode(array(
+					"no_spaj"=>$json['No_SPAJ'],
+					"nama_pp"=>$json['Nama_Pemegang_Polis'],
+					"nama_tt"=>$json['Nama_Tertanggung'],
+					"tgl_asu"=>$this->fix_doc_date($json['Tanggal_Mulai_Pertanggungan']),
+					"dbo"=>$this->fix_doc_date($json['Tanggal_Lahir']),
+					"premi"=>$this->fix_doc_premi($json['Premi']),
+					"periode"=>$this->fix_doc_mgi($json['Masa_Target_Investasi']),
+					"currency"=>$json['Mata_Uang'],
+					"promo_bunga"=>$json['Program_Relaksasi'],
+					"trx_id"=>$rows['trx_id'],
+					"filename"=>$this->doc_filename,
+					"docdir"=>$rows['docdir'],
+					"id"=>$rows['ID'],
+					"agen_code"=>$rows['agen_code'],
+					"pfa_code"=>$rows['pfa_code']
+					));
+				}else{
+					echo json_encode(array(
+					"no_spaj"=>$json['cpp_no_spaj'],
+					"nama_pp"=>$json['cpp_nama_pp'],
+					"nama_tt"=>$json['cpp_nama_tt'],
+					"tgl_asu"=>$this->fix_doc_date($json['cpp_tgl_asu']),
+					"dbo"=>$this->fix_doc_date($json['cpp_dbo']),
+					"premi"=>$this->fix_doc_premi($json['cpp_premi']),
+					"periode"=>$this->fix_doc_mgi($json['cpp_periode']),
+					"currency"=>$json['cpp_currency'],
+					"promo_bunga"=>$json['cpp_promo_bunga'],
+					"trx_id"=>$rows['trx_id'],
+					"filename"=>$this->doc_filename,
+					"docdir"=>$rows['docdir'],
+					"id"=>$rows['ID'],
+					"agen_code"=>$rows['agen_code'],
+					"pfa_code"=>$rows['pfa_code']
+					));
+
+				}
+	}
+	
+	private function fix_doc_date($str){
+		$str=explode(" ",$str);
+		$arr_bulan=array(
+		'Januari'=>'01',
+		'Februari'=>'02',
+		'Maret'=>'03',
+		'April'=>'04',
+		'Mei'=>'05',
+		'Juni'=>'06',
+		'Juli'=>'07',
+		'Agustus'=>'08',
+		'September'=>'09',
+		'Oktober'=>'10',
+		'November'=>'11',
+		'Desember'=>'12'	
+		);
+		return $str[2]."-".$arr_bulan[$str[1]]."-".((int)$str[0]<=9 ? "0".$str[0]:$str[0]);
+	}
+	
+	private function fix_doc_premi($str){
+		$str=str_replace("IDR","",$str);
+		$str=str_replace("USD","",$str);
+		$str=str_replace(".","",$str);
+		$str=str_replace(",",".",$str);
+		return rtrim(ltrim($str));
+		
+	}
+	
+	private function fix_doc_mgi($str){
+		$str=str_replace(" Bulan","",$str);
+		$str=(int)rtrim(ltrim($str));
+		return ($str<=6 ? "0":"1");
+	}
+	
+	public function message_chat(){
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		
+		if($_SERVER['REQUEST_METHOD']!=="POST"){
+			$message=array('error'=>1,'message'=>'Invalid Request Method');
+		}else{		
+			$cases=$this->input->post("data",true);
+			$cases=base64_decode($cases);
+			$cases=json_decode($cases,true);
+			
+			if(!is_array($cases)){
+				$message=array('error'=>1,'message'=>'Invalid information.');
+			}else{
+				$agen_code=isset($cases['agen_code']) ? $cases['agen_code']:"";
+				$msg=isset($cases['message']) ? $cases['message']:"";
+				$id=isset($cases['id']) ? $cases['id']:"";
+				if($agen_code=="" or $msg=="" or $id==""){
+					$message=array('error'=>1,'message'=>'Invalid information.');
+				}else{
+					
+					try{
+						$this->load->database();
+						$query=$this->db->query("call usp_message_chat(?,?,?)",array($agen_code,$msg,$id));
+						$row=$query->row_array();
+						$message=array('error'=>$row['error'],'message'=>$row['message']);
+					}catch(Exception $e){
+						$message=array('error'=>1,'message'=>'error. cause of: '.$e->getMessage());
+					}
+					
+				}
+			}
+		}
+		echo json_encode($message);
+	}
+	
+	private function doclist($q){
+		$dir=realpath(".")."/submission/".$q;
+		
+		$arr=array();
+		if (is_dir($dir)){
+		  if ($dh = opendir($dir)){
+			while (($file = readdir($dh)) !== false){
+			  $split=explode("_",$file);
+			  if($file!="." && $file!=".." && $split[0]!="Thumbs.db" && $split[0]!="Cart"){
+				
+				$arr[$split[0]]=$file;
+			  }
+			}
+			closedir($dh);
+		  }
+		}
+		return $arr;
+	}
+	private function other_doc($q,$type){
+		$dir=realpath(".")."/submission/".$q;
+		
+		$arr="";
+		if (is_dir($dir)){
+		  if ($dh = opendir($dir)){
+			while (($file = readdir($dh)) !== false){
+			  $split=explode("_",$file);
+			  if($split[0]==$type){
+				$this->doc_filename=$file;
+				$this->doc_filename_arr[$type]=$file;
+				$arr=file_get_contents($dir."/".$file);
+			  }
+			}
+			closedir($dh);
+		  }
+		}
+		return $arr;
+	}
+	
+	private function column_name($key){
+		$column=array();
+		$column['cpp_no_spaj']='No SPAJ';
+		$column['cpp_nama_pp']='Nama Pemegang Polis';
+		$column['cpp_nama_tt']='Nama Tertanggung';
+		$column['cpp_tgl_asu']='Tanggal Mulai Asuransi';
+		$column['cpp_dbo']='Tanggal Lahir';
+		$column['cpp_age']='Umur Saat Pengajuan';
+		$column['cpp_premi']='Premi yang Dibayar';
+		$column['cpp_periode']='Pembayaran MTI(Bulan)';
+		$column['cpp_masa_asu']='Jangka Waktu Asuransi';
+		$column['cpp_akhir_asu']='Tanggal Akhir Asuransi';
+		$column['cpp_mti_hari']='Masa Garansi Investasi (hari)';
+		$column['cpp_mti_pa']='Manfaat Investasi (pa)';
+		$column['cpp_up']='Uang Pertanggungam';
+		$column['cpp_mti_total']='Total Manfaat Investasi (tahun)';
+		$column['cpp_currency']='Mata Uang';
+		$column['total_days']='Jumlah Hari';
+		$column['cpp_promo_bunga']='Pilihan Program Relaksasi';
+		
+		$column['customer_type1']='TIPE_NASABAH_PEMPOL';
+		$column['full_name1']='NAMA_LENGKAP_PEMPOL';
+		$column['address1']='ALAMAT_PEMPOL';
+		$column['sub_districts1']='KELURAHAN_PEMPOL';
+		$column['districts1']='KECAMATAN_PEMPOL';
+		$column['phone_number1']='TELP_RUMAH_PEMPOL';
+		$column['city1']='ALAMAT_KOTA_PEMPOL';
+		$column['postal_code1']='KODE_POS_PEMPOL';
+		$column['handphone1']='HANDPHONE_PEMPOL';
+		$column['email1']='EMAIL_PEMPOL';
+		$column['identity_type_ktp1']='JENIS_IDENTITAS_PEMPOL';
+		$column['identity_no1']='NOMOR_IDENTITAS_PEMPOL';
+		$column['npwp1']='NPWP_PEMPOL';
+		$column['citizenship_wni1']='KEWARGANEGARAAN_PEMPOL';
+		$column['gen_pria1']='JENIS_KELAMIN_PEMPOL';
+		$column['status_menikah1']='STATUS_PEMPOL';
+		$column['religion_islam1']='AGAM_PEMPOL';
+		$column['place_of_birth1']='TEMPAT_LAHIR_PEMPOL';
+		$column['date_of_birth1']='TGL_LAHIR_PEMPOL';
+		$column['age1']='USIA_PEMPOL';
+		$column['profession1']='PEKERJAAN_PEMPOL';
+		$column['company_name1']='NAMA_PERUSAHAAN_PEMPOL';
+		$column['position1']='JABATAN_PEMPOL';
+		$column['job_description1']='URAIAN_PEKERJAAN_PEMPOL';
+		$column['company_address1_part1']='ALAMAT1_PERUSAHAAN_PEMPOL';
+		$column['company_address1_part2']='ALAMAT2_PERUSAHAAN_PEMPOL';
+		$column['company_subdistricts1']='KELURAHAN_PERUSAHAAN_PEMPOL';
+		$column['company_city1']='KOTA_PERUSAHAAN_PEMPOL';
+		$column['company_districts1']='KECAMATAN_PERUSAHAAN_PEMPOL';
+		$column['company_postal_code1']='KODE_POS_PERUSAHAAN_PEMPOL';
+		$column['full_name2']='NAMA_LENGKAP_TERTANGGUNG';
+		$column['relationship_diri2']='HUBUNGAN_DENGAN_PEMPOL';
+		$column['address2']='ALAMAT_TERTANGGUNG';
+		$column['sub_districts2']='KELURAHAN_TERTANGGUNG';
+		$column['districts2']='KECAMATAN_TERTANGGUNG';
+		$column['phone_number2']='TELP_RUMAH_TERTANGGUNG';
+		$column['city2']='ALAMAT_KOTA_TERTANGGUNG';
+		$column['postal_code2']='KODE_POS_TERTANGGUNG';
+		$column['handphone2']='HANDPHONE_TERTANGGUNG';
+		$column['email2']='EMAIL_TERTANGGUNG';
+		$column['identity_type_ktp2']='JENIS_IDENTITAS_TERTANGGUNG';
+		$column['identity_no2']='NOMOR_IDENTITAS_TERTANGGUNG';
+		$column['npwp2']='NPWP_TERTANGGUNG';
+		$column['citizenship_wni2']='KEWARGANEGARAAN_TERTANGGUNG';
+		$column['gen_pria2']='JENIS_KELAMIN_TERTANGGUNG';
+		$column['status_menikah2']='STATUS_TERTANGGUNG';
+		$column['religion_islam2']='AGAMA_TERTANGGUNG';
+		$column['place_of_birth2']='TEMPAT_TERTANGGUNG';
+		$column['date_of_birth2']='TGL_LAHIR_TERTANGGUNG';
+		$column['age2']='USIA_TERTANGGUNG';
+		$column['profession2']='PEKERJAAN_TERTANGGUNG';
+		$column['company_name2']='NAMA_PERUSAHAAN_TERTANGGUNG';
+		$column['position2']='JABATAN_TERTANGGUNG';
+		$column['job_description2']='URAIAN_PEKERJAAN_TERTANGGUNG';
+		$column['company_address2_part1']='ALAMAT1_PERUSAHAAN_TERTANGGUNG';
+		$column['company_address2_part2']='ALAMAT2_PERUSAHAAN_TERTANGGUNG';
+		$column['company_subdistricts2']='KELURAHAN_PERUSAHAAN_TERTANGGUNG';
+		$column['company_city2']='KOTA_PERUSAHAAN_TERTANGGUNG';
+		$column['company_districts2']='KECAMATAN_PERUSAHAAN_TERTANGGUNG';
+		$column['company_postal_code2']='KODE_POS_PERUSAHAAN_TERTANGGUNG';
+		$column['insurance_purpose1']='TUJUAN_ASURANSI';
+		$column['premium_payer1']='PEMBAYAR_PREMI';
+		$column['income1']='SUMBER_PERNGHASILAN_PEMBAYAR_PREMI';
+		$column['gross_income1']='PENGHASILAN_KOTOR_PERTAHUN';
+		$column['assets1']='ASSETS';
+		$column['income_peryear1']='PENDAPATAN_PERTAHUN';
+		$column['insurance_purpose8']='TUJUAN_ASURANSI';
+		$column['bank_name']='NAMA_BANK';
+		$column['branch_name']='NAMA_CABANG';
+		$column['account_holder_name']='PEMILIK_REKENING';
+		$column['account_holder_number']='NOMOR_REKENING';
+
+		
+		return isset($column[$key]) ? $column[$key]:str_replace("_"," ",$key);
+	}
+	
+	public function index()
+	{
+		echo"Hi, are you lost :)";
+		exit;
+		
+	}
+	
+	private function fix_human_date($str){
+		$dd=explode("/",$str);
+		// dd/mm/yyyy
+		return $dd[2]."-".$dd[1]."-".$dd[0];
+	}
+	
+}

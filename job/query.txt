@@ -1,0 +1,44 @@
+delimiter //
+create procedure usp_insert_spaj_pending(
+in ispaj_code varchar(60),
+in ireff_no varchar(60),
+in iagen_code  varchar(60),
+in iagen_name  varchar(200),
+in ipolicy_holder_no  varchar(60),
+in ipolicy_holder_name  varchar(60),
+in iproduct_code  varchar(30),
+in iNAMA_KANTOR_CABANG  varchar(100),
+in iKD_KANTOR_CABANG  varchar(30),
+in ispaj_received_dt datetime,
+in icatatan  varchar(200),
+in iusrid varchar(60)
+)
+begin
+	DECLARE  oerror INTEGER, omessage varchar, itotal INTEGER;
+	
+	select count(*) into total from tbl_spaj_pending where span_no=ispaj_code;
+	
+	if ifnull(itotal,0)>0 then
+		select 1,'SPAJ Exists' into oerror,omessage;
+	else
+		#insert master data
+		insert into tbl_spaj_pending(`span_no`,`reff_no`,`product_code`,`policy_holder_name`,`agen_code`,`branch_code`,`branch_desc`,`spaj_received_dt`,`open_dt`,`close_dt`,`last_change_dt`,`last_change_by`)
+		values(ispaj_code,ireff_no,iproduct_code,ipolicy_holder_name,iagen_code,iKD_KANTOR_CABANG,iNAMA_KANTOR_CABANG,ispaj_received_dt,NOW(),null,NOW(),iusrid);
+		
+		#insert data pending
+		insert into tbl_spaj_pending_mapping(`span_no`,`pending_type_code`,`received_dt`,`last_change_dt`,`last_change_by`)
+		values(ispaj_code,'109',null,NOW(),iusrid);
+		
+		#insert remarks
+		insert into tbl_spaj_pending_hst(`span_no`,`remakrs`,`last_change_dt`,`last_change_by`)
+		values(ispaj_code,icatatan,NOW(),iusrid);	
+			
+		select 0,'Success' into oerror,omessage;
+	end if;
+	
+	select oerror as `error`,omessage as `message`;
+			
+end//
+delimiter ;
+
+

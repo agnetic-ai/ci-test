@@ -1,0 +1,340 @@
+[{
+    "name": "customer_type1",
+    "value": "Individu"
+}, {
+    "name": "full_name1",
+    "value": "ELIZABETH SUBEKTI"
+}, {
+    "name": "mother_name1",
+    "value": "MOTHER ELIZABETH"
+}, {
+    "name": "address1",
+    "value": "JL. TANAH PASIR RT. 003 RW. 007KEL. PENJARINGAN KEC. PENJARINGAN"
+}, {
+    "name": "sub_districts1",
+    "value": "MAMPANG"
+}, {
+    "name": "districts1",
+    "value": "MAMPANG PRAPATAN"
+}, {
+    "name": "phone_number1",
+    "value": "0891241222"
+}, {
+    "name": "city1",
+    "value": "JAKARTA UTARA"
+}, {
+    "name": "postal_code1",
+    "value": "14440"
+}, {
+    "name": "province1",
+    "value": "DKI JAKARTA"
+}, {
+    "name": "handphone1",
+    "value": "08161691917"
+}, {
+    "name": "email1",
+    "value": "example@mail.com"
+}, {
+    "name": "identity_type_ktp1",
+    "value": "LAINNYA"
+}, {
+    "name": "identity_no1",
+    "value": "3172016010740002"
+}, {
+    "name": "npwp1",
+    "value": "3214124124"
+}, {
+    "name": "other_tax_no1",
+    "value": "32141241241232"
+}, {
+    "name": "other_tax_country1",
+    "value": "BRAZIL"
+}, {
+    "name": "citizenship_wni1",
+    "value": "WNA"
+}, {
+    "name": "gen_pria1",
+    "value": "PRIA"
+}, {
+    "name": "status_menikah1",
+    "value": "JANDA / DUDA"
+}, {
+    "name": "religion_islam1",
+    "value": "KONGHUCU"
+}, {
+    "name": "place_of_birth1",
+    "value": "JAKARTA"
+}, {
+    "name": "date_of_birth1",
+    "value": "1974-10-20"
+}, {
+    "name": "age1",
+    "value": "46"
+}, {
+    "name": "profession1",
+    "value": "PEJABAT"
+}, {
+    "name": "position1",
+    "value": "MANAGER"
+}, {
+    "name": "job_description1",
+    "value": "PERDAGANGAN MAKANAN"
+}, {
+    "name": "company_name1",
+    "value": "PT SARI BURGER INDONESIA"
+}, {
+    "name": "company_address1_part1",
+    "value": "JAKARTA"
+}, {
+    "name": "company_address1_part2",
+    "value": "LT 1"
+}, {
+    "name": "company_subdistricts1",
+    "value": "MANGGARAI"
+}, {
+    "name": "company_city1",
+    "value": "JAKARTA"
+}, {
+    "name": "company_districts1",
+    "value": "JAKARTA SELATAN"
+}, {
+    "name": "company_postal_code1",
+    "value": "4061"
+}, {
+    "name": "full_name2",
+    "value": "ELIZABETH SUBEKTI"
+}, {
+    "name": "relationship_diri2",
+    "value": "LAINNYA"
+}, {
+    "name": "address2",
+    "value": "JL. TANAH PASIR RT. 003 RW. 007KEL. PENJARINGAN KEC. PENJARINGAN"
+}, {
+    "name": "sub_districts2",
+    "value": "MAMPANG"
+}, {
+    "name": "districts2",
+    "value": "MAMPANG PRAPATAN"
+}, {
+    "name": "phone_number2",
+    "value": "0897989696"
+}, {
+    "name": "city2",
+    "value": "JAKARTA UTARA"
+}, {
+    "name": "postal_code2",
+    "value": "14440"
+},{
+    "name": "province2",
+    "value": "DKI JAKARTA"
+}, {
+    "name": "handphone2",
+    "value": "08161691917"
+}, {
+    "name": "email2",
+    "value": "example@gmail.com"
+}, {
+    "name": "identity_type_ktp2",
+    "value": "LAINNYA"
+}, {
+    "name": "identity_no2",
+    "value": "3172016010740002"
+}, {
+    "name": "npwp2",
+    "value": "1235676512"
+}, {
+    "name": "other_tax_no2",
+    "value": "32141241241232"
+}, {
+    "name": "other_tax_country2",
+    "value": "BRAZIL"
+}, {
+    "name": "citizenship_wni2",
+    "value": "WNA"
+}, {
+    "name": "gen_pria2",
+    "value": "PRIA"
+}, {
+    "name": "status_menikah2",
+    "value": "JANDA / DUDA"
+}, {
+    "name": "religion_islam2",
+    "value": "KONGHUCU"
+}, {
+    "name": "place_of_birth2",
+    "value": "JAKARTA"
+}, {
+    "name": "date_of_birth2",
+    "value": "1974-10-20"
+}, {
+    "name": "age2",
+    "value": "46"
+}, {
+    "name": "profession2",
+    "value": "PEJABAT"
+}, {
+    "name": "company_name2",
+    "value": "PT SARI BURGER INDONESIA"
+}, {
+    "name": "position2",
+    "value": "MANAGER"
+}, {
+    "name": "job_description2",
+    "value": "PERDAGANGAN MAKANAN"
+}, {
+    "name": "company_address2_part1",
+    "value": "JAKARTA"
+}, {
+    "name": "company_address2_part2",
+    "value": "LT 1"
+}, {
+    "name": "company_subdistricts2",
+    "value": "MAMPANG2"
+}, {
+    "name": "company_city2",
+    "value": "JAKARTA"
+}, {
+    "name": "company_districts2",
+    "value": "MAMPANG2"
+}, {
+    "name": "company_postal_code2",
+    "value": "4061"
+}, {
+    "name": "insurance_purpose1",
+    "value": "PROTEKSI"
+}, {
+    "name": "premium_payer1",
+    "value": "TERTANGGUNG"
+}, {
+    "name": "income1",
+    "value": "LAINNYA"
+}, {
+    "name": "gross_income1",
+    "value": ">600Juta"
+}, {
+    "name": "assets1",
+    "value": "COMMISSION/HONOR"
+}, {
+    "name": "income_peryear1",
+    "value": ">1Milyar-10Milyar"
+}, {
+    "name": "insurance_purpose8",
+    "value": ""
+}, {
+    "name": "bank_name",
+    "value": "PT. BANK CAPITAL INDONESIA TBK"
+}, {
+    "name": "branch_name",
+    "value": "ROXY"
+}, {
+    "name": "account_holder_name",
+    "value": "ELIZABETH SUBEKTI"
+}, {
+    "name": "account_holder_number",
+    "value": "1221023907"
+}, {
+    "name": "account_holder_bank_name",
+    "value": "BANK MANDIRI"
+}, {
+    "name": "policy_holder_company_name",
+    "value": "PT BANK BUKOPIN"
+}, {
+    "name": "policy_holder_legal_entity",
+    "value": "SWASTA"
+}, {
+    "name": "policy_holder_asset_company",
+    "value": ">1Milyar-10Milyar"
+}, {
+    "name": "policy_holder_income_company",
+    "value": ">10Milyar-100Milyar"
+}, {
+    "name": "date_of_coverage",
+    "value": "2024-02-01"
+}, {
+    "name": "currency",
+    "value": "IDR"
+}, {
+    "name": "investment_period",
+    "value": "6"
+}, {
+    "name": "sum_insured",
+    "value": "5230000"
+}, {
+    "name": "investment_guarante",
+    "value": "17.5"
+}, {
+    "name": "subscribe1_y",
+    "value": "YES"
+}, {
+    "name": "subscribe2_y",
+    "value": "NO"
+}, {
+    "name": "subscribe3_y",
+    "value": "YES"
+}, {
+    "name": "premium_plan",
+    "value": "615000000"
+}, {
+    "name": "premium_frequency",
+    "value": "BERKALA KUARTALAN"
+}, {
+    "name": "risk_insurance_before",
+    "value": "YA"
+}, {
+    "name": "risk_insurance_percent_salary",
+    "value": ">50"
+}, {
+    "name": "risk_insurance_benefits",
+    "value": "CUKUP MENGERTI"
+}, {
+    "name": "risk_total_profile",
+    "value": "8"
+}, {
+    "name": "risk_category",
+    "value": "TINGGI"
+}, {
+    "name": "sales_name",
+    "value": "JOHN ONE"
+}, {
+    "name": "signature_place",
+    "value": "JAKARTA"
+}, {
+    "name": "signature_date",
+    "value": "2024-02-01"
+}, {
+    "name": "premium_payer_name",
+    "value": "JOHN DOE TWO"
+}, {
+    "name": "premium_payer_gen",
+    "value": "PRIA"
+}, {
+    "name": "premium_payer_dob",
+    "value": "1987-05-21"
+}, {
+    "name": "premium_payer_relationship",
+    "value": "AYAH/IBU"
+}, {
+    "name": "premium_payer_profession",
+    "value": "KONTRAKTOR"
+}, {
+    "name": "premium_payer_company",
+    "value": "PT. ABIKA"
+}, {
+    "name": "premium_payer_position",
+    "value": "STAFF"
+}, {
+    "name": "premium_payer_source_income",
+    "value": "GAJI"
+}, {
+    "name": "premium_payer_gross_income",
+    "value": ">360Juta-600Juta"
+}, {
+    "name": "premium_payer_other_income",
+    "value": "INHERITANCE"
+}, {
+    "name": "premium_payer_other_income_value",
+    "value": ">500Juta-1Milyar"
+}
+
+
+]

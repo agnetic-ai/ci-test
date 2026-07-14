@@ -1,0 +1,22 @@
+[{
+    "nama": "FRITZ MAY",
+    "hubungan": "KAKAK KANDUNG",
+    "pct": "30",
+    "tanggal_lahir": "2009-12-02",
+	"jenis_kelamin":"PRIA",
+    "tempat_lahir": "JAKARTA"
+}, {
+    "nama": "QUINNY MAY",
+    "hubungan": "ANAK",
+    "jenis_kelamin":"PRIA",
+    "pct": "40",
+    "tanggal_lahir": "2002-08-22",
+    "tempat_lahir": "JAKARTA"
+}, {
+    "nama": "VALERIE MAY",
+    "hubungan": "ANAK",
+    "jenis_kelamin":"WANITA",
+    "pct": "30",
+    "tanggal_lahir": "2006-09-18",
+    "tempat_lahir": "JAKARTA"
+}]

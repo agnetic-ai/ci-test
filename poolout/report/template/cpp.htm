@@ -1,0 +1,182 @@
+<style>
+#data_grid{
+font-size:11px;
+}
+#data_grid tbody tr td{
+	border:1px #000 solid;
+}
+#data_grid .kotak{
+	border:1px #000 solid;
+}
+#data_grid tbody .header{
+	background:#0070c0;
+	color:#fff;
+}
+#keterangan{
+font-size:11px;
+}
+#detailpp{
+	font-size:11px;
+}
+</style><br>
+<img src="{LOGO}" /><br><br>
+<strong>ILUSTRASI PRODUK ASURANSI CAPITAL PROTEKSI PLUS</strong><br><br>
+<table border="0" cellpadding="3" cellspacing="0" id="detailpp">
+	<tbody>
+		<tr>
+			<td style="width:470px;">
+			Nama Pemegang Polis
+			</td>
+			<td>:</td>
+			<td style="width:270px;text-align:right;">{cpp_nama_pp}</td>
+		</tr>
+		<tr>
+			<td style="width:470px;">
+			Nama Tertanggung
+			</td>
+			<td>:</td>
+			<td style="width:270px;text-align:right;">{cpp_nama_tt}</td>
+		</tr>
+		<tr>
+			<td style="width:470px;">
+			Tanggal Lahir Tertanggung
+			</td>
+			<td>:</td>
+			<td style="width:270px;text-align:right;">{cpp_dbo}</td>
+		</tr>
+		<tr>
+			<td>
+			Tanggal Mulai Asuransi
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_tgl_asu}</td>
+		</tr>
+		<tr>
+			<td>
+			Premi yang Dibayarkan
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_premi}</td>
+		</tr>
+		<tr>
+			<td>
+			Periode Pembayaran Manfaat Investasi 
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_periode}</td>
+		</tr>
+		<tr>
+			<td>
+			Jangka Waktu Asuransi
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_masa_asu}</td>
+		</tr>
+		<tr>
+			<td>
+			Tanggal Berakhirnya Asuransi 
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_akhir_asu}</td>
+		</tr>
+		<tr>
+			<td>
+			Masa Garansi Investasi 
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_mti_hari} hari</td>
+		</tr>
+		<tr>
+			<td>
+			Manfaat Investasi per Tahun
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_mti_pa}</td>
+		</tr>
+		<tr>
+			<td>
+			Jumlah Uang Pertanggungan *)
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_up}</td>
+		</tr>
+		<tr>
+			<td>
+			Total Manfaat Investasi (tahun) 
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_mti_total}</td>
+		</tr>
+		
+		{PROMO}
+		
+	</tbody>
+</table><br>
+
+<table border="0" cellpadding="3px" cellspacing="0" id="data_grid">
+	<tbody>
+		<tr>
+			<td class="header" style="text-align:center; width:30px">Bulan<br>ke-</td>
+			<td class="header" style="text-align:center; width:160px">Periode Perhitungan</td>
+			<td class="header" style="text-align:center; width:60px">Jumlah<br />
+			Hari</td>
+			<td class="header" style="text-align:center; width:120px">Manfaat Investasi<br />
+			Sesuai Jumlah Hari</td>
+			<td class="header" style="text-align:center; width:110px">Saldo<br />
+			Investasi**</td>
+			<td class="header" style="text-align:center; width:90px">Manfaat<br />
+			Investasi </td>
+			<td class="header" style="text-align:center; width:125px">Klaim Meninggal<br />
+			Karena Kecelakaan</td>
+		</tr>
+		{data_tabel}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+			<td class="kotak" align="center">{total_days}</td>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+		</tr>
+	</tfoot>
+</table>
+<!--
+<table id="keterangan">
+<tr>
+<td style="width:250px;" valign="top"><br><br><strong>Note :</strong><br><br>
+*) maksimal uang pertanggungan personal accident akumulasi adalah {CLAIM_UP}<br><br>
+**) Saldo investasi diasumsikan tidak ada penarikan atau pembatalan polis.
+<br><br><br><br>
+Proposal/ Ilustrasi ini merupakan sebuah ILUSTRASI, BUKAN SUATU KONTRAK ASURANSI, untuk penjelasan lebih lengkapnya mengacu kepada dokumen Polis.
+
+</td>
+<td align="right" style="width:400px;"></td>
+</tr>
+</table>
+-->
+<table id="keterangan">
+<tr>
+<td valign="top"><br><br><strong>Note :</strong><br><br>
+*) maksimal uang pertanggungan personal accident akumulasi adalah {CLAIM_UP}<br><br>
+**) Saldo investasi diasumsikan tidak ada penarikan atau pembatalan polis.
+<br><br><br><br>
+Proposal/ Ilustrasi ini merupakan sebuah ILUSTRASI, BUKAN SUATU KONTRAK ASURANSI, untuk penjelasan lebih lengkapnya mengacu kepada dokumen Polis.
+
+</td>
+</tr>
+</table>

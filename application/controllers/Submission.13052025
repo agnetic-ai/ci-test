@@ -1,0 +1,1096 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+ini_set('memory_limit',-1);
+ini_set('max_execution_time', -1);
+class Submission extends CI_Controller {
+
+	public function __construct(){
+		parent::__construct();
+	}
+	
+	private function get_data_value($arr,$key){
+		$ret="";
+		if(!empty($arr)){
+			foreach($arr as $rs){
+				$rs['name']=isset($rs['name']) ? $rs['name']:"";
+				$rs['value']=isset($rs['value']) ? $rs['value']:"";
+				if($rs['name']==$key){
+					$ret=$rs['value'];
+					break;
+				}
+			}
+		}
+		return $ret;
+	}
+	
+
+	public function index()
+	{
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		
+		if($_SERVER['REQUEST_METHOD']!=="POST"){
+			$message=array('error'=>1,'message'=>'Invalid Request Method');
+		}else{
+		
+		$cases=$this->input->post("cases",true);
+		$cases=base64_decode($cases);
+		$cases=json_decode($cases,true);
+		if(!is_array($cases)){
+		$message=array('error'=>1,'message'=>'Invalid information.');
+		}else{
+		$product_code=isset($cases['product_code']) ? $cases['product_code']:"";
+		$uuid=isset($cases['uuid']) ? $cases['uuid']:"";
+		$trx_id=isset($cases['trx_id']) ? $cases['trx_id']:"";
+		$agen_code=isset($cases['agen_code']) ? $cases['agen_code']:"";
+		$pfa_code=isset($cases['pfa_code']) ? $cases['pfa_code']:"";
+		$branch_code=isset($cases['branch_code']) ? $cases['branch_code']:"";
+		$no_spaj=isset($cases['no_spaj']) ? str_replace(" ","",$cases['no_spaj']):"";
+		$currency=isset($cases['currency']) ? $cases['currency']:"";
+		$nama_pp=isset($cases['nama_pp']) ? $cases['nama_pp']:"";
+		$nama_tt=isset($cases['nama_tt']) ? $cases['nama_tt']:"";
+		$tanggal_input=isset($cases['tanggal_input']) ? $cases['tanggal_input']:"";
+		$status_terakhir=isset($cases['status_terakhir']) ? $cases['status_terakhir']:"";
+		$tgl_bayar=isset($cases['tgl_bayar']) ? $cases['tgl_bayar']:"";
+		$bayar_note=isset($cases['bayar_note']) ? $cases['bayar_note']:"";
+		$investment_period=isset($cases['investment_period']) ? $cases['investment_period']:"";
+		$program_period=isset($cases['program_period']) ? $cases['program_period']:"";
+		$no_polis_reff=isset($cases['no_polis_reff']) ? $cases['no_polis_reff']:"";
+		$no_ticket=isset($cases['no_ticket']) ? $cases['no_ticket']:"";
+		$check_spaj_baru=isset($cases['check_spaj_baru']) ? "1":"0";
+		
+		$uuid=$uuid."_".$product_code;
+		
+		//$dt_spaj_pengajuan=strlen($this->input->post("dt_spaj_pengajuan",true))<10 ? "":$this->input->post("dt_spaj_pengajuan",true);
+		
+		$dt_spaj_pengajuan=strlen($_POST['dt_spaj_pengajuan'])<10 ? "":$_POST['dt_spaj_pengajuan'];
+		$parse_pengajuan=json_decode($dt_spaj_pengajuan,true);
+		
+		
+		$spaj_json=$this->input->post("data",true);
+		$parse_json=json_decode($spaj_json,true);
+		$birth_dt="";
+		if($product_code=="CPP"){
+			
+			$parse_json['cpp_nama_pp']=$this->get_data_value($parse_pengajuan,'full_name1');
+			$parse_json['cpp_nama_tt']=$this->get_data_value($parse_pengajuan,'full_name2');
+			
+			
+			$spaj_json=json_encode($parse_json);
+			
+			$birth_dt=isset($parse_json['cpp_dbo']) ? $parse_json['cpp_dbo']:"";
+			$birth_dt=$this->date_indo2sys($birth_dt);
+			$parse_json['cpp_age']=isset($parse_json['cpp_age']) ? $parse_json['cpp_age']:"";
+			$age="";
+			if($parse_json['cpp_age']!=""){
+			$age=explode(" ",$parse_json['cpp_age']);
+			$age=isset($age[0]) ? $age[0]:0;
+			}
+			
+			$nama_pp=isset($parse_json['cpp_nama_pp']) ? $parse_json['cpp_nama_pp']:$nama_pp;
+			$nama_tt=isset($parse_json['cpp_nama_tt']) ? $parse_json['cpp_nama_tt']:$nama_tt;
+			
+			
+			
+			
+			$parse_json['cpp_tgl_asu']=isset($parse_json['cpp_tgl_asu']) ? $parse_json['cpp_tgl_asu']:"";
+			$parse_json['cpp_akhir_asu']=isset($parse_json['cpp_akhir_asu']) ? $parse_json['cpp_akhir_asu']:"";
+			$effective_dt=$this->date_indo2sys($parse_json['cpp_tgl_asu']);
+			$expired_dt=$this->date_indo2sys($parse_json['cpp_akhir_asu']);
+			$currency=isset($parse_json['cpp_currency']) ? $parse_json['cpp_currency']:"";
+			$parse_json['cpp_premi']=isset($parse_json['cpp_premi']) ? $parse_json['cpp_premi']:"";
+			$premium_amt=explode(" ",$parse_json['cpp_premi']); 
+			$premium_amt=$premium_amt[0];
+			$premium_amt=str_replace(".","",$premium_amt);
+			$premium_amt=str_replace(",",".",$premium_amt);
+			$parse_json['cpp_up']=isset($parse_json['cpp_up']) ? $parse_json['cpp_up']:"";
+			$si_amt=explode(" ",$parse_json['cpp_up']);
+			$si_amt=$si_amt[0];
+			$si_amt=str_replace(".","",$si_amt);
+			$si_amt=str_replace(",",".",$si_amt);
+			$parse_json['cpp_periode']=isset($parse_json['cpp_periode']) ? $parse_json['cpp_periode']:"";
+			$month_of_tenure=explode(" ",$parse_json['cpp_periode']);
+			$month_of_tenure=$month_of_tenure[0];
+			$parse_json['cpp_mti_pa']=isset($parse_json['cpp_mti_pa']) ? $parse_json['cpp_mti_pa']:"";
+			$bungan=explode(" ",$parse_json['cpp_mti_pa']);
+			$bungan=str_replace(",",".",$bungan[0]);
+			
+		}elseif($product_code=="CPL"){
+			$parse_json['Tanggal_Lahir']=isset($parse_json['Tanggal_Lahir']) ? $parse_json['Tanggal_Lahir']:"";
+			$birth_dt=$this->date_indo2sys($parse_json['Tanggal_Lahir']);
+			$parse_json['Usia_Tertanggung']=isset($parse_json['Usia_Tertanggung']) ? $parse_json['Usia_Tertanggung']:"";
+			$age="";
+			if($parse_json['Usia_Tertanggung']!=""){
+			$age=explode(" ",$parse_json['Usia_Tertanggung']);
+			$age=isset($age[0]) ? $age[0]:0;
+			}
+			$parse_json['Tanggal_Mulai_Pertanggungan']=isset($parse_json['Tanggal_Mulai_Pertanggungan']) ? $parse_json['Tanggal_Mulai_Pertanggungan']:"";
+			$parse_json['Tanggal_Jatuh_Tempo_MTI']=isset($parse_json['Tanggal_Jatuh_Tempo_MTI']) ? $parse_json['Tanggal_Jatuh_Tempo_MTI']:"";
+			$effective_dt=$this->date_indo2sys($parse_json['Tanggal_Mulai_Pertanggungan']);
+			$expired_dt=$this->date_indo2sys($parse_json['Tanggal_Jatuh_Tempo_MTI']);
+			$currency=$parse_json['Mata_Uang'];
+			$parse_json['Premi']=isset($parse_json['Premi']) ? $parse_json['Premi']:"";
+			$premium_amt=explode(" ",$parse_json['Premi']); 
+			$premium_amt=$premium_amt[0];
+			$premium_amt=str_replace(".","",$premium_amt);
+			$premium_amt=str_replace(",",".",$premium_amt);
+			
+			$parse_json['Uang_Pertanggungan']=isset($parse_json['Uang_Pertanggungan']) ? $parse_json['Uang_Pertanggungan']:"";
+			$si_amt=explode(" ",$parse_json['Uang_Pertanggungan']);
+			$si_amt=$si_amt[0];
+			$si_amt=str_replace(".","",$si_amt);
+			$si_amt=str_replace(",",".",$si_amt);
+			$parse_json['Masa_Target_Investasi']=isset($parse_json['Masa_Target_Investasi']) ? $parse_json['Masa_Target_Investasi']:"";
+			$month_of_tenure=explode(" ",$parse_json['Masa_Target_Investasi']);
+			$month_of_tenure=$month_of_tenure[0];
+			$parse_json['Tingkat_Target_Investasi']=isset($parse_json['Tingkat_Target_Investasi']) ? $parse_json['Tingkat_Target_Investasi']:"";
+			$bungan=explode(" ",$parse_json['Tingkat_Target_Investasi']);
+			$bungan=str_replace(",",".",$bungan[0]);
+		}
+		
+		
+		$cart=$this->input->post("cart",true);
+		$sign_nasabah=strlen($this->input->post("sign_nasabah",true))<10 ? "":$this->input->post("sign_nasabah",true);
+		$sign_agen=strlen($this->input->post("sign_agen",true))<10 ? "":$this->input->post("sign_agen",true);
+		
+		$cart=strlen($this->input->post("cart",true))<10 ? "":$this->input->post("cart",true);
+		$ktp=strlen($this->input->post("ktp",true))<10 ? "":$this->input->post("ktp",true);
+		$ktp2=strlen($this->input->post("ktp2",true))<10 ? "":$this->input->post("ktp2",true);
+		$ktp3=strlen($this->input->post("ktp3",true))<10 ? "":$this->input->post("ktp3",true);
+		$ktp4=strlen($this->input->post("ktp4",true))<10 ? "":$this->input->post("ktp4",true);
+		
+		$spaj=strlen($this->input->post("spaj",true))<10 ? "":$this->input->post("spaj",true);
+		$spaj2=strlen($this->input->post("spaj2",true))<10 ? "":$this->input->post("spaj2",true);
+		$spaj3=strlen($this->input->post("spaj3",true))<10 ? "":$this->input->post("spaj3",true);
+		$spaj4=strlen($this->input->post("spaj4",true))<10 ? "":$this->input->post("spaj4",true);
+		$spaj5=strlen($this->input->post("spaj5",true))<10 ? "":$this->input->post("spaj5",true);
+		
+		$ilustrasi=strlen($this->input->post("ilustrasi",true))<10 ? "":$this->input->post("ilustrasi",true);
+		$ilustrasi2=strlen($this->input->post("ilustrasi2",true))<10 ? "":$this->input->post("ilustrasi2",true);
+		$ilustrasi3=strlen($this->input->post("ilustrasi3",true))<10 ? "":$this->input->post("ilustrasi3",true);
+		$ilustrasi4=strlen($this->input->post("ilustrasi4",true))<10 ? "":$this->input->post("ilustrasi4",true);
+		
+		$ub=strlen($this->input->post("ub",true))<10 ? "":$this->input->post("ub",true);
+		$pb=strlen($this->input->post("pb",true))<10 ? "":$this->input->post("pb",true);
+		
+		
+		$dt_ahli_waris=strlen($this->input->post("dt_ahli_waris",true))<10 ? "":$this->input->post("dt_ahli_waris",true);
+		$dt_alamat_polis=strlen($this->input->post("dt_alamat_polis",true))<10 ? "":$this->input->post("dt_alamat_polis",true);
+		$dt_rekening=strlen($this->input->post("dt_rekening",true))<10 ? "":$this->input->post("dt_rekening",true);
+		
+		//$dt_spaj_pengajuan=strlen($this->input->post("dt_spaj_pengajuan",true))<10 ? "":$this->input->post("dt_spaj_pengajuan",true);
+		
+		$today=date("Ymd");
+		
+		if(!is_dir(realpath(".")."/submission/".$today)){
+			mkdir(realpath(".")."/submission/".$today);
+		}
+		if(!is_dir(realpath(".")."/submission/".$today."/".$uuid)){
+			mkdir(realpath(".")."/submission/".$today."/".$uuid);
+		}
+		if($spaj_json!=""){
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/SPAJ_JSON_".date("Ymdhis").".json", $spaj_json);
+		}
+		
+		if($dt_ahli_waris!=""){
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/AHLI_WARIS_".date("Ymdhis").".json", $dt_ahli_waris);
+		}
+		if($dt_alamat_polis!=""){
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/ALAMAT_PENGIRIMAN_POLIS_".date("Ymdhis").".json", $dt_alamat_polis);
+		}
+		if($dt_rekening!=""){
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/REKENING_".date("Ymdhis").".json", $dt_rekening);
+		}
+		
+		if($sign_nasabah!=""){
+			$data_snasabah = base64_decode(str_replace("[removed]","",$sign_nasabah));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/TTDNasabah_".date("Ymdhis").".png", $data_snasabah);
+		}
+		if($sign_agen!=""){
+			$data_sagen = base64_decode(str_replace("[removed]","",$sign_agen));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/TTDAgen_".date("Ymdhis").".png", $data_sagen);
+		}
+		if($ktp!=""){
+			$data_ktp = base64_decode(str_replace("[removed]","",$ktp));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/IDENTITAS1_".date("Ymdhis").".png", $data_ktp);
+		}
+		if($ktp2!=""){
+			$data_ktp2 = base64_decode(str_replace("[removed]","",$ktp2));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/IDENTITAS2_".date("Ymdhis").".png", $data_ktp2);
+		}
+		if($ktp3!=""){
+			$data_ktp3 = base64_decode(str_replace("[removed]","",$ktp3));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/IDENTITAS3_".date("Ymdhis").".png", $data_ktp3);
+		}
+		if($ktp4!=""){
+			$data_ktp4 = base64_decode(str_replace("[removed]","",$ktp4));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/IDENTITAS2_".date("Ymdhis").".png", $data_ktp4);
+		}
+		if($spaj!=""){
+			$data_spaj = base64_decode(str_replace("[removed]","",$spaj));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/SPAJDOC1_".date("Ymdhis").".png", $data_spaj);			
+		}
+		if($spaj2!=""){
+			$data_spaj2 = base64_decode(str_replace("[removed]","",$spaj2));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/SPAJDOC2_".date("Ymdhis").".png", $data_spaj2);			
+		}
+		if($spaj3!=""){
+			$data_spaj3 = base64_decode(str_replace("[removed]","",$spaj3));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/SPAJDOC3_".date("Ymdhis").".png", $data_spaj3);			
+		}
+		if($spaj4!=""){
+			$data_spaj4 = base64_decode(str_replace("[removed]","",$spaj4));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/SPAJDOC4_".date("Ymdhis").".png", $data_spaj4);			
+		}
+		if($spaj5!=""){
+			$data_spaj5 = base64_decode(str_replace("[removed]","",$spaj5));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/SPAJDOC5_".date("Ymdhis").".png", $data_spaj5);			
+		}
+		
+		if($cart!=""){
+			$data_cart = base64_decode(str_replace("[removed]","",$cart));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/Cart_".date("Ymdhis").".png", $data_cart);
+		}
+		
+		if($ilustrasi!=""){
+			$data_ilustrasi = base64_decode(str_replace("[removed]","",$ilustrasi));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/ILUSTRASI1_".date("Ymdhis").".png", $data_ilustrasi);
+		}
+		if($ilustrasi2!=""){
+			$data_ilustrasi2 = base64_decode(str_replace("[removed]","",$ilustrasi2));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/ILUSTRASI2_".date("Ymdhis").".png", $data_ilustrasi2);
+		}
+		if($ilustrasi3!=""){
+			$data_ilustrasi3 = base64_decode(str_replace("[removed]","",$ilustrasi3));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/ILUSTRASI3_".date("Ymdhis").".png", $data_ilustrasi3);
+		}
+		if($ilustrasi4!=""){
+			$data_ilustrasi4 = base64_decode(str_replace("[removed]","",$ilustrasi4));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/ILUSTRASI4_".date("Ymdhis").".png", $data_ilustrasi4);
+		}
+		
+		if($ub!=""){
+			$data_ub = base64_decode(str_replace("[removed]","",$ub));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/FORMUPBESAR_".date("Ymdhis").".png", $data_ub);
+		}
+		if($pb!=""){
+			$data_pb = base64_decode(str_replace("[removed]","",$pb));
+			file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/FORMPB_".date("Ymdhis").".png", $data_pb);
+		}
+		
+		if($dt_spaj_pengajuan!=""){
+			$dt_spaj_pengajuan_filename=realpath(".")."/submission/".$today."/".$uuid."/DATA_PENGAJUAN_".date("Ymdhis").".json";
+			file_put_contents($dt_spaj_pengajuan_filename, $dt_spaj_pengajuan);
+		}
+		
+		
+		
+			//$message=array('error'=>0,'message'=>'Succes save your information.');
+			try{
+				$this->load->database();
+				$query_check=$this->db->query("select count(1) as total from tbl_spaj where spaj_code='".strtoupper($no_spaj)."'");
+				$query_check_row=$query_check->row_array();
+				if((int)$query_check_row['total']>0){
+					$message=array('error'=>1,'message'=>'No SPAJ Sudah ernah di gunakan.');
+				}else{
+				
+				$agen_code=($agen_code=="EK00000000" ? "IK19000001":$agen_code);
+				$branch_code=($agen_code=="EK00000000" ? "0000":$branch_code);
+
+
+				$str="INSERT INTO `tbl_spaj`( `trx_id`, `spaj_code`, `product_code`, `agen_code`, `nama_pp`,`nama_tt`, `birth_dt`, `age`, `effective_dt`, `expired_dt`, `currency`, `premium_amt`, `si_amt`, `month_of_tenure`, `bunga`, `raw_data`, `last_change_dt`, `last_change_by`,`payment_flg`,`payment_date`,`payment_remarks`,pfa_code,branch_code,investment_period,program_period,no_polis_reff,is_newspaj) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				$query=$this->db->query($str,array($uuid,strtoupper($no_spaj),$product_code,$agen_code,strtoupper($nama_pp),strtoupper($nama_tt),$birth_dt,
+				(isset($age) ? $age:""), (isset($effective_dt) ? $effective_dt:""), (isset($expired_dt) ? $expired_dt:""), $currency, (isset($premium_amt) ? $premium_amt:0), (isset($si_amt) ? $si_amt:0), (isset($month_of_tenure) ? $month_of_tenure:0),
+				(isset($bungan) ? $bungan:0), 0, date("Y-m-d H:i:s"), $pfa_code.' - WS',
+				($tgl_bayar!="" ? "1":"0"),($tgl_bayar!="" ? $tgl_bayar:""),($tgl_bayar!="" ? $bayar_note:""),
+				$pfa_code,$branch_code,$investment_period,$program_period,$no_polis_reff,$check_spaj_baru
+				));
+				
+				//update ticket PR $no_ticket
+				if($no_ticket!=""){
+					$this->db->query("update tbl_agen_pengajuan_bisnis set spaj_code=?,client_name=?,premium=?,dob_ctu=?,is_submited_pfa=1,is_submited_pfa_date=NOW() where ticket_id=?",array(strtoupper($no_spaj),strtoupper($nama_pp),(isset($premium_amt) ? $premium_amt:0),$birth_dt,$no_ticket));
+				}else{
+						$this->db->query("update tbl_agen_pengajuan_bisnis set spaj_code=?,client_name=?,premium=?,dob_ctu=?,is_submited_pfa=1,is_submited_pfa_date=NOW() where spaj_code=?",array(strtoupper($no_spaj),strtoupper($nama_pp),(isset($premium_amt) ? $premium_amt:0),$birth_dt,strtoupper($no_spaj)));
+				}
+				
+				
+				
+				$subject="E-Clip Mobile New submission Produk ".$product_code.", SPAJ : ".strtoupper($no_spaj)." Tanggal: ".date("Y-m-d");
+				$message="<p>Terlampir pengajuan SPAJ dengan detil,sbb:</p>".'
+				<table align="left" border="1" cellpadding="1" cellspacing="1" style="width:500px">
+					<tbody>
+						<tr>
+							<td>Nama Pemegang Polis</td>
+							<td>:</td>
+							<td>'.strtoupper($nama_pp).'</td>
+						</tr>
+						<tr>
+							<td>Produk</td>
+							<td>:</td>
+							<td>'.$product_code.'</td>
+						</tr>
+						<tr>
+							<td>No SPAJ</td>
+							<td>:</td>
+							<td>'.strtoupper($no_spaj).'</td>
+						</tr>
+						<tr>
+							<td>Kode Tenaga Pemasar</td>
+							<td>:</td>
+							<td>'.$agen_code.'</td>
+						</tr>
+						<tr>
+							<td>Premi</td>
+							<td>:</td>
+							<td>'.$currency.' '.(isset($premium_amt) ? number_format($premium_amt,2):0).'</td>
+						</tr>
+					</tbody>
+				</table>
+				';
+				//$this->email_notification("marketing.support@capitallife.co.id","paulus.yunior@capitallife.co.id",$subject,$message,"Marketing Support");
+				
+				$message=array('error'=>0,'message'=>'Succes save your information.');
+				}
+			}catch(Exception $e){
+				$message=array('error'=>0,'message'=>'Succes Generate Output but fail save information. cause of: '.$e->getMessage());
+			}
+		
+		}
+		}
+		echo json_encode($message);
+	}
+
+	public function update_ilustrasi(){
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		
+		if($_SERVER['REQUEST_METHOD']!=="POST"){
+			$message=array('error'=>1,'message'=>'Invalid Request Method');
+		}else{
+			//echo"<pre>";
+			//print_r($_POST);
+			
+			$cases=$this->input->post("cases",true);
+			$cases=base64_decode($cases);
+			$cases=json_decode($cases,true);
+			$cases=json_decode($cases,true);
+			//print_r($cases);
+			//echo $cases['product_code'];
+			//exit;
+
+			$product_code=isset($cases['product_code']) ? $cases['product_code']:"";
+			$trx_id=isset($cases['core']['trx_id']) ? $cases['core']['trx_id']:"";
+			$no_spaj=isset($cases['no_spaj']) ? str_replace(" ","",$cases['no_spaj']):"";
+			$currency=isset($cases['currency']) ? $cases['currency']:"";
+			$nama_pp=isset($cases['nama_pp']) ? $cases['nama_pp']:"";
+			$nama_tt=isset($cases['nama_tt']) ? $cases['nama_tt']:"";
+			$tanggal_input=isset($cases['tgl_asu']) ? $cases['tgl_asu']:"";
+			$investment_period=isset($cases['periode']) ? $cases['periode']:"";
+			$program_period=isset($cases['promo_bunga']) ? $cases['promo_bunga']:"";
+			$spaj_id=isset($cases['core']['id']) ? $cases['core']['id']:"";
+			$agen_code=isset($cases['core']['agen_code']) ? $cases['core']['agen_code']:"";
+			
+			
+				
+			$today=isset($cases['core']['docdir']) ? $cases['core']['docdir']:""; 
+			$uuid=$trx_id;
+			$filename_old=isset($cases['core']['filename']) ? $cases['core']['filename']:"";  
+			$spaj_code=$no_spaj;
+			
+			$spaj_json=$this->input->post("data",true);
+			$parse_json=json_decode($spaj_json,true);
+			$birth_dt="";
+			
+			if($product_code=="CPP"){
+				$birth_dt=isset($parse_json['cpp_dbo']) ? $parse_json['cpp_dbo']:"";
+				$birth_dt=$this->date_indo2sys($birth_dt);
+				$parse_json['cpp_age']=isset($parse_json['cpp_age']) ? $parse_json['cpp_age']:"";
+				$age="";
+				if($parse_json['cpp_age']!=""){
+				$age=explode(" ",$parse_json['cpp_age']);
+				$age=isset($age[0]) ? $age[0]:0;
+				}
+				$parse_json['cpp_tgl_asu']=isset($parse_json['cpp_tgl_asu']) ? $parse_json['cpp_tgl_asu']:"";
+				$parse_json['cpp_akhir_asu']=isset($parse_json['cpp_akhir_asu']) ? $parse_json['cpp_akhir_asu']:"";
+				$effective_dt=$this->date_indo2sys($parse_json['cpp_tgl_asu']);
+				$expired_dt=$this->date_indo2sys($parse_json['cpp_akhir_asu']);
+				$currency=isset($parse_json['cpp_currency']) ? $parse_json['cpp_currency']:"";
+				$parse_json['cpp_premi']=isset($parse_json['cpp_premi']) ? $parse_json['cpp_premi']:"";
+				$premium_amt=explode(" ",$parse_json['cpp_premi']); 
+				$premium_amt=$premium_amt[0];
+				$premium_amt=str_replace(".","",$premium_amt);
+				$premium_amt=str_replace(",",".",$premium_amt);
+				$parse_json['cpp_up']=isset($parse_json['cpp_up']) ? $parse_json['cpp_up']:"";
+				$si_amt=explode(" ",$parse_json['cpp_up']);
+				$si_amt=$si_amt[0];
+				$si_amt=str_replace(".","",$si_amt);
+				$si_amt=str_replace(",",".",$si_amt);
+				$parse_json['cpp_periode']=isset($parse_json['cpp_periode']) ? $parse_json['cpp_periode']:"";
+				$month_of_tenure=explode(" ",$parse_json['cpp_periode']);
+				$month_of_tenure=$month_of_tenure[0];
+				$parse_json['cpp_mti_pa']=isset($parse_json['cpp_mti_pa']) ? $parse_json['cpp_mti_pa']:"";
+				$bungan=explode(" ",$parse_json['cpp_mti_pa']);
+				$bungan=str_replace(",",".",$bungan[0]);
+				
+			}elseif($product_code=="CPL"){
+				$parse_json['Tanggal_Lahir']=isset($parse_json['Tanggal_Lahir']) ? $parse_json['Tanggal_Lahir']:"";
+				$birth_dt=$this->date_indo2sys($parse_json['Tanggal_Lahir']);
+				$parse_json['Usia_Tertanggung']=isset($parse_json['Usia_Tertanggung']) ? $parse_json['Usia_Tertanggung']:"";
+				$age="";
+				if($parse_json['Usia_Tertanggung']!=""){
+				$age=explode(" ",$parse_json['Usia_Tertanggung']);
+				$age=isset($age[0]) ? $age[0]:0;
+				}
+				$parse_json['Tanggal_Mulai_Pertanggungan']=isset($parse_json['Tanggal_Mulai_Pertanggungan']) ? $parse_json['Tanggal_Mulai_Pertanggungan']:"";
+				$parse_json['Tanggal_Jatuh_Tempo_MTI']=isset($parse_json['Tanggal_Jatuh_Tempo_MTI']) ? $parse_json['Tanggal_Jatuh_Tempo_MTI']:"";
+				$effective_dt=$this->date_indo2sys($parse_json['Tanggal_Mulai_Pertanggungan']);
+				$expired_dt=$this->date_indo2sys($parse_json['Tanggal_Jatuh_Tempo_MTI']);
+				$currency=$parse_json['Mata_Uang'];
+				$parse_json['Premi']=isset($parse_json['Premi']) ? $parse_json['Premi']:"";
+				$premium_amt=explode(" ",$parse_json['Premi']); 
+				$premium_amt=$premium_amt[0];
+				$premium_amt=str_replace(".","",$premium_amt);
+				$premium_amt=str_replace(",",".",$premium_amt);
+				
+				$parse_json['Uang_Pertanggungan']=isset($parse_json['Uang_Pertanggungan']) ? $parse_json['Uang_Pertanggungan']:"";
+				$si_amt=explode(" ",$parse_json['Uang_Pertanggungan']);
+				$si_amt=$si_amt[0];
+				$si_amt=str_replace(".","",$si_amt);
+				$si_amt=str_replace(",",".",$si_amt);
+				$parse_json['Masa_Target_Investasi']=isset($parse_json['Masa_Target_Investasi']) ? $parse_json['Masa_Target_Investasi']:"";
+				$month_of_tenure=explode(" ",$parse_json['Masa_Target_Investasi']);
+				$month_of_tenure=$month_of_tenure[0];
+				$parse_json['Tingkat_Target_Investasi']=isset($parse_json['Tingkat_Target_Investasi']) ? $parse_json['Tingkat_Target_Investasi']:"";
+				$bungan=explode(" ",$parse_json['Tingkat_Target_Investasi']);
+				$bungan=str_replace(",",".",$bungan[0]);
+			}
+
+			if($spaj_json!=""){
+				
+				//rename old file
+				@rename(realpath(".")."/submission/".$today."/".$uuid."/".$filename_old,realpath(".")."/submission/".$today."/".$uuid."/".time()."_".$filename_old);
+				//echo realpath(".")."/submission/".$today."/".$uuid."/".$filename_old."<br>";
+				//echo realpath(".")."/submission/".$today."/".$uuid."/".time()."_".$filename_old."<br>";
+
+				
+				//puting new file
+				@file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/SPAJ_JSON_".date("Ymdhis").".json", $spaj_json);
+				
+				//echo realpath(".")."/submission/".$today."/".$uuid."/SPAJ_JSON_".date("Ymdhis").".json"."<br>";
+
+				//refresh espaj
+				if(file_exists(realpath(".")."/xtemp/".$spaj_code."/".$spaj_code.".pdf")){
+					@unlink(realpath(".")."/xtemp/".$spaj_code."/".$spaj_code.".pdf");
+				}
+
+				//echo realpath(".")."/xtemp/".$spaj_code."/".$spaj_code.".pdf"."<br>";
+				
+				
+				$this->load->database();
+
+				$query=$this->db->query("select pfa_code from tbl_spaj where spaj_code='$no_spaj'");
+				$rows=$query->row_array();
+
+				$str="update tbl_spaj set 
+				investment_period='".($investment_period=="0" ? "6 Bulan":"12 Bulan")."',program_period='$program_period',nama_pp='$nama_pp',
+				nama_tt='$nama_tt',birth_dt='$birth_dt',age='$age',effective_dt='$effective_dt',expired_dt='$expired_dt',currency='$currency',
+				premium_amt=$premium_amt,si_amt=$si_amt,month_of_tenure=$month_of_tenure,bunga=$bungan  where spaj_code='$no_spaj' and trx_id='$trx_id'";
+				$this->db->query($str);
+
+				//update nama pp jika sudah ada di spaj book
+				$str2="update tbl_spaj_book set policy_holder_name='$nama_pp' where spaj_code='$no_spaj'";
+				$this->db->query($str2);
+
+				//history
+				$sql="call usp_spaj_status_history_ia($spaj_id,'202','Revisi Ilustrasi','Revisi Ilustrasi','".$rows['pfa_code']."')";
+				$this->db->query($sql);
+				
+
+				
+
+			}
+
+			$message=array('error'=>0,'message'=>'Succes save your information.');
+
+		}
+		echo json_encode($message);
+	}
+
+	public function update_espaj(){
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		
+		if($_SERVER['REQUEST_METHOD']!=="POST"){
+			$message=array('error'=>1,'message'=>'Invalid Request Method');
+		}else{
+			//echo"<pre>";
+			//print_r($_POST);
+			
+			$cases=$this->input->post("cases",true);
+			$cases=base64_decode($cases);
+			$cases=json_decode($cases,true);
+			
+			//print_r($cases);
+			//echo $cases['product_code'];
+			//exit;
+
+			
+			$trx_id=isset($cases['trx_id']) ? $cases['trx_id']:"";
+			$no_spaj=isset($cases['no_spaj']) ? str_replace(" ","",$cases['no_spaj']):"";
+			$agen_code=isset($cases['agen_code']) ? $cases['agen_code']:"";
+			$branch_code=isset($cases['branch_code']) ? $cases['branch_code']:"";
+			
+				
+			
+			
+			$spaj_code=$no_spaj;
+			
+			$spaj_json=$this->input->post("data",true);
+			$parse_json=json_decode($spaj_json,true);
+			
+			$filename_espaj=$parse_json['filename_espaj'];
+			$filename_ahliwaris=$parse_json['filename_ahliwaris'];
+			$docdir=$parse_json['docdir'];
+			$pfa_code=$parse_json['pfa_code'];
+			$today=$docdir;
+			$spaj_id=$parse_json['id'];	
+			$trx_id=$trx_id!="" ? $trx_id:$parse_json['trx_id'];
+			$uuid=$trx_id;
+			$spaj_code=$spaj_code!="" ? $spaj_code:$parse_json['no_spaj'];
+			//no_spaj
+
+
+			if($spaj_json!=""){
+				
+				
+				//rename old file espaj
+				@rename(realpath(".")."/submission/".$today."/".$uuid."/".$filename_espaj,realpath(".")."/submission/".$today."/".$uuid."/".time()."_".$filename_espaj);
+
+				//rename old file ahliwaris
+				@rename(realpath(".")."/submission/".$today."/".$uuid."/".$filename_ahliwaris,realpath(".")."/submission/".$today."/".$uuid."/".time()."_".$filename_ahliwaris);
+				
+				$dt_ahli_waris=strlen($this->input->post("dt_ahli_waris",true))<10 ? "":$this->input->post("dt_ahli_waris",true);
+			    $dt_spaj_pengajuan=strlen($this->input->post("dt_spaj_pengajuan",true))<10 ? "":$this->input->post("dt_spaj_pengajuan",true);
+
+			    if($dt_ahli_waris!=""){
+			            file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/AHLI_WARIS_".date("Ymdhis").".json", $dt_ahli_waris);
+			    }
+			    if($dt_spaj_pengajuan!=""){
+			            file_put_contents(realpath(".")."/submission/".$today."/".$uuid."/DATA_PENGAJUAN_".date("Ymdhis").".json", $dt_spaj_pengajuan);
+			    }    
+
+				//refresh espaj
+				if(file_exists(realpath(".")."/xtemp/".$spaj_code."/".$spaj_code.".pdf")){
+					@unlink(realpath(".")."/xtemp/".$spaj_code."/".$spaj_code.".pdf");
+				}
+
+				//echo realpath(".")."/xtemp/".$spaj_code."/".$spaj_code.".pdf"."<br>";
+				
+				
+				$this->load->database();
+				$sql="call usp_spaj_status_history_ia($spaj_id,'203','Revisi eSPAJ','Revisi eSPAJ','$pfa_code')";
+				$this->db->query($sql);
+
+				$this->db->reconnect();
+				$this->db->query("update tbl_spaj set agen_code='$agen_code',branch_code='$branch_code' where spaj_code='$spaj_code'");
+				$this->db->query("call usp_sync_spaj_book('$spaj_code')");
+
+
+				//set the url, number of POST vars, POST data
+				$ch = curl_init();
+				$fields=array(
+					'spaj'=>$spaj_code
+				);
+				curl_setopt($ch,CURLOPT_URL,"http://10.17.44.32:89/index.php/Fillrekening/byspaj");
+				curl_setopt($ch,CURLOPT_POST, count($fields));
+				curl_setopt($ch,CURLOPT_POSTFIELDS, $fields);
+
+				//execute post
+				$result = curl_exec($ch);
+
+				//close connection
+				curl_close($ch);
+				
+				$ch = curl_init();
+				$fields=array(
+					'spaj'=>$spaj_code
+				);
+				curl_setopt($ch,CURLOPT_URL,"http://10.17.44.32:89/index.php/Fillrekening/assetbyspaj");
+				curl_setopt($ch,CURLOPT_POST, count($fields));
+				curl_setopt($ch,CURLOPT_POSTFIELDS, $fields);
+
+				//execute post
+				$result = curl_exec($ch);
+
+				//close connection
+				curl_close($ch);
+				
+				
+
+			
+				
+
+			}
+
+			$message=array('error'=>0,'message'=>'Succes save your information.'
+			//,'check'=>realpath(".")."/submission/".$today."/".$uuid."/".$filename_ahliwaris."|".realpath(".")."/submission/".$today."/".$uuid."/".time()."_".$filename_ahliwaris
+			);
+
+		}
+		echo json_encode($message);
+	}
+	
+	public function upload_mapping_doc_pr(){
+		/*
+		doc_type	doc_name	e-clip
+		x101	SPAJ Hal. 1	D001
+		x102	SPAJ Hal. 2	D001
+		103	SP2AJ	D023
+		103	SP2AJ	E001
+		x104	Bukti Transfer	D005
+		105	Pemahaman Produk	D047
+		106	KTP Pemegang Polis	D002
+		107	KTP Calon Tertanggung	D003
+		118 Dok lain D045
+		*/
+		if($_SERVER['REQUEST_METHOD']!=="POST") die("Invalid Request");
+		$data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+		
+		$agen=$this->input->post("agen",true);
+		$agen=base64_decode($agen);
+		$agen=json_decode($agen,true);
+		
+		
+		$agen_code=isset($agen['data']["agen_code"]) ? $agen['data']["agen_code"]:"";
+		$no_spaj=isset($data["no_spaj"]) ? $data["no_spaj"]:"";
+		$doc_list=isset($data["doc_list"]) ? $data["doc_list"]:"";
+		$effective_dt=isset($cases['effective_dt']) ? str_replace("-","",$cases['effective_dt']):"";
+		
+		
+		$message=array('error'=>1,'message'=>'Failed','data'=>json_encode($data));
+		
+		if($agen_code==""){
+			$message=array('error'=>1,'message'=>'Invalid access');
+		}elseif($no_spaj=="" or $doc_list==""){
+			$message=array('error'=>1,'message'=>'Invalid parameter');
+		}else{
+			$today=($effective_dt=="" ? date("Ymd"):$effective_dt);
+			if(!is_dir(realpath(".")."/submission/".$today)){
+				mkdir(realpath(".")."/submission/".$today);
+			}
+			if(!is_dir(realpath(".")."/submission/".$today."/".$no_spaj)){
+				mkdir(realpath(".")."/submission/".$today."/".$no_spaj);
+			}
+			//generate doc SPAJ
+			$arr_spaj=$doc_list;
+			$arr_ktp=array();
+			$images_spaj =array();
+			$mapping_doc=array();
+			$this->load->database();
+			foreach($arr_spaj as $rs){
+				$arr_ktp[]=$rs['doc_type'];
+				if(in_array($rs['doc_type'],array("101","102"))){
+					$images_spaj[]=realpath(".").$rs['doc_path'];
+					$mapping_doc[]='D001';
+				}elseif($rs['doc_type']=="103"){
+					$mapping_doc[]='D023';
+					$mapping_doc[]='E001';
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/D023.".substr($rs['doc_path'],-3))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/D023.".substr($rs['doc_path'],-3));
+					}
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/E001.".substr($rs['doc_path'],-3))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/E001.".substr($rs['doc_path'],-3));
+					}
+					copy(realpath(".").$rs['doc_path'],realpath(".")."/submission/".$today."/".$no_spaj."/D023.".substr($rs['doc_path'],-3));
+					copy(realpath(".").$rs['doc_path'],realpath(".")."/submission/".$today."/".$no_spaj."/E001.".substr($rs['doc_path'],-3));
+					
+					$doc_code="D023";
+					$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.'.substr($rs['doc_path'],-3);
+					$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+					$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+					
+					$doc_code="E001";
+					$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.'.substr($rs['doc_path'],-3);
+					$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+					$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+					
+				}elseif($rs['doc_type']=="104"){
+					$mapping_doc[]='D005';
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/D005.".substr($rs['doc_path'],-3))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/D005.".substr($rs['doc_path'],-3));
+					}
+					copy(realpath(".").$rs['doc_path'],realpath(".")."/submission/".$today."/".$no_spaj."/D005.".substr($rs['doc_path'],-3));
+					$doc_code="D005";
+					$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.'.substr($rs['doc_path'],-3);
+					$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+					$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+				}elseif($rs['doc_type']=="105"){
+					$mapping_doc[]='D047';
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/D047.".substr($rs['doc_path'],-3))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/D047.".substr($rs['doc_path'],-3));
+					}
+					copy(realpath(".").$rs['doc_path'],realpath(".")."/submission/".$today."/".$no_spaj."/D047.".substr($rs['doc_path'],-3));
+					$doc_code="D047";
+					$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.'.substr($rs['doc_path'],-3);
+					$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+					$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+				}elseif($rs['doc_type']=="106"){
+					$mapping_doc[]='D002';
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/D002.".substr($rs['doc_path'],-3))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/D002.".substr($rs['doc_path'],-3));
+					}
+					copy(realpath(".").$rs['doc_path'],realpath(".")."/submission/".$today."/".$no_spaj."/D002.".substr($rs['doc_path'],-3));
+					$doc_code="D002";
+					$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.'.substr($rs['doc_path'],-3);
+					$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+					$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+				}elseif($rs['doc_type']=="107"){
+					$mapping_doc[]='D003';
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/D003.".substr($rs['doc_path'],-3))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/D003.".substr($rs['doc_path'],-3));
+					}
+					copy(realpath(".").$rs['doc_path'],realpath(".")."/submission/".$today."/".$no_spaj."/D003.".substr($rs['doc_path'],-3));
+					$doc_code="D003";
+					$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.'.substr($rs['doc_path'],-3);
+					$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+					$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+				}elseif($rs['doc_type']=="118"){
+					$mapping_doc[]='D045';
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/D045.".substr($rs['doc_path'],-3))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/D045.".substr($rs['doc_path'],-3));
+					}
+					copy(realpath(".").$rs['doc_path'],realpath(".")."/submission/".$today."/".$no_spaj."/D045.".substr($rs['doc_path'],-3));
+					$doc_code="D045";
+					$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.'.substr($rs['doc_path'],-3);
+					$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+					$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+				}
+			}
+			
+			
+			
+			if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj.'/D001.pdf')){
+				@unlink(realpath(".")."/submission/".$today."/".$no_spaj.'/D001.pdf');
+			}
+			
+			foreach($images_spaj as $r){
+				$imagick = new Imagick(); 
+				$imagick->readImage($r); 
+				
+				//$angle = 90; //or -90 if you want anti-clockwise
+				//$imagick->rotateimage(new ImagickPixel(), $angle); 
+				
+				$imagick->setImageFormat("pdf"); // that's likely not necessary
+				$imagick->writeImage($r);
+				$imagick =null;
+			}
+			
+			
+			$pdf = new Imagick($images_spaj);
+			//$angle = 90;
+			//$pdf->rotateimage(new ImagickPixel(), $angle);
+			$pdf->setImageFormat('pdf');
+			$pdf->writeImages(realpath(".")."/submission/".$today."/".$no_spaj.'/D001.pdf', true);
+			
+			/*
+			$imagick = new Imagick(); 
+			$imagick->readImage('landscape.pdf'); 
+			$angle = 90; //or -90 if you want anti-clockwise
+			$imagick->rotateimage(new ImagickPixel(), $angle); 
+			$imagick->setImageFormat("pdf"); // that's likely not necessary
+			$imagick->writeImage("portrait.pdf");
+			*/
+			
+			$doc_code="D001";
+			$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.pdf';
+			$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+			$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+			
+			//auto sync ktp PP
+			if(!in_array("106",$arr_ktp)){
+				$doc_code="D002";
+				$mapping_doc[]=$doc_code;
+				copy(realpath(".")."/submission/".$today."/".$no_spaj.'/D001.pdf',realpath(".")."/submission/".$today."/".$no_spaj.'/'.$doc_code.'.pdf');
+				$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.pdf';
+				$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+				$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+			}
+			//auto sync ktp CTU
+			if(!in_array("107",$arr_ktp)){
+				$doc_code="D003";
+				$mapping_doc[]=$doc_code;
+				copy(realpath(".")."/submission/".$today."/".$no_spaj.'/D001.pdf',realpath(".")."/submission/".$today."/".$no_spaj.'/'.$doc_code.'.pdf');
+				$path="/submission/".$today."/".$no_spaj.'/'.$doc_code.'.pdf';
+				$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+				$this->db->query("insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);",array($no_spaj,$doc_code,$path,$agen_code));
+			}	
+			
+			$message=array('error'=>0,'message'=>'Success','data'=>$mapping_doc);
+		}
+		
+		
+		echo json_encode($message);
+	}
+	
+	public function upload(){
+		/*
+		Array
+(
+    [data] => eyJub19zcGFqIjoiUFAyMDIxMDQwMSIsImFnZW5fY29kZSI6IlBGQTAwMSJ9
+)
+Array
+(
+    [files] => Array
+        (
+            [name] => alur_potrait.jpg
+            [type] => image/jpeg
+            [tmp_name] => /tmp/phpRlvr6I
+            [error] => 0
+            [size] => 1567324
+        )
+
+)
+		*/
+		$message=array('error'=>1,'message'=>'Invalid Request');
+		
+		if($_SERVER['REQUEST_METHOD']!=="POST"){
+			$message=array('error'=>1,'message'=>'Invalid Request Method');
+		}else{
+			$cases=$this->input->post("data",true);
+			$cases=base64_decode($cases);
+			$cases=json_decode($cases,true);
+			
+			$no_spaj_id=isset($cases['no_spaj_id']) ? $cases['no_spaj_id']:"";
+			$no_spaj=isset($cases['no_spaj']) ? $cases['no_spaj']:"";
+			$agen_code=isset($cases['agen_code']) ? $cases['agen_code']:"";
+			$doc_code=isset($cases['doc_code']) ? $cases['doc_code']:"";
+			$effective_dt=isset($cases['effective_dt']) ? str_replace("-","",$cases['effective_dt']):"";
+			$doc_code_name=isset($cases['doc_code_name']) ? $cases['doc_code_name']:"";
+			$nomor_slip=isset($cases['no_slip']) ? $cases['no_slip']:"";
+			/*
+			$sql="call usp_spaj_status_history_ia($no_spaj_id,'201','Submit Dokumen Pending','Submit Dokumen Pending - ".$doc_code_name."','$agen_code')";
+			echo $sql;
+			print_r($cases);
+			exit;
+			*/
+			
+			$status_issued_matching=$this->check_matching_issued($no_spaj);
+			
+			$allowed = array('jpg', 'jpeg','png','pdf');
+			if(isset($_FILES['files']) && $_FILES['files']['error'] == 0){
+				$extension = pathinfo($_FILES['files']['name'], PATHINFO_EXTENSION);
+
+				if(!in_array(strtolower($extension), $allowed)){
+					$message=array('error'=>1,'message'=>'Invalid Extension');
+				
+					
+				}else{
+				
+					$today=($effective_dt=="" ? date("Ymd"):$effective_dt);
+				
+					if(!is_dir(realpath(".")."/submission/".$today)){
+						mkdir(realpath(".")."/submission/".$today);
+					}
+					if(!is_dir(realpath(".")."/submission/".$today."/".$no_spaj)){
+						mkdir(realpath(".")."/submission/".$today."/".$no_spaj);
+					}
+					
+					$path="/submission/".$today."/".$no_spaj."/".$doc_code.".".strtolower($extension);
+					if(file_exists(realpath(".")."/submission/".$today."/".$no_spaj."/".$doc_code.".".strtolower($extension))){
+						@unlink(realpath(".")."/submission/".$today."/".$no_spaj."/".$doc_code.".".strtolower($extension));
+					}
+					
+					if(move_uploaded_file($_FILES['files']['tmp_name'], realpath(".")."/submission/".$today."/".$no_spaj."/".$doc_code.".".strtolower($extension))){
+						//tbl_spaj_doc
+						$sql="";
+						$this->load->database();
+						$this->db->query("delete from tbl_spaj_doc where spaj_code=? and doc_type_nmbr=?",array($no_spaj,$doc_code));
+						
+						$str="insert into tbl_spaj_doc(spaj_code,doc_type_nmbr,path,create_date,create_by) values(?,?,?,NOW(),?);";
+						$this->db->query($str,array($no_spaj,$doc_code,$path,$agen_code));
+						
+						if($nomor_slip!="" and $status_issued_matching==0){
+							$this->db->query("update tbl_spaj set payment_flg=1,payment_date=effective_dt,payment_remarks=? where spaj_code=?",array($nomor_slip,$no_spaj));
+							$this->db->query("update tbl_agen_pengajuan_bisnis set no_slip=? where spaj_code=?",array($nomor_slip,$no_spaj));
+							$this->db->query("update tbl_spaj_recon set no_slip=?,last_change_date=NOW(),last_change_by=? where spaj_code=?",array($nomor_slip,$agen_code,$no_spaj));
+							//tbl_spaj_recon
+						}
+						
+						if($no_spaj_id!=""){
+							$sql="call usp_spaj_status_history_ia($no_spaj_id,'201','Submit Dokumen Pending','".$doc_code_name."','$agen_code')";
+						$this->db->query($sql);
+						}
+						
+						
+						
+						$message=array('error'=>0,'message'=>'Success ');
+					}else{
+						$message=array('error'=>1,'message'=>'Failed Upload');
+					}
+				}
+			
+			}else if($nomor_slip!="" and $status_issued_matching==0){
+					$this->db->query("update tbl_spaj set payment_flg=1,payment_date=effective_dt,payment_remarks=? where spaj_code=?",array($nomor_slip,$no_spaj));
+					$this->db->query("update tbl_agen_pengajuan_bisnis set no_slip=? where spaj_code=?",array($nomor_slip,$no_spaj));
+					$this->db->query("update tbl_spaj_recon set no_slip=? where spaj_code=?",array($nomor_slip,$no_spaj));
+					$sql="call usp_spaj_status_history_ia($no_spaj_id,'201','Submit Pending PB nomor slip','".$doc_code_name."','$agen_code')";
+					$this->db->query($sql);
+					$message=array('error'=>0,'message'=>'Success ');
+					
+			}
+		}
+		echo json_encode($message);
+	}
+	
+	private function check_matching_issued($spaj){
+		$this->load->database();
+		$query=$this->db->query("select count(1) as total from tbl_spaj_book where spaj_code='".$spaj."' and coalesce(issued_status,'N')='Y'");
+		$rows=$query->result_array();
+		return isset($rows[0]['total']) ? $rows[0]['total']:0;
+	}
+	
+	public function uploaded_document_pengajuan(){
+		$cases=$this->input->post("data",true);
+		$cases=base64_decode($cases);
+		$cases=json_decode($cases,true);
+		
+		$no_spaj=isset($cases['no_spaj']) ? $cases['no_spaj']:"";
+		$doc_code=isset($cases['doc_code']) ? $cases['doc_code']:"";
+		if($no_spaj=="" || $doc_code==""){
+			$message=array('error'=>1,'message'=>'Invalid Request','data'=>array());	
+		}else{
+			$this->load->database();
+			$query_list=$this->db->query("
+							select t.doc_type_desc,d.path from tbl_spaj_doc d 
+							join tbl_doc_type t on t.doc_type_nmbr=d.doc_type_nmbr
+							where d.spaj_code=? and d.doc_type_nmbr=? order by d.ID desc
+							",array($no_spaj,$doc_code));
+							$rows_list=$query_list->result_array();
+			$message=array('error'=>0,'message'=>'Success','data'=>$rows_list);
+		}
+		echo json_encode($message);
+		
+	}
+	/*
+	public function info(){
+		
+		//echo 1;
+		$this->sentx_notification("paulus.yunior@capitallife.co.id","paulus.yunior@capitallife.co.id","demo 123","demo 123","Marketing Support");
+	}
+	*/
+	private function sentx_notification($email_to,$email_cc,$subject,$message,$todiv){
+		$fields=array(
+		'to'=>$email_to,
+		'cc'=>$email_cc,
+		'subject'=>$subject,
+		'message'=>'Dear Bapak/Ibu '.$todiv.',<br><br>'.$message.'<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><br><br><p>Regards,<br>PT Capital Life Indonesia.</p>');
+		$fields_string="";
+		foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+		rtrim($fields_string, '&');
+
+		//open connection
+		$ch = curl_init();
+
+		//set the url, number of POST vars, POST data
+		curl_setopt($ch,CURLOPT_URL, "http://capitallife.co.id/reminder/");
+		curl_setopt($ch,CURLOPT_POST, count($fields));
+		curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+
+		//execute post
+		$result = curl_exec($ch);
+		
+		if (curl_error($ch)) {
+			$error_msg = curl_error($ch);
+			echo $error_msg;
+		}
+		echo"berihasil";
+		
+		//close connection
+		curl_close($ch);
+	}
+	
+	private function email_notification($email_to,$email_cc,$subject,$message,$todiv){
+		$fields=array(
+		'to'=>$email_to,
+		'cc'=>$email_cc,
+		'subject'=>$subject,
+		'message'=>'Dear Bapak/Ibu '.$todiv.',<br><br>'.$message.'<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><br><br><p>Regards,<br>PT Capital Life Indonesia.</p>');
+		$fields_string="";
+		foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+		rtrim($fields_string, '&');
+
+		//open connection
+		$ch = curl_init();
+
+		//set the url, number of POST vars, POST data
+		curl_setopt($ch,CURLOPT_URL, "http://capitallife.co.id/reminder/index.php");
+		curl_setopt($ch,CURLOPT_POST, count($fields));
+		curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+
+		//execute post
+		$result = curl_exec($ch);
+
+		//close connection
+		curl_close($ch);
+	}
+	
+	private function date_indo2sys($str){
+		if($str==""){
+			return "";
+		}else{
+		$arr_m=array(
+		'Januari'=>'01',
+		'Februari'=>'02',
+		'Maret'=>'03',
+		'April'=>'04',
+		'Mei'=>'05',
+		'Juni'=>'06',
+		'Juli'=>'07',
+		'Agustus'=>'08',
+		'September'=>'09',
+		'Oktober'=>'10',
+		'November'=>'11',
+		'Desember'=>'12'
+		);
+		$arr=explode(" ",$str);
+		$d=$arr[0];
+		$m=$arr_m[$arr[1]];
+		$y=$arr[2];
+		return $y.'-'.$m.'-'.$d; }
+	}
+	
+	public function check_spaj(){
+		$cases=$this->input->post("data",true);
+		$cases=base64_decode($cases);
+		$cases=json_decode($cases,true);
+		
+		$no_spaj=isset($cases['no_spaj']) ? $cases['no_spaj']:"";
+		
+		if($no_spaj==""){
+			$message=array('error'=>1,'message'=>'Invalid Request');	
+		}else{
+			$this->load->database();
+			/*
+			union
+							select spaj_code from tbl_agen_pengajuan_bisnis where coalesce(is_submited_pfa,0)=1 and coalesce(reject_status,0)=0
+			*/
+			$query_list=$this->db->query("
+							select count(1) as total from (
+							select spaj_code from tbl_spaj where spaj_code='".$no_spaj."'
+							union
+							select spaj_code from tbl_spaj_book where spaj_code='".$no_spaj."'
+							
+							) as data
+							where data.spaj_code=?
+							",array($no_spaj));
+							$rows_list=$query_list->row_array();
+			if((int)$rows_list['total']>0){
+				$message=array('error'=>1,'message'=>'No SPAJ Sudah pernah di gunakan sebelumnya');
+			}else{				
+				$message=array('error'=>0,'message'=>'Success');
+			}
+			
+		}
+		echo json_encode($message);
+	}
+	
+}

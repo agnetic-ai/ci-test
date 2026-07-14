@@ -1,0 +1,253 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Dailyreport extends CI_Controller {
+
+    public function __construct(){
+		parent::__construct();
+	}
+	public function index()
+	{
+		
+		exit;
+		
+	}
+	
+	function getDecimalMaks($string)
+	{
+		try {
+			if ($string == '' || $string == '0') $string = '0.00';
+			$string_x= explode('.',$string);
+
+			$string_a= str_replace(',', '', $string_x[0]);
+			$string= $string_a . '.' . $string_x[1];
+		
+		} catch (\Throwable $th) {
+			if ($string == '') $string = '0.00';
+		}
+		return $string;
+		}
+
+
+    public function load(){
+        $data=$this->input->post("data",true);
+		$data=base64_decode($data);
+		$data=json_decode($data,true);
+
+        $agen_code=isset($data['agen_code']) ? $data['agen_code']:"";
+        $report_date=isset($data['report_date']) ? $data['report_date']:"";
+
+        if($data=="" and $agen_code=="" and $report_date==""){
+            exit;
+        }
+
+        $this->load->database();
+        //summary per product
+        $query=$this->db->query("SELECT 
+        concat(case when s.product_code='CPL' then 'Capital Proteksi Link' else 'Capital Proteksi Plus' end,case when s.program_period!='' then 
+        concat(' (',s.program_period,')') else '' end
+        ) product_name,        
+        count(1) as total_case,
+                s.currency,
+                format(SUM(s.premium_amt),2) as premi
+                FROM `tbl_spaj` s
+                WHERE s.`effective_dt` = ? and s.spaj_code not like'%DEL%'
+                group by s.product_code,s.program_period,s.currency;
+        ",array($report_date));
+		$rows=$query->result_array();
+
+       
+        
+
+        $html='<div class="block-title">Summary Per Produk</div><div class="data-table">
+        <table>
+        <thead>
+        <tr>
+            <th class="label-cell">PRODUK</th>
+            <th class="label-cell">PENGAJUAN</th>
+            <th class="label-cell">VALUTA</th>
+            <th class="label-cell">PREMI</th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+        $total_case=0;
+        $case_idr=0;
+        $case_usd=0;
+		
+		$premi_idr=0;
+		$premi_usd=0;
+		
+        foreach($rows as $rs){
+            $total_case+=(int)$rs['total_case'];
+            $case_idr+=$rs['currency']=="IDR" ? 1:0;
+            $case_usd+=$rs['currency']=="USD" ? 1:0;
+			
+			$premi_idr+=$rs['currency']=="IDR" ? $this->getDecimalMaks($rs['premi']):0;
+            $premi_usd+=$rs['currency']=="USD" ? $this->getDecimalMaks($rs['premi']):0;
+            
+            $html.='<tr>
+                <td class="label-cell">'.$rs['product_name'].'</td>
+                <td class="label-cell">'.$rs['total_case'].'</td>
+                <td class="label-cell">'.$rs['currency'].'</td>
+                <td class="label-cell">'.$rs['premi'].'</td>
+            </tr>';
+
+        }
+        $html.='<tr>
+                <td class="label-cell">Total Pengajuan</td>
+                <td class="label-cell">'.number_format($total_case, 2, '.', ',').'</td>
+                <td class="label-cell"></td>
+                <td class="label-cell">IDR: '.number_format($premi_idr, 2, '.', ',').' | USD: '.number_format($premi_usd, 2, '.', ',').'</td>
+            </tr>';
+        $html.='</tbody></table>
+        </div><p>&nbsp;</p>';
+
+
+         //summary payment
+         
+            $query3=$this->db->query("SELECT 
+            d.tgl_transaksi,
+            d.payment_count,
+            d.payment_idr,
+            d.payment_usd,
+            d.surrender_count,
+            d.surrender_idr,
+            d.surrender_usd,
+            d.ro_count,
+            d.ro_idr,
+            d.ro_usd,
+            d.ro_old_idr,
+            d.ro_old_usd,
+            ifnull(idr.premi,0) as nb_idr,
+            ifnull(usd.premi,0) as nb_usd,
+            (coalesce(idr.total_case,0)+coalesce(usd.total_case,0)) as nb_count
+            FROM `tbl_daily_sales_aum_report` d
+            left join (SELECT 
+            s.`effective_dt` as tgl_transaksi,      
+        count(1) as total_case,
+                s.currency,
+                SUM(s.premium_amt) as premi
+                FROM `tbl_spaj` s
+                WHERE s.`effective_dt` = ? and s.currency='IDR' and s.spaj_code not like'%DEL%'
+                group by s.currency) idr on idr.tgl_transaksi=d.tgl_transaksi
+            left join (SELECT 
+            s.`effective_dt` as tgl_transaksi,      
+        count(1) as total_case,
+                s.currency,
+               SUM(s.premium_amt) as premi
+                FROM `tbl_spaj` s
+                WHERE s.`effective_dt` = ? and s.currency='USD' and s.spaj_code not like'%DEL%'
+                group by s.currency) usd on usd.tgl_transaksi=d.tgl_transaksi
+            where
+            d.tgl_transaksi=?",array($report_date,$report_date,$report_date));
+    
+
+
+    $rows3=$query3->row_array();
+
+        $html.='<div class="block-title">Summary Bisnis ('.$report_date.')</div><div class="data-table">
+        <table>
+        <thead>
+        <tr>
+            <th class="label-cell">KETERANGAN</th>
+            <th class="label-cell">VALUTA</th>
+            <th class="label-cell">NOMINAL</th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+        $html.='<tr>
+                <td class="label-cell">Maturity Normal & Relaksasi</td>
+                <td class="label-cell">IDR</td>
+                <td class="label-cell">'.number_format($rows3['payment_idr'], 2, '.', ',').'</td>
+            </tr>';
+        $html.='<tr>
+            <td class="label-cell">Maturity Normal & Relaksasi</td>
+            <td class="label-cell">USD</td>
+            <td class="label-cell">'.number_format($rows3['payment_usd'], 2, '.', ',').'</td>
+        </tr>';    
+        $html.='<tr>
+            <td class="label-cell">Surrender & Freelook</td>
+            <td class="label-cell">IDR</td>
+            <td class="label-cell">'.number_format($rows3['surrender_idr'], 2, '.', ',').'</td>
+        </tr>';
+        $html.='<tr>
+            <td class="label-cell">Surrender & Freelook</td>
+            <td class="label-cell">USD</td>
+            <td class="label-cell">'.number_format($rows3['surrender_usd'], 2, '.', ',').'</td>
+        </tr>';
+        
+        $html.='<tr>
+            <td class="label-cell">Rollover</td>
+            <td class="label-cell">IDR</td>
+            <td class="label-cell">'.number_format($rows3['ro_idr'], 2, '.', ',').'</td>
+        </tr>';
+
+        $html.='<tr>
+            <td class="label-cell">Rollover</td>
+            <td class="label-cell">USD</td>
+            <td class="label-cell">'.number_format($rows3['ro_usd'], 2, '.', ',').'</td>
+        </tr>';
+
+        $html.='<tr>
+            <td class="label-cell">PREMI NB</td>
+            <td class="label-cell">IDR</td>
+            <td class="label-cell">'.number_format($rows3['nb_idr'], 2, '.', ',').'</td>
+        </tr>';
+
+        $html.='<tr>
+            <td class="label-cell">PREMI NB</td>
+            <td class="label-cell">USD</td>
+            <td class="label-cell">'.number_format($rows3['nb_usd'], 2, '.', ',').'</td>
+        </tr>';
+
+
+        $html.='<tr>
+            <td class="label-cell">Pencapaian Bisnis</td>
+            <td class="label-cell">IDR</td>
+            <td class="label-cell">'.number_format($rows3['nb_idr']+$rows3['ro_idr']-$rows3['payment_idr']-$rows3['surrender_idr'], 2, '.', ',').'</td>
+        </tr>';
+
+        $html.='<tr>
+            <td class="label-cell">Pencapaian Bisnis</td>
+            <td class="label-cell">USD</td>
+            <td class="label-cell">'.number_format($rows3['nb_usd']+$rows3['ro_usd']-$rows3['payment_usd']-$rows3['surrender_usd'], 2, '.', ',').'</td>
+        </tr>';
+
+
+        $html.='<tr>
+            <td class="label-cell">Pencapaian AUM</td>
+            <td class="label-cell">IDR</td>
+            <td class="label-cell">'.number_format($rows3['nb_idr']+$rows3['ro_idr']-$rows3['payment_idr']-$rows3['surrender_idr']-$rows3['ro_old_idr'], 2, '.', ',').'</td>
+        </tr>';
+
+        $html.='<tr>
+            <td class="label-cell">Pencapaian AUM</td>
+            <td class="label-cell">USD</td>
+            <td class="label-cell">'.number_format($rows3['nb_usd']+$rows3['ro_usd']-$rows3['payment_usd']-$rows3['surrender_usd']-$rows3['ro_old_usd'], 2, '.', ',').'</td>
+        </tr>';
+
+        $html.='<tr>
+            <td class="label-cell">Estimasi Pengajuan Masuk</td>
+            <td class="label-cell">-</td>
+            <td class="label-cell">'.number_format($rows3['payment_count']+$rows3['surrender_count'], 2, '.', ',').'</td>
+        </tr>';
+
+        $html.='</tbody></table>
+        </div><p>&nbsp;</p>';
+
+        //print_r($rows);
+        
+        //print_r($rows2);
+
+        //print_r($rows3);
+        
+        
+        
+
+        echo $html;
+
+    }
+}

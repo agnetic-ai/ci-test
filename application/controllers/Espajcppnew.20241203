@@ -1,0 +1,3728 @@
+<?php
+use Dompdf\Dompdf;
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Espajcppnew extends CI_Controller {
+
+	public function index(){
+		exit;
+	}
+	
+	public function kyc_live(){
+		
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select 
+s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,ms.NAMA_AREA,ms.PIC_CLI,s.pfa_code from tbl_spaj s 
+left join tbl_bank_data_ms ms on ms.KODE_RM=s.agen_code
+where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		if(count($rows)<=0){
+			echo"invalid access";
+			exit;
+		}
+		
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		//DATA PENGAJUAN		
+		$json1 =$this->other_doc($trx_id,'DATA');
+		
+		
+		//echo"<pre>";
+		//print_r($json1);
+		//exit;
+		
+		
+		//DATA SPAJ
+		$json2 = $this->other_doc($trx_id,'SPAJ');
+	
+		//$decode1=json_decode($json1,true);
+		//$decode2=json_decode($json2,true);
+		
+		
+		//echo"<pre>";
+		//print_r($decode2);
+		//foreach($decode1 as $rs){
+		//	echo $rs['name']."|".$rs['value']."\n";
+		//}
+		//exit;
+		
+		//DATA PENGAJUAN		
+		//$json1 =file_get_contents(realpath(".").'/json/DATA_PENGAJUAN_20210419033207.json');
+		
+		//DATA SPAJ
+		//$json2 = file_get_contents(realpath(".").'/json/SPAJ_JSON_20210419033207.json');
+	
+		$decode1=json_decode($json1,true);
+		$decode2=json_decode($json2,true);
+		// print_r($decode3);
+		//exit;
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/kyc_new.html");
+		ob_end_clean();
+		
+		foreach($decode1 as $key => $val){
+				
+			if($val['name'] == 'gen_pria1'){
+				$gen_pria1=array(
+				'PRIA'=>'gen_pria1',
+				'WANITA'=>'gen_wanita1',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria1[$val['value']]."}","V",$content);
+				unset($gen_pria1[$val['value']]);
+				foreach($gen_pria1 as $gen_pria1_key=>$gen_pria1_val){
+					$content=str_replace("{".$gen_pria1_val."}","",$content);
+				}
+				
+			}
+							
+			if($val['name'] == 'gen_pria2'){
+				$gen_pria2=array(
+				'PRIA'=>'gen_pria2',
+				'WANITA'=>'gen_wanita2',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria2[$val['value']]."}","V",$content);
+				unset($gen_pria2[$val['value']]);
+				foreach($gen_pria2 as $gen_pria2_key=>$gen_pria2_val){
+					$content=str_replace("{".$gen_pria2_val."}","",$content);
+				}
+				
+			}
+			//$val['name'] == 'insurance_purpose1' and			
+			if( $val['name'] == 'insurance_purpose1'){
+				$insurance_purpose1=array(
+					'PROTEKSI'=>'insurance_purpose8',
+					'INVESTASI'=>'insurance_purpose9',
+					'PENDIDIKAN'=>'insurance_purpose10',
+					'PENSIUN'=>'insurance_purpose10',
+					'TUJUAN USAHA'=>'insurance_purpose10',
+					'LAIN_LAIN'=>'insurance_purpose10',
+					''=>''
+				);
+				$insurance_purpose1[$val['value']]=isset($insurance_purpose1[$val['value']]) ? $insurance_purpose1[$val['value']]:"";
+				if($insurance_purpose1[$val['value']]!=""){
+					$content=str_replace("{".$insurance_purpose1[$val['value']]."}","V",$content);
+					unset($insurance_purpose1[$val['value']]);
+					foreach($insurance_purpose1 as $insurance_purpose1_key=>$insurance_purpose1_val){
+						$content=str_replace("{".$insurance_purpose1_val."}","",$content);
+					}
+				}else{				
+					$content=str_replace("{insurance_purpose_jelaskan}",$val['value'],$content);
+				}				
+			}
+			
+			if($val['name'] == 'premium_payer1'){
+				$premium_payer1=array(
+				'PEMEGANG POLIS'=>'premium_payer1',
+				'TERTANGGUNG'=>'premium_payer2',
+				'LAINNYA'=>'premium_payer3',
+				''=>''
+				);
+				$content=str_replace("{".$premium_payer1[$val['value']]."}","V",$content);
+				unset($premium_payer1[$val['value']]);
+				foreach($premium_payer1 as $ipremium_payer1_key=>$premium_payer1_val){
+					$content=str_replace("{".$premium_payer1_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'income1'){
+				$income1=array(
+					'GAJI'=>'income1',
+					'HASIL INVESTASI'=>'income2',
+					'BISNIS PRIBADI'=>'income3',
+					'BONUS/KOMISI'=>'income4',
+					'LAINNYA'=>'income5',
+					''=>''
+				);
+				$content=str_replace("{".$income1[$val['value']]."}","V",$content);
+				unset($income1[$val['value']]);
+				foreach($income1 as $income1_key=>$income1_val){
+					$content=str_replace("{".$income1_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'gross_income1'){
+				$gross_income1=array(
+				'<60Juta'=>'gross_income1',
+				'60Juta-180Juta'=>'gross_income2',
+				'180Juta-360Juta'=>'gross_income3',
+				'360Juta-600Juta'=>'gross_income4',
+				'>600Juta'=>'gross_income5',
+				''=>''
+				);	
+				$content=str_replace("{".$gross_income1[$val['value']]."}","V",$content);
+				unset($gross_income1[$val['value']]);
+				foreach($gross_income1 as $gross_income1_key=>$gross_income1_val){
+					$content=str_replace("{".$gross_income1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'income_peryear1'){
+				$income_peryear1=array(
+					'<100Jt'=>'income_peryear1',
+					'>100Juta-500Juta'=>'income_peryear2',
+					'>500Juta-1Milyar'=>'income_peryear3',
+					'>1Milyar-10Milyar'=>'income_peryear4',
+					'>10Milyar'=>'income_peryear5',
+					// '>10 Miliar'=>'income_peryear6',
+					''=>'',
+				);
+				$content=str_replace("{".$income_peryear1[$val['value']]."}","V",$content);
+				unset($income_peryear1[$val['value']]);
+				foreach($income_peryear1 as $income_peryear1_key=>$income_peryear1_val){
+					$content=str_replace("{".$income_peryear1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'date_of_birth1'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_birth1_d}",$date[2],$content);
+				$content=str_replace("{date_of_birth1_m}",$date[1],$content);
+				$content=str_replace("{date_of_birth1_y}",$date[0],$content);
+			}
+			
+			if($val['name'] == 'date_of_birth2'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_birth2_d}",$date[2],$content);
+				$content=str_replace("{date_of_birth2_m}",$date[1],$content);
+				$content=str_replace("{date_of_birth2_y}",$date[0],$content);
+			}
+
+			if($val['name'] == 'date_of_coverage'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_coverage}",$date[2].'  -  '.$date[1].'  -  '.$date[0],$content);				
+			}
+
+			if($val['name'] == 'currency'){
+				$holderCurrency=array(
+				'IDR'=>'currency1',
+				'USD'=>'currency2',
+				''=>''
+				);	
+				$content=str_replace("{".$holderCurrency[$val['value']]."}","V",$content);
+				unset($holderCurrency[$val['value']]);
+				foreach($holderCurrency as $holderCurrency_key=>$holderCurrency_val){
+					$content=str_replace("{".$holderCurrency_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'investment_period'){
+				$holderInvestment=array(
+				'6'=>'investment_period1',
+				'12'=>'investment_period2',
+				''=>''
+				);	
+				$content=str_replace("{".$holderInvestment[$val['value']]."}","V",$content);
+				unset($holderInvestment[$val['value']]);
+				foreach($holderInvestment as $holderInvestment_key=>$holderInvestment_val){
+					$content=str_replace("{".$holderInvestment_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_frequency'){
+				$premiFrequency=array(
+					'SEKALIGUS'=>'premium_frequency1',
+					'BERKALA TAHUNAN'=>'premium_frequency2',
+					'BERKALA SEMESTERAN'=>'premium_frequency3',
+					'BERKALA KUARTALAN'=>'premium_frequency4',
+					'BERKALA BULANAN'=>'premium_frequency5',
+					''=>''
+				);	
+				$content=str_replace("{".$premiFrequency[$val['value']]."}","V",$content);
+				unset($premiFrequency[$val['value']]);
+				foreach($premiFrequency as $premiFrequency_key=>$premiFrequency_val){
+					$content=str_replace("{".$premiFrequency_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'risk_insurance_before4'){
+				$insuranceBefore=array(
+					'Ya'=>'risk_insurance_before1',
+					'Tidak'=>'risk_insurance_before2',
+					''=>''
+				);	
+				$content=str_replace("{".$insuranceBefore[$val['value']]."}","V",$content);
+				unset($insuranceBefore[$val['value']]);
+				foreach($insuranceBefore as $insuranceBefore_key=>$insuranceBefore_val){
+					$content=str_replace("{".$insuranceBefore_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'risk_insurance_percent_salary4'){
+				$insuredPercent=array(
+					'Kurang dari 10pct dari penghasilan tahunan'=>'risk_insurance_percent_salary1',
+					'Antara 10pct sd 25pct dari penghasilan tahunan'=>'risk_insurance_percent_salary2',
+					'Antara 25pct sd 50pct dari penghasilan tahunan'=>'risk_insurance_percent_salary3',
+					'Lebih dari 50pct dari penghasilan tahunan'=>'risk_insurance_percent_salary4'
+				);
+				$insuredPercent[$val['value']]=isset($insuredPercent[$val['value']]) ? $insuredPercent[$val['value']]:"";
+				$content=str_replace("{".$insuredPercent[$val['value']]."}","V",$content);
+				unset($insuredPercent[$val['value']]);
+				foreach($insuredPercent as $insuredPercent_key=>$insuredPercent_val){
+					$content=str_replace("{".$insuredPercent_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'risk_insurance_benefits4'){
+				$insuredPercent=array(
+					'Sangat mengerti'=>'risk_insurance_benefits1',
+					'Mengerti'=>'risk_insurance_benefits2',
+					'Cukup mengerti'=>'risk_insurance_benefits3',
+					'Tidak mengerti'=>'risk_insurance_benefits4',
+					''=>''
+				);	
+				$content=str_replace("{".$insuredPercent[$val['value']]."}","V",$content);
+				unset($insuredPercent[$val['value']]);
+				foreach($insuredPercent as $insuredPercent_key=>$insuredPercent_val){
+					$content=str_replace("{".$insuredPercent_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'signature_date'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{signature_date1_d}",$date[2],$content);
+				$content=str_replace("{signature_date1_m}",$date[1],$content);
+				$content=str_replace("{signature_date1_y}",$date[0],$content);
+			}
+
+			if($val['name'] == 'premium_payer_gen3'){
+				$premium_payer_gen=array(
+					'PRIA'=>'premium_payer_gen1',
+					'WANITA'=>'premium_payer_gen2',
+				''=>''
+				);
+				$content=str_replace("{".$premium_payer_gen[$val['value']]."}","V",$content);
+				unset($premium_payer_gen[$val['value']]);
+				foreach($premium_payer_gen as $premium_payer_gen_key=>$premium_payer_gen_val){
+					$content=str_replace("{".$premium_payer_gen_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'premium_payer_dob3'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{premium_payer_dob_d}",(isset($date[2]) ? $date[2]:""),$content);
+				$content=str_replace("{premium_payer_dob_m}",(isset($date[1]) ? $date[1]:""),$content);
+				$content=str_replace("{premium_payer_dob_y}",(isset($date[0]) ? $date[0]:""),$content);
+			}
+
+			if($val['name'] == 'premium_payer_relationship3'){
+				$premium_payer_relationship=array(
+					'AYAH/IBU'=>'premium_payer_relationship1',
+					'ORANG TUA'=>'premium_payer_relationship1',
+					'KAKEK/NENEK'=>'premium_payer_relationship2',
+					'ADIK/KAKAK'=>'premium_payer_relationship3',
+					'DIRI SENDIRI'=>'premium_payer_relationship4',
+					'SUAMI/ISTRI'=>'premium_payer_relationship4',
+					'ANAK'=>'premium_payer_relationship4',
+					'LAINNYA'=>'premium_payer_relationship4',
+					''=>''
+				);
+				$content=str_replace("{".$premium_payer_relationship[$val['value']]."}","V",$content);
+				unset($premium_payer_relationship[$val['value']]);
+				foreach($premium_payer_relationship as $premium_payer_relationship_key=>$premium_payer_relationship_val){
+					$content=str_replace("{".$premium_payer_relationship_val."}","",$content);
+				}
+
+				if($val['value'] == "DIRI SENDIRI" || $val['value'] == "SUAMI/ISTRI" || $val['value'] == "ANAK" ||$val['value'] == "LAINNYA" ){
+					$content=str_replace("{premium_payer_relationship5}",$val['value'],$content);
+				} else {
+					$content=str_replace("{premium_payer_relationship5}","",$content);
+				}
+
+			}
+
+			if($val['name'] == 'premium_payer_source_income3'){
+				$premium_payer_source_income=array(
+					'GAJI'=>'premium_payer_source_income1',
+					'HASIL USAHA'=>'premium_payer_source_income2',
+					'HASIL INVESTASI'=>'premium_payer_source_income3',
+					'LAINNYA'=>'premium_payer_source_income4',
+					''=>''
+				);
+				$premium_payer_source_income[$val['value']]=isset($premium_payer_source_income[$val['value']]) ? $premium_payer_source_income[$val['value']]:"";
+				$content=str_replace("{".$premium_payer_source_income[$val['value']]."}","V",$content);
+				unset($premium_payer_source_income[$val['value']]);
+				foreach($premium_payer_source_income as $premium_payer_source_income_key=>$premium_payer_source_income_val){
+					$content=str_replace("{".$premium_payer_source_income_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_gross_income3'){
+				$premium_payer_gross_income=array(
+					'<60Juta'=>'premium_payer_gross_income1',
+					'60Juta-180Juta'=>'premium_payer_gross_income2',
+					'180Juta-360Juta'=>'premium_payer_gross_income3',
+					'360Juta-600Juta'=>'premium_payer_gross_income4',
+					'>600Juta'=>'premium_payer_gross_income5',
+					''=>''
+				);
+				$content=str_replace("{".$premium_payer_gross_income[$val['value']]."}","V",$content);
+				unset($premium_payer_gross_income[$val['value']]);
+				foreach($premium_payer_gross_income as $premium_payer_gross_income_key=>$premium_payer_gross_income_val){
+					$content=str_replace("{".$premium_payer_gross_income_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_other_income3'){
+				$premium_payer_other_income=array(
+					'Tidak ada'=>'premium_payer_other_income1',
+					'Hasil Usaha'=>'premium_payer_other_income2',
+					'Warisan'=>'premium_payer_other_income3',
+					'Komisi/Honor'=>'premium_payer_other_income4',
+					''=>'premium_payer_other_income5'
+				);
+				$content=str_replace("{".$premium_payer_other_income[$val['value']]."}","V",$content);
+				unset($premium_payer_other_income[$val['value']]);
+				foreach($premium_payer_other_income as $premium_payer_other_income_key=>$premium_payer_other_income_val){
+					$content=str_replace("{".$premium_payer_other_income_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_other_income_value3'){
+				$premium_payer_other_income_value=array(
+					'<=100 Juta'=>'premium_payer_other_income_value1',
+					'>100 Juta sd 250 Juta'=>'premium_payer_other_income_value2',
+					'>250 Juta sd 500 Juta'=>'premium_payer_other_income_value3',
+					'>500 Juta sd 1 Miliar'=>'premium_payer_other_income_value4',
+					'>1 Miliar sd 10 Miliar'=>'premium_payer_other_income_value5',
+					'>10 Miliar'=>'premium_payer_other_income_value6',
+					''=>'premium_payer_other_income_value7'
+				);
+				$premium_payer_other_income_value[$val['value']]=isset($premium_payer_other_income_value[$val['value']]) ? $premium_payer_other_income_value[$val['value']]:"";
+				$content=str_replace("{".$premium_payer_other_income_value[$val['value']]."}","V",$content);
+				unset($premium_payer_other_income_value[$val['value']]);
+				foreach($premium_payer_other_income_value as $premium_payer_other_income_value_key=>$premium_payer_other_income_value_val){
+					$content=str_replace("{".$premium_payer_other_income_value_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'insurance_purpose8'){
+				$insurance_purpose8=array(
+					'Proteksi'=>'insurance_purpose8',
+					'Investasi'=>'insurance_purpose9',
+					'Pendidikan'=>'insurance_purpose10',
+					'Pensiun'=>'insurance_purpose10',
+					'Tujuan Usaha'=>'insurance_purpose10',
+					'Lain-lain'=>'insurance_purpose10',
+					''=>''
+				);	
+				$insurance_purpose8[$val['value']]=isset($insurance_purpose8[$val['value']]) ? $insurance_purpose8[$val['value']]:"";
+				$content=str_replace("{".$insurance_purpose8[$val['value']]."}","V",$content);
+				unset($insurance_purpose8[$val['value']]);
+				foreach($insurance_purpose8 as $insurance_purpose8_key=>$insurance_purpose8_val){
+					$content=str_replace("{".$insurance_purpose8_val."}","",$content);
+				}
+				
+				
+				if($val['value'] == "Pendidikan" || $val['value'] == "Pensiun" || $val['value'] == "Tujuan Usaha" ||$val['value'] == "Lain-lain" ){
+					$content=str_replace("{insurance_purpose_jelaskan}",$val['value'],$content);
+				} else {
+					$content=str_replace("{insurance_purpose_jelaskan}","",$content);
+				}
+				
+				
+			}else{
+				$val['value']=isset($val['value']) ? $val['value']:"";	
+				$content=str_replace("{".$val['name']."}",$val['value'],$content);
+			}
+		}
+		
+		foreach($decode2 as $key2 => $val2){
+
+			if($key2 == 'cpp_premi'){
+				$content=str_replace("{".$key2."}",$val2,$content);				
+			}
+
+			if($key2 == 'cpp_up'){
+				$content=str_replace("{".$key2."}",$val2,$content);				
+			}
+
+			if($key2 == 'cpp_tgl_asu'){
+				$date = explode(' ', $val2);
+
+				$day = $date[0];
+
+				$day = str_pad($day, 2, '0', STR_PAD_LEFT);
+
+				$content=str_replace("{date_of_coverage_d}",$day,$content);
+				$content=str_replace("{date_of_coverage_m}",$this->convertStringTonumberMonth($date[1]),$content);
+				$content=str_replace("{date_of_coverage_y}",$date[2],$content);
+
+				$content=str_replace("{signature_date_d}",$day,$content);
+				$content=str_replace("{signature_date_m}",$this->convertStringTonumberMonth($date[1]),$content);
+				$content=str_replace("{signature_date_y}",$date[2],$content);
+			} else {
+
+				// $content=str_replace("{".$key2."}",$val2,$content);
+
+			}
+
+			// $content=str_replace("{".$key2."}",$val2,$content);
+		}
+		
+		$content=str_replace("{signature_place}",$rows['NAMA_AREA'],$content);
+		$content=str_replace("{sales_name}",$rows['PIC_CLI'],$content);
+		
+		
+		
+		$dompdf = new Dompdf();
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/KYC_CPP_1.png")),$content);
+		$content=str_replace("{IMG_BG2}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/KYC_CPP_2.png")),$content);
+		
+		if(file_exists(realpath(".")."/template/TTD_PFA/".$rows['pfa_code'].".png")){
+			$content=str_replace("{IMG_SIGNATURE}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/TTD_PFA/".$rows['pfa_code'].".png")),$content);
+			
+		}else{
+			$content=str_replace("{IMG_SIGNATURE}","",$content);
+		}
+		$dompdf->loadHtml($content);
+
+		$sizePaper = array(0,0,610,955);
+		$dompdf->setPaper($sizePaper, "portrait");
+		$dompdf->render();
+		$dompdf->stream("cpp_page1_new.pdf",array("Attachment"=>0));
+	}
+	
+	
+	public function kyc(){
+		//DATA PENGAJUAN		
+		$json1 =file_get_contents(realpath(".").'/json/DATA_PENGAJUAN_20210419033207.json');
+		
+		//DATA SPAJ
+		$json2 = file_get_contents(realpath(".").'/json/SPAJ_JSON_20210419033207.json');
+	
+		$decode1=json_decode($json1,true);
+		$decode2=json_decode($json2,true);
+		// print_r($decode3);
+		//exit;
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/kyc_new.html");
+		ob_end_clean();
+		
+		foreach($decode1 as $key => $val){
+				
+			if($val['name'] == 'gen_pria1'){
+				$gen_pria1=array(
+				'PRIA'=>'gen_pria1',
+				'WANITA'=>'gen_wanita1',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria1[$val['value']]."}","V",$content);
+				unset($gen_pria1[$val['value']]);
+				foreach($gen_pria1 as $gen_pria1_key=>$gen_pria1_val){
+					$content=str_replace("{".$gen_pria1_val."}","",$content);
+				}
+				
+			}
+							
+			if($val['name'] == 'gen_pria2'){
+				$gen_pria2=array(
+				'PRIA'=>'gen_pria2',
+				'WANITA'=>'gen_wanita2',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria2[$val['value']]."}","V",$content);
+				unset($gen_pria2[$val['value']]);
+				foreach($gen_pria2 as $gen_pria2_key=>$gen_pria2_val){
+					$content=str_replace("{".$gen_pria2_val."}","",$content);
+				}
+				
+			}
+						
+			if($val['name'] == 'insurance_purpose1'){
+				$insurance_purpose1=array(
+					'PROTEKSI'=>'insurance_purpose1',
+					'INVESTASI'=>'insurance_purpose2',
+					'PENDIDIKAN'=>'insurance_purpose3',
+					'PENSIUN'=>'insurance_purpose4',
+					'TUJUAN USAHA'=>'insurance_purpose5',
+					'LAIN_LAIN'=>'insurance_purpose6',
+					''=>''
+				);
+				$content=str_replace("{".$insurance_purpose1[$val['value']]."}","V",$content);
+				unset($insurance_purpose1[$val['value']]);
+				foreach($insurance_purpose1 as $insurance_purpose1_key=>$insurance_purpose1_val){
+					$content=str_replace("{".$insurance_purpose1_val."}","",$content);
+				}
+				
+				
+			}
+			
+			if($val['name'] == 'premium_payer1'){
+				$premium_payer1=array(
+				'PEMEGANG POLIS'=>'premium_payer1',
+				'TERTANGGUNG'=>'premium_payer2',
+				'LAINNYA'=>'premium_payer3',
+				''=>''
+				);
+				$content=str_replace("{".$premium_payer1[$val['value']]."}","V",$content);
+				unset($premium_payer1[$val['value']]);
+				foreach($premium_payer1 as $ipremium_payer1_key=>$premium_payer1_val){
+					$content=str_replace("{".$premium_payer1_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'income1'){
+				$income1=array(
+					'GAJI'=>'income1',
+					'HASIL INVESTASI'=>'income2',
+					'BISNIS PRIBADI'=>'income3',
+					'BONUS/KOMISI'=>'income4',
+					'LAINNYA'=>'income5',
+					''=>''
+				);
+				$content=str_replace("{".$income1[$val['value']]."}","V",$content);
+				unset($income1[$val['value']]);
+				foreach($income1 as $income1_key=>$income1_val){
+					$content=str_replace("{".$income1_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'gross_income1'){
+				$gross_income1=array(
+				'<60Juta'=>'gross_income1',
+				'60Juta-180Juta'=>'gross_income2',
+				'180Juta-360Juta'=>'gross_income3',
+				'360Juta-600Juta'=>'gross_income4',
+				'>600Juta'=>'gross_income5',
+				''=>''
+				);	
+				$content=str_replace("{".$gross_income1[$val['value']]."}","V",$content);
+				unset($gross_income1[$val['value']]);
+				foreach($gross_income1 as $gross_income1_key=>$gross_income1_val){
+					$content=str_replace("{".$gross_income1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'assets1'){
+				$assets1=array(
+					'NOT'=>'assets1',
+					'BUSINESS'=>'assets2',
+					'INHERITANCE'=>'assets3',
+					'COMMISSION/HONOR'=>'assets4',
+					''=>'assets5'
+				);	
+				$content=str_replace("{".$assets1[$val['value']]."}","V",$content);
+				unset($assets1[$val['value']]);
+				foreach($assets1 as $assets1_key=>$assets1_val){
+					$content=str_replace("{".$assets1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'income_peryear1'){
+				$income_peryear1=array(
+				'<100Jt'=>'income_peryear1',
+				'100Juta-500Juta'=>'income_peryear2',
+				'>500Juta-1Milyar'=>'income_peryear3',
+				'>1Milyar-10Milyar'=>'income_peryear4',
+				'>10Milyar'=>'income_peryear5',
+				''=>''
+				);	
+				$content=str_replace("{".$income_peryear1[$val['value']]."}","V",$content);
+				unset($income_peryear1[$val['value']]);
+				foreach($income_peryear1 as $income_peryear1_key=>$income_peryear1_val){
+					$content=str_replace("{".$income_peryear1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'date_of_birth1'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_birth1_d}",$date[2],$content);
+				$content=str_replace("{date_of_birth1_m}",$date[1],$content);
+				$content=str_replace("{date_of_birth1_y}",$date[0],$content);
+			}
+			
+			if($val['name'] == 'date_of_birth2'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_birth2_d}",$date[2],$content);
+				$content=str_replace("{date_of_birth2_m}",$date[1],$content);
+				$content=str_replace("{date_of_birth2_y}",$date[0],$content);
+			}
+
+			if($val['name'] == 'subscribe1_y'){
+				$subscribe1=array(
+				'YES'=>'subscribe1_y',
+				'NO'=>'subscribe1_n',
+				);
+				$content=str_replace("{".$subscribe1[$val['value']]."}","V",$content);
+				unset($subscribe1[$val['value']]);
+				foreach($subscribe1 as $subscribe1_key=>$subscribe1_val){
+					$content=str_replace("{".$subscribe1_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'subscribe2_y'){
+				$subscribe2=array(
+				'YES'=>'subscribe2_y',
+				'NO'=>'subscribe2_n',
+				);
+				$content=str_replace("{".$subscribe2[$val['value']]."}","V",$content);
+				unset($subscribe2[$val['value']]);
+				foreach($subscribe2 as $subscribe2_key=>$subscribe2_val){
+					$content=str_replace("{".$subscribe2_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'subscribe3_y'){
+				$subscribe3=array(
+				'YES'=>'subscribe3_y',
+				'NO'=>'subscribe3_n',
+				);
+				$content=str_replace("{".$subscribe3[$val['value']]."}","V",$content);
+				unset($subscribe3[$val['value']]);
+				foreach($subscribe3 as $subscribe3_key=>$subscribe3_val){
+					$content=str_replace("{".$subscribe3_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'policy_holder_legal_entity'){
+				$holderLegal=array(
+				'SWASTA'=>'policy_holder_legal_entity1',
+				'BUMN'=>'policy_holder_legal_entity2',
+				'UMKM'=>'policy_holder_legal_entity3',
+				'YAYASAN'=>'policy_holder_legal_entity4',
+				''=>'policy_holder_legal_entity5',
+				);
+				$content=str_replace("{".$holderLegal[$val['value']]."}","V",$content);
+				unset($holderLegal[$val['value']]);
+				foreach($holderLegal as $holderLegal_key=>$holderLegal_val){
+					$content=str_replace("{".$holderLegal_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'policy_holder_asset_company'){
+				$holderAsset=array(
+					'<100Jt'=>'policy_holder_asset_company1',
+					'100Juta-1Milyar'=>'policy_holder_asset_company2',
+					'>1Milyar-10Milyar'=>'policy_holder_asset_company3',
+					'>10Milyar-100Milyar'=>'policy_holder_asset_company4',
+					'>100Milyar-500Milyar'=>'policy_holder_asset_company5',
+					);
+				$content=str_replace("{".$holderAsset[$val['value']]."}","V",$content);
+				unset($holderAsset[$val['value']]);
+				foreach($holderAsset as $holderAsset_key=>$holderAsset_val){
+					$content=str_replace("{".$holderAsset_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'policy_holder_income_company'){
+				$holderIncome=array(
+				'<100Jt'=>'policy_holder_income_company1',
+				'100Juta-1Milyar'=>'policy_holder_income_company2',
+				'>1Milyar-10Milyar'=>'policy_holder_income_company3',
+				'>10Milyar-100Milyar'=>'policy_holder_income_company4',
+				'>100Milyar'=>'policy_holder_income_company5',
+				''=>''
+				);	
+				$content=str_replace("{".$holderIncome[$val['value']]."}","V",$content);
+				unset($holderIncome[$val['value']]);
+				foreach($holderIncome as $holderIncome_key=>$holderIncome_val){
+					$content=str_replace("{".$holderIncome_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'date_of_coverage'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_coverage}",$date[2].'  -  '.$date[1].'  -  '.$date[0],$content);				
+			}
+
+			if($val['name'] == 'currency'){
+				$holderCurrency=array(
+				'IDR'=>'currency1',
+				'USD'=>'currency2',
+				''=>''
+				);	
+				$content=str_replace("{".$holderCurrency[$val['value']]."}","V",$content);
+				unset($holderCurrency[$val['value']]);
+				foreach($holderCurrency as $holderCurrency_key=>$holderCurrency_val){
+					$content=str_replace("{".$holderCurrency_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'investment_period'){
+				$holderInvestment=array(
+				'6'=>'investment_period1',
+				'12'=>'investment_period2',
+				''=>''
+				);	
+				$content=str_replace("{".$holderInvestment[$val['value']]."}","V",$content);
+				unset($holderInvestment[$val['value']]);
+				foreach($holderInvestment as $holderInvestment_key=>$holderInvestment_val){
+					$content=str_replace("{".$holderInvestment_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'sum_insured'){
+				$sum = number_format($val['value'], 2, ',', '.');
+
+				$content=str_replace("{sum_insured}", 'RP '.$sum, $content);				
+			}
+			
+			if($val['name'] == 'premium_plan'){
+				$sum = number_format($val['value'], 2, ',', '.');
+
+				$content=str_replace("{premium_plan}", 'RP '.$sum, $content);				
+			}
+
+			if($val['name'] == 'premium_frequency'){
+				$premiFrequency=array(
+					'SEKALIGUS'=>'premium_frequency1',
+					'BERKALA TAHUNAN'=>'premium_frequency2',
+					'BERKALA SEMESTERAN'=>'premium_frequency3',
+					'BERKALA KUARTALAN'=>'premium_frequency4',
+					'BERKALA BULANAN'=>'premium_frequency5',
+					''=>''
+				);	
+				$content=str_replace("{".$premiFrequency[$val['value']]."}","V",$content);
+				unset($premiFrequency[$val['value']]);
+				foreach($premiFrequency as $premiFrequency_key=>$premiFrequency_val){
+					$content=str_replace("{".$premiFrequency_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'risk_insurance_before'){
+				$insuranceBefore=array(
+					'YA'=>'risk_insurance_before1',
+					'TIDAK'=>'risk_insurance_before2',
+					''=>''
+				);	
+				$content=str_replace("{".$insuranceBefore[$val['value']]."}","V",$content);
+				unset($insuranceBefore[$val['value']]);
+				foreach($insuranceBefore as $insuranceBefore_key=>$insuranceBefore_val){
+					$content=str_replace("{".$insuranceBefore_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'risk_insurance_percent_salary'){
+				$insuredPercent=array(
+					'<10'=>'risk_insurance_percent_salary1',
+					'10-25'=>'risk_insurance_percent_salary2',
+					'25-50'=>'risk_insurance_percent_salary3',
+					'>50'=>'risk_insurance_percent_salary4',
+					''=>''
+				);	
+				$content=str_replace("{".$insuredPercent[$val['value']]."}","V",$content);
+				unset($insuredPercent[$val['value']]);
+				foreach($insuredPercent as $insuredPercent_key=>$insuredPercent_val){
+					$content=str_replace("{".$insuredPercent_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'risk_insurance_benefits'){
+				$insuredPercent=array(
+					'SANGAT MENGERTI'=>'risk_insurance_benefits1',
+					'MENGERTI'=>'risk_insurance_benefits2',
+					'CUKUP MENGERTI'=>'risk_insurance_benefits3',
+					'TIDAK MENGERTI'=>'risk_insurance_benefits4',
+					''=>''
+				);	
+				$content=str_replace("{".$insuredPercent[$val['value']]."}","V",$content);
+				unset($insuredPercent[$val['value']]);
+				foreach($insuredPercent as $insuredPercent_key=>$insuredPercent_val){
+					$content=str_replace("{".$insuredPercent_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'signature_date'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{signature_date1_d}",$date[2],$content);
+				$content=str_replace("{signature_date1_m}",$date[1],$content);
+				$content=str_replace("{signature_date1_y}",$date[0],$content);
+			}
+
+			if($val['name'] == 'premium_payer_gen'){
+				$premium_payer_gen=array(
+					'PRIA'=>'premium_payer_gen1',
+					'WANITA'=>'premium_payer_gen2',
+				''=>''
+				);
+				$content=str_replace("{".$premium_payer_gen[$val['value']]."}","V",$content);
+				unset($premium_payer_gen[$val['value']]);
+				foreach($premium_payer_gen as $premium_payer_gen_key=>$premium_payer_gen_val){
+					$content=str_replace("{".$premium_payer_gen_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'premium_payer_dob'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{premium_payer_dob_d}",$date[2],$content);
+				$content=str_replace("{premium_payer_dob_m}",$date[1],$content);
+				$content=str_replace("{premium_payer_dob_y}",$date[0],$content);
+			}
+
+			if($val['name'] == 'premium_payer_relationship'){
+				$premium_payer_relationship=array(
+					'AYAH/IBU'=>'premium_payer_relationship1',
+					'KAKEK/NENEK'=>'premium_payer_relationship2',
+					'ADIK/KAKAK'=>'premium_payer_relationship3',
+					'LAINNYA'=>'premium_payer_relationship4',
+					''=>''
+				);
+				$content=str_replace("{".$premium_payer_relationship[$val['value']]."}","V",$content);
+				unset($premium_payer_relationship[$val['value']]);
+				foreach($premium_payer_relationship as $premium_payer_relationship_key=>$premium_payer_relationship_val){
+					$content=str_replace("{".$premium_payer_relationship_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'premium_payer_source_income'){
+				$premium_payer_source_income=array(
+					'GAJI'=>'premium_payer_source_income1',
+					'HASIL USAHA'=>'premium_payer_source_income2',
+					'INVESTASI/TABUNGAN'=>'premium_payer_source_income3',
+					'LAINNYA'=>'premium_payer_source_income4',
+					''=>''
+				);
+				$content=str_replace("{".$premium_payer_source_income[$val['value']]."}","V",$content);
+				unset($premium_payer_source_income[$val['value']]);
+				foreach($premium_payer_source_income as $premium_payer_source_income_key=>$premium_payer_source_income_val){
+					$content=str_replace("{".$premium_payer_source_income_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_gross_income'){
+				$premium_payer_gross_income=array(
+					'<=60Juta'=>'premium_payer_gross_income1',
+					'>60Juta-180Juta'=>'premium_payer_gross_income2',
+					'>180Juta-360Juta'=>'premium_payer_gross_income3',
+					'>360Juta-600Juta'=>'premium_payer_gross_income4',
+					'>600Juta'=>'premium_payer_gross_income5',
+					''=>''
+				);
+				$content=str_replace("{".$premium_payer_gross_income[$val['value']]."}","V",$content);
+				unset($premium_payer_gross_income[$val['value']]);
+				foreach($premium_payer_gross_income as $premium_payer_gross_income_key=>$premium_payer_gross_income_val){
+					$content=str_replace("{".$premium_payer_gross_income_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_other_income'){
+				$premium_payer_other_income=array(
+					'NOT'=>'premium_payer_other_income1',
+					'BUSINESS'=>'premium_payer_other_income2',
+					'INHERITANCE'=>'premium_payer_other_income3',
+					'COMMISSION/HONOR'=>'premium_payer_other_income4',
+					''=>'premium_payer_other_income5'
+				);
+				$content=str_replace("{".$premium_payer_other_income[$val['value']]."}","V",$content);
+				unset($premium_payer_other_income[$val['value']]);
+				foreach($premium_payer_other_income as $premium_payer_other_income_key=>$premium_payer_other_income_val){
+					$content=str_replace("{".$premium_payer_other_income_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_other_income_value'){
+				$premium_payer_other_income_value=array(
+					'<100juta'=>'premium_payer_other_income_value1',
+					'>100Juta-250Juta'=>'premium_payer_other_income_value2',
+					'>250Juta-500Juta'=>'premium_payer_other_income_value3',
+					'>500Juta-1Milyar'=>'premium_payer_other_income_value4',
+					'>1Milyar-10Milyar'=>'premium_payer_other_income_value5',
+					'>500-1Milyar'=>'premium_payer_other_income_value6',
+					''=>'premium_payer_other_income_value7'
+				);
+				$content=str_replace("{".$premium_payer_other_income_value[$val['value']]."}","V",$content);
+				unset($premium_payer_other_income_value[$val['value']]);
+				foreach($premium_payer_other_income_value as $premium_payer_other_income_value_key=>$premium_payer_other_income_value_val){
+					$content=str_replace("{".$premium_payer_other_income_value_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'insurance_purpose8'){
+				$insurance_purpose8=array(
+				'Proteksi Pendapatan'=>'insurance_purpose8',
+				'Proteksi Kredit'=>'insurance_purpose9',
+				'Lain-lain'=>'insurance_purpose10',
+				''=>''
+				);	
+				$content=str_replace("{".$insurance_purpose8[$val['value']]."}","V",$content);
+				unset($insurance_purpose8[$val['value']]);
+				foreach($insurance_purpose8 as $insurance_purpose8_key=>$insurance_purpose8_val){
+					$content=str_replace("{".$insurance_purpose8_val."}","",$content);
+				}
+				
+			}else{
+				$content=str_replace("{".$val['name']."}",$val['value'],$content);
+			}
+		}
+		
+		foreach($decode2 as $key2 => $val2){
+			$content=str_replace("{".$key2."}",$val2,$content);
+		}
+		
+		$dompdf = new Dompdf();
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/KYC_CPP_1.png")),$content);
+		$content=str_replace("{IMG_BG2}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/KYC_CPP_2.png")),$content);
+		//$content=str_replace("{IMG_SIGNATURE}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."\\dist\\img\\SIGNATURE.png")),$content);
+
+		$dompdf->loadHtml($content);
+
+		$sizePaper = array(0,0,610,955);
+		$dompdf->setPaper($sizePaper, "portrait");
+		$dompdf->render();
+		$dompdf->stream("cpp_page1_new.pdf",array("Attachment"=>0));
+	}
+	
+	public function cppnew(){
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select 
+s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.nama_tt,s.effective_dt,s.last_change_dt,s.status_qc,
+DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,ms.NAMA_AREA,s.pfa_code,ms.NAMA_RM,pfa.pfa_desc,ms.KODE_RM,pfa.kode_agen from tbl_spaj s 
+left join tbl_pfa pfa on pfa.pfa_code=s.pfa_code
+left join tbl_bank_data_ms ms on ms.KODE_RM=s.agen_code
+where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		if(count($rows)<=0){
+			echo"invalid access";
+			exit;
+		}
+		
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		//DATA PENGAJUAN		
+		$json1 =$this->other_doc($trx_id,'DATA');
+		$json2 =$this->other_doc($trx_id,'SPAJ');
+		$json3 =$this->other_doc($trx_id,'AHLI');
+		
+		/*
+		//DATA PENGAJUAN		
+		// $json1 =file_get_contents(realpath(".").'/json/DATA_PENGAJUAN_20210419033207.json');
+		$json1 =file_get_contents(realpath(".").'/json/DATA_PENGAJUAN_20240708045308.json');
+		
+		//DATA SPAJ
+		// $json2 = file_get_contents(realpath(".").'/json/SPAJ_JSON_20210419033207.json');
+		$json2 = file_get_contents(realpath(".").'/json/SPAJ_JSON_20240708045308.json');
+		
+		//DATA AHLI WARIS
+		// $json3 = file_get_contents(realpath(".").'/json/AHLI_WARIS_20210419033207.json');
+		$json3 = file_get_contents(realpath(".").'/json/AHLI_WARIS_20240708045308.json');
+		*/
+		
+		$decode1=json_decode($json1,true);
+		$decode2=json_decode($json2,true);
+		$decode3=json_decode($json3,true);
+		// print_r($decode2);
+		// exit;
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/cpp_page1_new.html");
+		ob_end_clean();
+		
+		$full_name1="";
+		$full_name2="";
+		$premium_payer_name3="";
+		
+		$status_nasabah=isset($decode1[0]['value']) ? $decode1[0]['value']:"Individu";
+		$company_jenis_badan_hukum1="";
+		$is_individu=false;
+		$fullname_company="";
+		
+		foreach($decode1 as $key=>$val){
+
+			if ($val['name'] == 'identity_type_ktp1'){
+				$identity_type_ktp1=array(
+				'KTP'=>'identity_type_ktp1',
+				'SIM'=>'identity_type_sim1',
+				'PASPORT'=>'identity_type_paspor1',
+				'AKTE'=>'identity_type_akte1',
+				'LAINNYA'=>'identity_type_lain1',
+				''=>''
+				);
+				$content=str_replace("{".$identity_type_ktp1[$val['value']]."}","V",$content);
+				unset($identity_type_ktp1[$val['value']]);
+				foreach($identity_type_ktp1 as $identity_type_ktp1_key=>$identity_type_ktp1_val){
+					$content=str_replace("{".$identity_type_ktp1_val."}","",$content);
+				}		
+			}
+
+			if ($val['name'] == 'citizenship_wni1'){
+					$citizenship1=array(
+					'WNI'=>'citizenship_wni1',
+					'WNA'=>'citizenship_wna1',
+					''=>''
+					);
+					$content=str_replace("{".$citizenship1[$val['value']]."}","V",$content);
+					unset($citizenship1[$val['value']]);
+					foreach($citizenship1 as $citizenship1_key=>$citizenship1_val){
+						$content=str_replace("{".$citizenship1_val."}","",$content);
+					}
+					
+			}
+				
+			if($val['name'] == 'gen_pria1'){
+				$gen_pria1=array(
+				'PRIA'=>'gen_pria1',
+				'WANITA'=>'gen_wanita1',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria1[$val['value']]."}","V",$content);
+				unset($gen_pria1[$val['value']]);
+				foreach($gen_pria1 as $gen_pria1_key=>$gen_pria1_val){
+					$content=str_replace("{".$gen_pria1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name'] == 'status_menikah1'){
+				$status_menikah1=array(
+				'MENIKAH'=>'status_menikah1',
+				'BELUM MENIKAH'=>'status_belum1',
+				'JANDA/DUDA'=>'status_janda_duda1',
+				'LAINNYA'=>'status_lain1',
+				''=>''
+				);
+				$content=str_replace("{".$status_menikah1[$val['value']]."}","V",$content);
+				unset($status_menikah1[$val['value']]);
+				foreach($status_menikah1 as $status_menikah1_key=>$status_menikah1_val){
+					$content=str_replace("{".$status_menikah1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name'] == 'religion_islam1'){
+				$religion_islam1=array(
+				'ISLAM'=>'religion_islam1',
+				'KRISTEN'=>'religion_kristen1',
+				'KATHOLIK'=>'religion_katholik1',
+				'BUDHA'=>'religion_budha1',
+				'HINDU'=>'religion_hindu1',
+				'KONGHUCU'=>'religion_konghucu1',
+				'LAINNYA'=>'religion_lainnya1'
+				);
+				$content=str_replace("{".$religion_islam1[$val['value']]."}","V",$content);
+				unset($religion_islam1[$val['value']]);
+				foreach($religion_islam1 as $religion_islam1_key=>$religion_islam1_val){
+					$content=str_replace("{".$religion_islam1_val."}","",$content);
+				}
+				
+			}
+
+			if ($val['name'] == 'citizenship_wni2'){
+					$citizenship2=array(
+					'WNI'=>'citizenship_wni2',
+					'WNA'=>'citizenship_wna2',
+					''=>''
+					);
+					$content=str_replace("{".$citizenship2[$val['value']]."}",'V',$content);
+					unset($citizenship2[$val['value']]);
+					foreach($citizenship2 as $citizenship2_key=>$citizenship2_val){
+						$content=str_replace("{".$citizenship2_val."}","",$content);
+					}
+					
+			}
+			
+			if($val['name'] == 'relationship_diri2'){
+				$relationship_diri2=array(
+				'DIRI SENDIRI'=>'relationship_diri2',
+				'SUAMI/ISTRI'=>'relationship_suami2',
+				'ANAK'=>'relationship_anak2',
+				'ORANG TUA'=>'relationship_orangtua2',
+				'LAINNYA'=>'relationship_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$relationship_diri2[$val['value']]."}","V",$content);
+				unset($relationship_diri2[$val['value']]);
+				foreach($relationship_diri2 as $relationship_diri2_key=>$relationship_diri2_val){
+					$content=str_replace("{".$relationship_diri2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name'] == 'identity_type_ktp2'){
+				$identity_type_ktp2=array(
+				'KTP'=>'identity_type_ktp2',
+				'SIM'=>'identity_type_sim2',
+				'PASPORT'=>'identity_type_paspor2',
+				'AKTE'=>'identity_type_akte2',
+				'LAINNYA'=>'identity_type_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$identity_type_ktp2[$val['value']]."}","V",$content);
+				unset($identity_type_ktp2[$val['value']]);
+				foreach($identity_type_ktp2 as $identity_type_ktp2_key=>$identity_type_ktp2_val){
+					$content=str_replace("{".$identity_type_ktp2_val."}","",$content);
+				}
+				
+			}
+				
+			if($val['name'] == 'gen_pria2'){
+				$gen_pria2=array(
+				'PRIA'=>'gen_pria2',
+				'WANITA'=>'gen_wanita2',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria2[$val['value']]."}","V",$content);
+				unset($gen_pria2[$val['value']]);
+				foreach($gen_pria2 as $gen_pria2_key=>$gen_pria2_val){
+					$content=str_replace("{".$gen_pria2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name'] == 'status_menikah2'){
+				$status_menikah2=array(
+				'MENIKAH'=>'status_menikah2',
+				'BELUM MENIKAH'=>'status_belum2',
+				'JANDA/DUDA'=>'status_janda_duda2',
+				'LAINNYA'=>'status_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$status_menikah2[$val['value']]."}","V",$content);
+				unset($status_menikah2[$val['value']]);
+				foreach($status_menikah2 as $status_menikah2_key=>$status_menikah2_val){
+					$content=str_replace("{".$status_menikah2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name'] == 'religion_islam2'){
+				$religion_islam2=array(
+				'ISLAM'=>'religion_islam2',
+				'KRISTEN'=>'religion_kristen2',
+				'KATHOLIK'=>'religion_katholik2',
+				'BUDHA'=>'religion_budha2',
+				'HINDU'=>'religion_hindu2',
+				'KONGHUCU'=>'religion_konghucu2',
+				'LAINNYA'=>'religion_lainnya2'
+				);
+				$content=str_replace("{".$religion_islam2[$val['value']]."}","V",$content);
+				unset($religion_islam2[$val['value']]);
+				foreach($religion_islam2 as $religion_islam2_key=>$religion_islam2_val){
+					$content=str_replace("{".$religion_islam2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name'] == 'insurance_purpose1'){
+				$insurance_purpose1=array(
+				'PROTEKSI'=>'insurance_purpose8',
+				'INVESTASI'=>'insurance_purpose9',
+				'PENDIDIKAN'=>'insurance_purpose10',
+				'PENSIUN'=>'insurance_purpose10',
+				'TUJUAN USAHA'=>'insurance_purpose10',
+				'LAIN_LAIN'=>'insurance_purpose10',
+				''=>''
+				);
+				$content=str_replace("{".$insurance_purpose1[$val['value']]."}","V",$content);
+				unset($insurance_purpose1[$val['value']]);
+				foreach($insurance_purpose1 as $insurance_purpose1_key=>$insurance_purpose1_val){
+					$content=str_replace("{".$insurance_purpose1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name'] == 'premium_payer1'){
+				$premium_payer1=array(
+				'PEMEGANG POLIS'=>'premium_payer1',
+				'TERTANGGUNG'=>'premium_payer2',
+				'LAINNYA'=>'premium_payer3',
+				''=>''
+				);
+				$content=str_replace("{".$premium_payer1[$val['value']]."}","V",$content);
+				unset($premium_payer1[$val['value']]);
+				foreach($premium_payer1 as $ipremium_payer1_key=>$premium_payer1_val){
+					$content=str_replace("{".$premium_payer1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'income1'){
+				$income1=array(
+				'GAJI'=>'income1',
+				'HASIL INVESTASI'=>'income3',
+				'BISNIS PRIBADI'=>'income2',
+				'BONUS/KOMISI'=>'income4',
+				'LAINNYA'=>'income5',
+				''=>''
+				);
+				/*
+				if($val['value']=="BISNIS PRIBADI"){
+					$val['value']="HASIL INVESTASI";
+				}
+				
+				if($val['value']=="HASIL INVESTASI"){
+					$val['value']="HASIL INVESTASI";
+				}
+				*/
+				if($val['value']=="BONUS/KOMISI"){
+					$val['value']="LAINNYA";
+				}
+				$content=str_replace("{".$income1[$val['value']]."}","V",$content);
+				unset($income1[$val['value']]);
+				foreach($income1 as $income1_key=>$income1_val){
+					$content=str_replace("{".$income1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'gross_income1'){
+				$gross_income1=array(
+				'<60Juta'=>'gross_income1',
+				'60Juta-180Juta'=>'gross_income2',
+				'180Juta-360Juta'=>'gross_income3',
+				'360Juta-600Juta'=>'gross_income4',
+				'>600Juta'=>'gross_income5',
+				''=>''
+				);	
+				$content=str_replace("{".$gross_income1[$val['value']]."}","V",$content);
+				unset($gross_income1[$val['value']]);
+				foreach($gross_income1 as $gross_income1_key=>$gross_income1_val){
+					$content=str_replace("{".$gross_income1_val."}","",$content);
+				}	
+				
+			}
+			
+			
+			
+			
+				if($val['name'] == 'company_jenis_badan_hukum1'){
+					$company_jenis_badan_hukum1=$val['value'];
+					$gross_income1=array(
+						'Swasta'=>'policy_holder_legal_entity1',
+						'BUMN'=>'policy_holder_legal_entity2',
+						'Perusahaann UMKM'=>'policy_holder_legal_entity3',
+						'Yayasan/LSM'=>'policy_holder_legal_entity4',
+						'Wiraswasta'=>'policy_holder_legal_entity5',
+						'Ibu Rumah Tangga'=>'policy_holder_legal_entity5',
+						''=>'policy_holder_legal_entity5'
+					);
+					
+					if($is_individu){
+						$content=str_replace("{".$gross_income1[$val['value']]."}","",$content);
+					}else{
+						$content=str_replace("{".$gross_income1[$val['value']]."}","V",$content);
+					}
+					unset($gross_income1[$val['value']]);
+					foreach($gross_income1 as $gross_income1_key=>$gross_income1_val){
+						$content=str_replace("{".$gross_income1_val."}","",$content);
+					}	
+					
+				}
+			
+			/*
+			if($val['name'] == 'assets1'){
+				$assets1=array(
+					'<100Jt'=>'assets1',
+					'>100Juta-500Juta'=>'assets2',
+					'>500Juta-1Milyar'=>'assets3',
+					'>1Milyar-10Milyar'=>'assets4',
+					'>10Milyar'=>'assets5',
+					''=>'',
+				);
+				$content=str_replace("{".$assets1[$val['value']]."}","V",$content);
+				unset($assets1[$val['value']]);
+				foreach($assets1 as $assets1_key=>$assets1_val){
+					$content=str_replace("{".$assets1_val."}","",$content);
+				}
+				
+			}*/
+			
+			// '<100Jt;>100Juta-500Juta;>500Juta-1Milyar;>1Milyar-10Milyar;>10Milyar'
+			if($val['name'] == 'income_peryear1'){
+				$income_peryear1=array(
+					'<100Jt'=>'policy_holder_income_company1',
+					'>100Juta-500Juta'=>'policy_holder_income_company2',
+					'>500Juta-1Milyar'=>'policy_holder_income_company3',
+					'>1Milyar-10Milyar'=>'policy_holder_income_company4',
+					'>10Milyar'=>'policy_holder_income_company5',
+					// '>10 Miliar'=>'policy_holder_income_company6',
+					''=>'',
+				);	
+				$content=str_replace("{".$income_peryear1[$val['value']]."}","V",$content);
+				unset($income_peryear1[$val['value']]);
+				foreach($income_peryear1 as $income_peryear1_key=>$income_peryear1_val){
+					$content=str_replace("{".$income_peryear1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name'] == 'date_of_birth1'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_birth1_d}",$date[2],$content);
+				$content=str_replace("{date_of_birth1_m}",$date[1],$content);
+				$content=str_replace("{date_of_birth1_y}",$date[0],$content);
+			}
+			
+			if($val['name'] == 'date_of_birth2'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{date_of_birth2_d}",$date[2],$content);
+				$content=str_replace("{date_of_birth2_m}",$date[1],$content);
+				$content=str_replace("{date_of_birth2_y}",$date[0],$content);
+			}
+
+			if($val['name'] == 'profession1'){
+				$company_jenis_badan_hukum1=isset($decode1[26]['value']) ? $decode1[26]['value']:"";;
+				$gross_income1=array(
+					'Swasta'=>'profession_karyawan1',
+					'BUMN'=>'profession_pegawai1',
+					'Perusahaann UMKM'=>'profession_pegawai1',
+					'Yayasan/LSM'=>'profession_lainnya1',
+					'Pelajar'=>'profession_pelajar1',
+					'Wiraswasta'=>'profession_wiraswasta1',
+					'Ibu Rumah Tangga'=>'profession_irt1',
+					''=>'profession_lainnya1'
+				);	
+				$content=str_replace("{".$gross_income1[$company_jenis_badan_hukum1]."}","V",$content);
+				unset($gross_income1[$val['value']]);
+				foreach($gross_income1 as $gross_income1_key=>$gross_income1_val){
+					$content=str_replace("{".$gross_income1_val."}","",$content);
+				}
+				if($gross_income1[$company_jenis_badan_hukum1]==""){
+					$content=str_replace("{profession_lainnya1}","V",$content);
+					$content=str_replace("{profession1}",$val['value'],$content);
+				}else{
+					$content=str_replace("{profession1}","",$content);
+				}
+				
+				
+				//$content=str_replace("{".$val['name']."}",$val['value'],$content);
+
+				// $profession=array(
+				// 	// 'Karyawan Swasta'=>'profession_karyawan1',
+				// 	// 'Pelajar/Mahasiswa'=>'profession_pelajar1',
+				// 	// 'Pegawai BUMN/BUMD'=>'profession_pegawai1',
+				// 	// 'Ibu Rumah Tangga'=>'profession_irt1',
+				// 	// 'TNI/Polri'=>'profession_tni1',
+				// 	// 'Wiraswasta/Pengusaha'=>'profession_wiraswasta1',
+				// 	// 'PNS'=>'profession_pns1',
+				// 	// 'Pensiunan'=>'profession_pensiunan1',
+				// 	// 'Pejabat Pemerintah/DPR/DPRD'=>'profession_pejabat1',
+				// 	// 'ASURANSI'=>'profession_pejabat1',
+				// 	''=>'profession_lainnya1',
+				// );
+				// $content=str_replace("{".$profession[$val['value']]."}","V",$content);
+				// unset($profession[$val['value']]);
+				// foreach($profession as $profession_key=>$profession_val){
+				// 	$content=str_replace("{".$profession_val."}","",$content);
+				// }
+
+				// if($val['value'] == "Karyawan Swasta" || $val['value'] == "Pelajar/Mahasiswa" || $val['value'] == "Pegawai BUMN/BUMD" || $val['value'] == "Ibu Rumah Tangga" || $val['value'] == "TNI/Polri" || $val['value'] == "Wiraswasta/Pengusaha" || $val['value'] == "PNS" || $val['value'] == "Pensiunan" || $val['value'] == "Pejabat Pemerintah/DPR/DPRD" ){
+				// 	$content=str_replace("{profession_jelaskan1}","",$content);
+				// } else {
+				// 	$content=str_replace("{profession_jelaskan1}",$val['value'],$content);
+				// }
+
+			}
+
+			if($val['name'] == 'profession2'){
+				$company_jenis_badan_hukum1=isset($decode1[26]['value']) ? $decode1[26]['value']:"";;
+				$gross_income1=array(
+					'Swasta'=>'profession_karyawan2',
+					'BUMN'=>'profession_pegawai2',
+					'Perusahaann UMKM'=>'profession_pegawai2',
+					'Yayasan/LSM'=>'profession_lainnya2',
+					'Pelajar'=>'profession_pelajar2',
+					'Wiraswasta'=>'profession_wiraswasta2',
+					'Ibu Rumah Tangga'=>'profession_irt2',
+					''=>'profession_lainnya2'
+				);	
+				$content=str_replace("{".$gross_income1[$company_jenis_badan_hukum1]."}","V",$content);
+				unset($gross_income1[$val['value']]);
+				foreach($gross_income1 as $gross_income1_key=>$gross_income1_val){
+					$content=str_replace("{".$gross_income1_val."}","",$content);
+				}
+				if($gross_income1[$company_jenis_badan_hukum1]==""){
+					$content=str_replace("{profession_lainnya2}","V",$content);
+					$content=str_replace("{profession2}",$val['value'],$content);
+				}else{
+					$content=str_replace("{profession2}","",$content);
+				}
+				
+				
+				
+				//$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				// $profession=array(
+				// 'KARYAWAN SWASTA'=>'profession_karyawan2',
+				// 'PELEJAR'=>'profession_pelajar2',
+				// 'PEGAWAI'=>'profession_pegawai2',
+				// 'IRT'=>'profession_irt2',
+				// 'TNI'=>'profession_tni2',
+				// 'WIRASWASTA'=>'profession_wiraswasta2',
+				// 'PNS'=>'profession_pns2',
+				// 'PENSIUNAN'=>'profession_pensiunan2',
+				// 'PEJABAT'=>'profession_pejabat2',
+				// 'ASURANSI'=>'profession_pejabat2',
+				// ''=>'profession_lainnya2',
+				// ''=>'profession_lainnya2',
+				// );
+				// $content=str_replace("{".$profession[$val['value']]."}","V",$content);
+				// unset($profession[$val['value']]);
+				// foreach($profession as $profession_key=>$profession_val){
+				// 	$content=str_replace("{".$profession_val."}","",$content);
+				// }
+				
+			}
+
+			if($val['name'] == 'q_yes4'){
+				$subscribe1=array(
+				'Ya'=>'q_yes4_y',
+				'Tidak'=>'q_yes4_n',
+				);
+				$content=str_replace("{".$subscribe1[$val['value']]."}","V",$content);
+				unset($subscribe1[$val['value']]);
+				foreach($subscribe1 as $subscribe1_key=>$subscribe1_val){
+					$content=str_replace("{".$subscribe1_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'q_yes5'){
+				$subscribe1=array(
+				'Ya'=>'q_yes5_y',
+				'Tidak'=>'q_yes5_n',
+				);
+				$content=str_replace("{".$subscribe1[$val['value']]."}","V",$content);
+				unset($subscribe1[$val['value']]);
+				foreach($subscribe1 as $subscribe1_key=>$subscribe1_val){
+					$content=str_replace("{".$subscribe1_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'q_yes5'){
+				$subscribe1=array(
+				'Ya'=>'q_yes6_y',
+				'Tidak'=>'q_yes6_n',
+				);
+				$content=str_replace("{".$subscribe1[$val['value']]."}","V",$content);
+				unset($subscribe1[$val['value']]);
+				foreach($subscribe1 as $subscribe1_key=>$subscribe1_val){
+					$content=str_replace("{".$subscribe1_val."}","",$content);
+				}
+				
+			}
+
+			if($val['name'] == 'signature_date'){
+				$date = explode('-', $val['value']);
+
+				$content=str_replace("{signature_date1_d}",$date[2],$content);
+				$content=str_replace("{signature_date1_m}",$date[1],$content);
+				$content=str_replace("{signature_date1_y}",$date[0],$content);
+			}
+
+			if($val['name'] == 'assets1'){
+					$assets1=array(
+						'<100Jt'=>'policy_holder_asset_company1',
+						'100Juta-1Milyar'=>'policy_holder_asset_company2',
+						'>1Milyar-10Milyar'=>'policy_holder_asset_company3',
+						'>10Milyar-100Milyar'=>'policy_holder_asset_company4',
+						'>100Milyar-500Milyar'=>'policy_holder_asset_company5',
+						''=>'',
+					);
+					$content=str_replace("{".$assets1[$val['value']]."}","V",$content);
+					unset($assets1[$val['value']]);
+					foreach($assets1 as $assets1_key=>$assets1_val){
+						$content=str_replace("{".$assets1_val."}","",$content);
+					}
+				}
+					
+			// }
+
+			if($val['name'] == 'policy_holder_income_company'){
+				$holderIncome=array(
+				'<100Jt'=>'policy_holder_income_company1',
+				'100Juta-1Milyar'=>'policy_holder_income_company2',
+				'>1Milyar-10Milyar'=>'policy_holder_income_company3',
+				'>10Milyar-100Milyar'=>'policy_holder_income_company4',
+				'>100Milyar'=>'policy_holder_income_company5',
+				''=>''
+				);	
+				$content=str_replace("{".$holderIncome[$val['value']]."}","V",$content);
+				unset($holderIncome[$val['value']]);
+				foreach($holderIncome as $holderIncome_key=>$holderIncome_val){
+					$content=str_replace("{".$holderIncome_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_other_income3'){
+				$premium_payer_other_income=array(
+					'Tidak ada'=>'premium_payer_other_income1',
+					'Hasil Usaha'=>'premium_payer_other_income2',
+					'Warisan'=>'premium_payer_other_income3',
+					'Komisi/Honor'=>'premium_payer_other_income4',
+					''=>'premium_payer_other_income5'
+				);
+				$content=str_replace("{".$premium_payer_other_income[$val['value']]."}","V",$content);
+				unset($premium_payer_other_income[$val['value']]);
+				foreach($premium_payer_other_income as $premium_payer_other_income_key=>$premium_payer_other_income_val){
+					$content=str_replace("{".$premium_payer_other_income_val."}","",$content);
+				}	
+				
+			}
+
+			if($val['name'] == 'premium_payer_other_income_value3'){
+				$premium_payer_other_income=array(
+					'<=100 Juta'=>'premium_payer_other_income_value1',
+					'>100 Juta sd 250 Juta'=>'premium_payer_other_income_value2',
+					'>250 Juta sd 500 Juta'=>'premium_payer_other_income_value3',
+					'>500 Juta sd 1 Miliar'=>'premium_payer_other_income_value4',
+					'>1 Miliar sd 10 Miliar'=>'premium_payer_other_income_value5',
+					'>10 Miliar'=>'premium_payer_other_income_value6',
+					''=>'premium_payer_other_income_value7'
+				);
+				$premium_payer_other_income[$val['value']]=isset($premium_payer_other_income[$val['value']]) ? $premium_payer_other_income[$val['value']]:"";
+				
+				$content=str_replace("{".$premium_payer_other_income[$val['value']]."}","V",$content);
+				unset($premium_payer_other_income[$val['value']]);
+				foreach($premium_payer_other_income as $premium_payer_other_income_key=>$premium_payer_other_income_val){
+					$content=str_replace("{".$premium_payer_other_income_val."}","",$content);
+				}	
+				
+			}
+
+			// * Note
+			if($val['name'] == 'customer_type1'){
+				if($val['value'] == 'Individu'){
+					$is_individu=true;
+					
+				}
+			}
+			
+			if($val['name'] == 'insurance_purpose8'){
+				$insurance_purpose8=array(
+					'Proteksi'=>'insurance_purpose8',
+					'Investasi'=>'insurance_purpose9',
+					'Pendidikan'=>'insurance_purpose10',
+					'Pensiun'=>'insurance_purpose10',
+					'Tujuan Usaha'=>'insurance_purpose10',
+					'Lain-lain'=>'insurance_purpose10',
+					''=>''
+				);	
+				$content=str_replace("{".$insurance_purpose8[$val['value']]."}","V",$content);
+				unset($insurance_purpose8[$val['value']]);
+				foreach($insurance_purpose8 as $insurance_purpose8_key=>$insurance_purpose8_val){
+					$content=str_replace("{".$insurance_purpose8_val."}","",$content);
+				}
+
+				if($val['value'] == "Pendidikan" || $val['value'] == "Pensiun" || $val['value'] == "Tujuan Usaha" ||$val['value'] == "Lain-lain" ){
+					$content=str_replace("{insurance_purpose_jelaskan}",$val['value'],$content);
+				} else {
+					$content=str_replace("{insurance_purpose_jelaskan}","",$content);
+				}
+				
+			}else{
+				$val['value']=isset($val['value']) ? $val['value']:"";
+				if($val['name'] == 'company_name2'){
+					if($is_individu){
+						//$fullname_company="";
+						$content=str_replace("{fullname_company}","",$content);
+						$content=str_replace("{company_name2}",$val['value'],$content);
+					}else{
+						$content=str_replace("{fullname_company}",$fullname_company,$content);
+						$content=str_replace("{company_name2}",$val['value'],$content);
+					}
+				}else{
+					$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				}
+				//$content=str_replace("{".$val['name']."}",$val['value'],$content);
+			}
+			
+			
+				
+			if($val['name']=="full_name1"){
+				$full_name1=$val['value'];
+				$fullname_company=$val['value'];	
+			}
+			if($val['name']=="full_name2"){
+				$full_name2=$val['value'];	
+			}
+			if($val['name']=="premium_payer_name3"){
+				$full_name3=$val['value'];	
+			}
+				
+				
+		}
+
+		//* SPAJ JSON
+		foreach($decode2 as $key2 => $val2){
+
+			if($key2 == 'cpp_currency'){
+				$holderCurrency=array(
+				'IDR'=>'currency1',
+				'USD'=>'currency2',
+				''=>''
+				);	
+				$content=str_replace("{".$holderCurrency[$val2]."}","V",$content);
+				unset($holderCurrency[$val2]);
+				foreach($holderCurrency as $holderCurrency_key=>$holderCurrency_val){
+					$content=str_replace("{".$holderCurrency_val."}","",$content);
+				}	
+				
+			}
+			
+			if($key2 == 'cpp_premi'){
+				$match = "/IDR/i";
+				if(preg_match($match, $val2)){
+					$pattern = '/IDR/i';
+				} else {
+					$pattern = '/USD/i';
+				}
+				$value 	 = preg_replace($pattern, "", $val2);
+
+				$content=str_replace("{".$key2."}",$value,$content);
+				// $content=str_replace("{".$key2."}",$val2,$content);				
+			}
+			
+			if($key2 == 'cpp_periode'){
+				$holderCurrency=array(
+					'6 Bulan'=>'investment_period1',
+					'12 Bulan'=>'investment_period2',
+					''=>''
+				);	
+				$content=str_replace("{".$holderCurrency[$val2]."}","V",$content);
+				unset($holderCurrency[$val2]);
+				foreach($holderCurrency as $holderCurrency_key=>$holderCurrency_val){
+					$content=str_replace("{".$holderCurrency_val."}","",$content);
+				}	
+				
+			}
+			
+			if($key2 == 'cpp_mti_pa'){
+				$pattern = '/%/i';
+				$value 	 = preg_replace($pattern, "", $val2);
+
+				$content=str_replace("{".$key2."}",$value,$content);
+			}
+
+			if($key2 == 'cpp_tgl_asu'){
+				$date = explode(' ', $val2);
+
+				$day = $date[0];
+
+				$day = str_pad($day, 2, '0', STR_PAD_LEFT);
+
+				$content=str_replace("{date_of_coverage_d}",$day,$content);
+				$content=str_replace("{date_of_coverage_m}",$this->convertStringTonumberMonth($date[1]),$content);
+				$content=str_replace("{date_of_coverage_y}",$date[2],$content);
+
+				$content=str_replace("{signature_date_d}",$day,$content);
+				$content=str_replace("{signature_date_m}",$this->convertStringTonumberMonth($date[1]),$content);
+				$content=str_replace("{signature_date_y}",$date[2],$content);
+			}
+
+			if($key2 == 'cpp_no_spaj'){
+				$content=str_replace("{".$key2."}",$val2,$content);				
+			}
+
+			
+			// else {
+				// $content=str_replace("{".$key2."}",$val2,$content);
+			// }
+
+		}
+		
+		$number 		  = '';
+		$heirName 		  = '';
+		$heirRelationship = '';
+		$heirGender 	  = '';
+		$heirDob1 		  = '';
+		$heirDob2 		  = '';
+		$heirDob3 		  = '';
+		$pct 		  	  = '';
+
+		//* AHLI WARIS
+		$no = 1;
+		foreach($decode3 as $key => $item){
+
+			if($key <= 5){
+
+				$leftName 		  = 76;
+				$leftRelationship = 268;
+				$leftGender 	  = 344.5;
+				$leftDob1 		  = 417;
+				$leftDob2 		  = 454;
+				$leftDob3 		  = 489;
+				$leftpct 		  = 544;
+				$topPosition	  = 0;
+	
+				$dateOfBirth = explode('-', $item['tanggal_lahir']);
+	
+				$dob1 = $dateOfBirth[2];
+				$dob2 = $dateOfBirth[1];
+				$dob3 = $dateOfBirth[0];
+	
+				if($key <= 5){
+					if($key == 0){
+						$topPosition  = 302;
+					} elseif($key == 1){
+						$topPosition  = 313;
+					} elseif($key == 2){
+						$topPosition  = 324.5;
+					} elseif($key == 3){
+						$topPosition  = 335.5;
+					} elseif($key == 4){
+						$topPosition  = 346.4;
+					} elseif($key == 5) {
+						$topPosition  = 357.9;
+					}
+	
+					$number.= '<div id="number_sequence" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 54pt; top: '.$topPosition.'pt; position: absolute;">'.$no.'</div>';
+					$heirName .= '<div id="heir_name" style="font-size: 10px; margin: 0pt; padding: 0pt; left: '.$leftName.'pt; top: '.$topPosition.'pt; position: absolute;">'.$item['nama'].'</div>';
+					$heirRelationship .= '<div id="heir_relationship" style="font-size: 10px; margin: 0pt; padding: 0pt; left: '.$leftRelationship.'pt; top: '.$topPosition.'pt; position: absolute;">'.$item['hubungan'].'</div>';
+					$heirGender .= '<div id="heir_gender" style="font-size: 10px; margin: 0pt; padding: 0pt; left: '.$leftGender.'pt; top: '.$topPosition.'pt; position: absolute;">'.$item['jenis_kelamin'].'</div>';
+					$heirDob1 .= '<div id="heir_date_of_birthr" style="font-size: 10px; margin: 0pt; padding: 0pt; left: '.$leftDob1.'pt; top: '.$topPosition.'pt; position: absolute;">'.$dob1.'</div>';
+					$heirDob2 .= '<div id="heir_date_of_birthr" style="font-size: 10px; margin: 0pt; padding: 0pt; left: '.$leftDob2.'pt; top: '.$topPosition.'pt; position: absolute;">'.$dob2.'</div>';
+					$heirDob3 .= '<div id="heir_date_of_birthr" style="font-size: 10px; margin: 0pt; padding: 0pt; left: '.$leftDob3.'pt; top: '.$topPosition.'pt; position: absolute;">'.$dob3.'</div>';
+					$pct .= '<div id="heir_date_of_birthr" style="font-size: 10px; margin: 0pt; padding: 0pt; left: '.$leftpct.'pt; top: '.$topPosition.'pt; position: absolute;">'.$item['pct'].'</div>';
+	
+				}
+	
+				$no++;
+	
+			}
+
+		}
+
+		$content=str_replace("{NUMBER}", $number, $content);
+		$content=str_replace("{HEIRNAME}", $heirName, $content);
+		$content=str_replace("{HEIRRELATIONSHIP}", $heirRelationship, $content);
+		$content=str_replace("{HEIRGENDER}", $heirGender, $content);
+		$content=str_replace("{DATEOFBIRTH1}", $heirDob1, $content);
+		$content=str_replace("{DATEOFBIRTH2}", $heirDob2, $content);
+		$content=str_replace("{DATEOFBIRTH3}", $heirDob3, $content);
+		$content=str_replace("{PCT}", $pct, $content);
+		
+		$content=str_replace("{signature_place}",$rows['NAMA_AREA'], $content);
+		
+
+		$dompdf = new Dompdf();
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/SPAJ_CPP_NEW-1.png")),$content);
+		$content=str_replace("{IMG_BG2}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/SPAJ_CPP_NEW-2.png")),$content);
+		
+		include(realpath(".").'/application/libraries/phpqrcode/qrlib.php');
+		
+		//TTD PEMPOL
+		ob_start();
+		QRCode::png($rows['nama_pp']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_policy_holder_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD TT
+		ob_start();
+		QRCode::png($rows['nama_tt']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_insured_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD Payer
+		ob_start();
+		QRCode::png($full_name3."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_payer_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD PR
+		ob_start();
+		QRCode::png($rows['NAMA_RM']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_reff_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD AGEN 
+		//$rows['pfa_desc']."|".$rows['spaj_code']."|".$rows['effective_dt']
+		QRCode::png($rows['pfa_desc']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//exit($rows['pfa_desc']."|".$rows['spaj_code']."|".$rows['effective_dt']);
+		
+		
+		$content=str_replace("{policy_holder_name}",$rows['nama_pp'],$content);
+		$content=str_replace("{insured_name}",$rows['nama_tt'],$content);
+		$content=str_replace("{refferal_name}",$rows['NAMA_RM'],$content);
+		$content=str_replace("{refferal_code}",$rows['KODE_RM'],$content);
+		$content=str_replace("{pfa_name}",$rows['pfa_desc'],$content);
+		$content=str_replace("{pfa_code}",$rows['kode_agen'],$content);
+		
+		
+		
+		$content=str_replace("{IMG_SIGNATURE_1}","data:image/png;base64,".$imageString_policy_holder_name_ttd,$content);
+		$content=str_replace("{IMG_SIGNATURE_2}","data:image/png;base64,".$imageString_insured_name_ttd,$content);
+		$content=str_replace("{IMG_SIGNATURE_3}","data:image/png;base64,".$imageString_payer_name_ttd,$content);
+		$content=str_replace("{IMG_SIGNATURE_4}","data:image/png;base64,".$imageString_agen_reff_name_ttd,$content);
+		$content=str_replace("{IMG_SIGNATURE_5}","data:image/png;base64,".$imageString_agen_name_ttd,$content);
+
+		$dompdf->loadHtml($content);
+
+		$sizePaper = array(0,0,610,955);
+		$dompdf->setPaper($sizePaper, "portrait");
+		$dompdf->render();
+		$dompdf->stream("cpp_page1_new.pdf",array("Attachment"=>0));
+	}
+	
+	
+	
+	public function cpp(){
+		require_once(realpath(".").'/application/libraries/PDFMerger/PDFMerger.php');
+		
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir from tbl_spaj s where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		if(count($rows)<=0){
+			echo"invalid access";
+			exit;
+		}
+		
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		if(file_exists(realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf')){
+			redirect($this->config->item("api_outgoing_url")."/xtemp/".$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf?'.time());
+			exit;
+		}
+		if($rows['product_code']=="CPP"){
+			$this->cpp1();
+			$this->cpp2();
+		}else{
+			$this->cpl1();
+			$this->cpl2();
+			$this->cpl3();
+		}
+		$files=scandir(realpath(".")."/xtemp/".$rows['spaj_code']);
+		
+		$pdf = new \PDFMerger;
+		$arr=array();
+		foreach($files as $f){
+			if(!in_array($f,array('.','..'))){
+				$arr[]=realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$f;
+				$pdf->addPDF(realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$f);
+			}
+		}
+		$pdf->merge('file', realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf');
+		
+		foreach($arr as $a){
+			@unlink($a);
+		}
+		
+		redirect($this->config->item("api_outgoing_url")."/xtemp/".$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf?'.time());
+	}
+	
+	public function cpp_spaj(){
+		require_once(realpath(".").'/application/libraries/PDFMerger/PDFMerger.php');
+		
+		if($this->input->get("spaj_code")==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir from tbl_spaj s where s.spaj_code=?";
+		$query=$this->db->query($str,array($this->input->get("spaj_code")));
+		$rows=$query->row_array();
+		if(count($rows)<=0){
+			echo"invalid access";
+			exit;
+		}
+		
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		if(file_exists(realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf')){
+			redirect($this->config->item("api_outgoing_url")."/xtemp/".$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf');
+			exit;
+		}
+		if($rows['product_code']=="CPP"){
+			$this->cpp1();
+			$this->cpp2();
+		}else{
+			$this->cpl1();
+			$this->cpl2();
+			$this->cpl3();
+		}
+		$files=scandir(realpath(".")."/xtemp/".$rows['spaj_code']);
+		
+		$pdf = new \PDFMerger;
+		$arr=array();
+		foreach($files as $f){
+			if(!in_array($f,array('.','..'))){
+				$arr[]=realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$f;
+				$pdf->addPDF(realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$f);
+			}
+		}
+		$pdf->merge('file', realpath(".").'/xtemp/'.$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf');
+		
+		foreach($arr as $a){
+			@unlink($a);
+		}
+		
+		redirect($this->config->item("api_outgoing_url")."/xtemp/".$rows['spaj_code'].'/'.$rows['spaj_code'].'.pdf');
+	}
+	
+	private function cpp1()
+	{
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir from tbl_spaj s where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		
+		
+		
+		//DATA PENGAJUAN		
+		$json1 =$this->other_doc($trx_id,'DATA');
+		
+		//DATA SPAJ
+		$json2 = $this->other_doc($trx_id,'SPAJ');
+	
+		$decode1=json_decode($json1,true);
+		$decode2=json_decode($json2,true);
+		//print_r($decode2);
+		//exit;
+		
+		
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/cpp_page1.html");
+		ob_end_clean();
+		
+		foreach($decode1 as $key=>$val){
+			if ($val['name']=='identity_type_ktp1'){
+				$identity_type_ktp1=array(
+				'KTP'=>'identity_type_ktp1',
+				'SIM'=>'identity_type_sim1',
+				'PASPORT'=>'identity_type_paspor1',
+				'AKTE'=>'identity_type_akte1',
+				'LAINNYA'=>'identity_type_lain1',
+				''=>''
+				);
+				$content=str_replace("{".$identity_type_ktp1[$val['value']]."}","V",$content);
+				unset($identity_type_ktp1[$val['value']]);
+				foreach($identity_type_ktp1 as $identity_type_ktp1_key=>$identity_type_ktp1_val){
+					$content=str_replace("{".$identity_type_ktp1_val."}","",$content);
+				}		
+			}
+			if ($val['name']=='citizenship_wni1'){
+					$citizenship1=array(
+					'WNI'=>'citizenship1',
+					'WNA'=>'citizenship1',
+					''=>''
+					);
+					$content=str_replace("{".$citizenship1[$val['value']]."}",$val['value'],$content);
+					unset($citizenship1[$val['value']]);
+					foreach($citizenship1 as $citizenship1_key=>$citizenship1_val){
+						$content=str_replace("{".$citizenship1_val."}","",$content);
+					}
+					
+				}
+				
+			if($val['name']=='gen_pria1'){
+				$gen_pria1=array(
+				'PRIA'=>'gen_pria1',
+				'WANITA'=>'gen_wanita1',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria1[$val['value']]."}","V",$content);
+				unset($gen_pria1[$val['value']]);
+				foreach($gen_pria1 as $gen_pria1_key=>$gen_pria1_val){
+					$content=str_replace("{".$gen_pria1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='status_menikah1'){
+				$status_menikah1=array(
+				'MENIKAH'=>'status_menikah1',
+				'BELUM MENIKAH'=>'status_belum1',
+				'LAINNYA'=>'status_lain1',
+				''=>''
+				);
+				$content=str_replace("{".$status_menikah1[$val['value']]."}","V",$content);
+				unset($status_menikah1[$val['value']]);
+				foreach($status_menikah1 as $status_menikah1_key=>$status_menikah1_val){
+					$content=str_replace("{".$status_menikah1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='religion_islam1'){
+				$religion_islam1=array(
+				'ISLAM'=>'religion_islam1',
+				'KRISTEN'=>'religion_kristen1',
+				'KATHOLIK'=>'religion_katholik1',
+				'BUDHA'=>'religion_budha1',
+				'HINDU'=>'religion_hindu1',
+				''=>''
+				);
+				$content=str_replace("{".$religion_islam1[$val['value']]."}","V",$content);
+				unset($religion_islam1[$val['value']]);
+				foreach($religion_islam1 as $religion_islam1_key=>$religion_islam1_val){
+					$content=str_replace("{".$religion_islam1_val."}","",$content);
+				}
+				
+			}
+			if ($val['name']=='citizenship_wni2'){
+					$citizenship2=array(
+					'WNI'=>'citizenship2',
+					'WNA'=>'citizenship2',
+					''=>''
+					);
+					$content=str_replace("{".$citizenship2[$val['value']]."}",$val['value'],$content);
+					unset($citizenship2[$val['value']]);
+					foreach($citizenship2 as $citizenship2_key=>$citizenship2_val){
+						$content=str_replace("{".$citizenship2_val."}","",$content);
+					}
+					
+				}
+			
+			if($val['name']=='relationship_diri2'){
+				$relationship_diri2=array(
+				'DIRI SENDIRI'=>'relationship_diri2',
+				'SUAMI/ISTRI'=>'relationship_suami2',
+				'SUAMI'=>'relationship_suami2',
+				'ANAK'=>'relationship_anak2',
+				'ORANG TUA'=>'relationship_orangtua2',
+				'LAINNYA'=>'relationship_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$relationship_diri2[$val['value']]."}","V",$content);
+				unset($relationship_diri2[$val['value']]);
+				foreach($relationship_diri2 as $relationship_diri2_key=>$relationship_diri2_val){
+					$content=str_replace("{".$relationship_diri2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='identity_type_ktp2'){
+				$identity_type_ktp2=array(
+				'KTP'=>'identity_type_ktp2',
+				'SIM'=>'identity_type_sim2',
+				'PASPORT'=>'identity_type_paspor2',
+				'AKTE'=>'identity_type_akte2',
+				'LAINNYA'=>'identity_type_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$identity_type_ktp2[$val['value']]."}","V",$content);
+				unset($identity_type_ktp2[$val['value']]);
+				foreach($identity_type_ktp2 as $identity_type_ktp2_key=>$identity_type_ktp2_val){
+					$content=str_replace("{".$identity_type_ktp2_val."}","",$content);
+				}
+				
+			}
+				
+			if($val['name']=='gen_pria2'){
+				$gen_pria2=array(
+				'PRIA'=>'gen_pria2',
+				'WANITA'=>'gen_wanita2',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria2[$val['value']]."}","V",$content);
+				unset($gen_pria2[$val['value']]);
+				foreach($gen_pria2 as $gen_pria2_key=>$gen_pria2_val){
+					$content=str_replace("{".$gen_pria2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='status_menikah2'){
+				$status_menikah2=array(
+				'MENIKAH'=>'status_menikah2',
+				'BELUM MENIKAH'=>'status_belum2',
+				'LAINNYA'=>'status_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$status_menikah2[$val['value']]."}","V",$content);
+				unset($status_menikah2[$val['value']]);
+				foreach($status_menikah2 as $status_menikah2_key=>$status_menikah2_val){
+					$content=str_replace("{".$status_menikah2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='religion_islam2'){
+				$religion_islam2=array(
+				'ISLAM'=>'religion_islam2',
+				'KRISTEN'=>'religion_kristen2',
+				'KATHOLIK'=>'religion_katholik2',
+				'BUDHA'=>'religion_budha2',
+				'HINDU'=>'religion_hindu2',
+				''=>''
+				);
+				$content=str_replace("{".$religion_islam2[$val['value']]."}","V",$content);
+				unset($religion_islam2[$val['value']]);
+				foreach($religion_islam2 as $religion_islam2_key=>$religion_islam2_val){
+					$content=str_replace("{".$religion_islam2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='insurance_purpose1'){
+				$insurance_purpose1=array(
+				'PROTEKSI'=>'insurance_purpose1',
+				'INVESTASI'=>'insurance_purpose2',
+				'PENDIDIKAN'=>'insurance_purpose3',
+				'PENSIUN'=>'insurance_purpose4',
+				'TUJUAN USAHA'=>'insurance_purpose5',
+				'LAIN_LAIN'=>'insurance_purpose6',
+				''=>''
+				);
+				$content=str_replace("{".$insurance_purpose1[$val['value']]."}","V",$content);
+				unset($insurance_purpose1[$val['value']]);
+				foreach($insurance_purpose1 as $insurance_purpose1_key=>$insurance_purpose1_val){
+					$content=str_replace("{".$insurance_purpose1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='premium_payer1'){
+				$premium_payer1=array(
+				'PEMEGANG POLIS'=>'premium_payer1',
+				'TERTANGGUNG'=>'premium_payer2',
+				'LAINNYA'=>'premium_payer3',
+				''=>''
+				);
+				$content=str_replace("{".$premium_payer1[$val['value']]."}","V",$content);
+				unset($premium_payer1[$val['value']]);
+				foreach($premium_payer1 as $ipremium_payer1_key=>$premium_payer1_val){
+					$content=str_replace("{".$premium_payer1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='income1'){
+				$income1=array(
+				'GAJI'=>'income1',
+				'HASIL INVESTASI'=>'income2',
+				'BISNIS PRIBADI'=>'income3',
+				'BONUS/KOMISI'=>'income4',
+				'LAINNYA'=>'income5',
+				'HASIL USAHA'=>'income3',
+				''=>''
+				);
+				$content=str_replace("{".$income1[$val['value']]."}","V",$content);
+				unset($income1[$val['value']]);
+				foreach($income1 as $income1_key=>$income1_val){
+					$content=str_replace("{".$income1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='gross_income1'){
+				$gross_income1=array(
+				'&lt;60Juta'=>'gross_income1',
+				'<60Juta'=>'gross_income1',
+				'60Juta-180Juta'=>'gross_income2',
+				'180Juta-360Juta'=>'gross_income3',
+				'360Juta-600Juta'=>'gross_income4',
+				'>600Juta'=>'gross_income5',
+				'&gt;600Juta'=>'gross_income5',
+				''=>''
+				);	
+				$content=str_replace("{".$gross_income1[$val['value']]."}","V",$content);
+				unset($gross_income1[$val['value']]);
+				foreach($gross_income1 as $gross_income1_key=>$gross_income1_val){
+					$content=str_replace("{".$gross_income1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='assets1'){
+				$assets1=array(
+				'<100Jt'=>'assets1',
+				'100Juta-1Milyar'=>'assets2',
+				'>1Milyar-10Milyar'=>'assets3',
+				'>10Milyar-100Milyar'=>'assets4',
+				'>100Milyar-500Milyar'=>'assets5',
+				''=>''
+				);	
+				$content=str_replace("{".$assets1[$val['value']]."}","V",$content);
+				unset($assets1[$val['value']]);
+				foreach($assets1 as $assets1_key=>$assets1_val){
+					$content=str_replace("{".$assets1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='income_peryear1'){
+				$income_peryear1=array(
+				'<100Jt'=>'income_peryear1',
+				'100Juta-500Juta'=>'income_peryear2',
+				'>500Juta-1Milyar'=>'income_peryear3',
+				'>1Milyar-10Milyar'=>'income_peryear4',
+				'>10Milyar'=>'income_peryear5',
+				''=>''
+				);	
+				$content=str_replace("{".$income_peryear1[$val['value']]."}","V",$content);
+				unset($income_peryear1[$val['value']]);
+				foreach($income_peryear1 as $income_peryear1_key=>$income_peryear1_val){
+					$content=str_replace("{".$income_peryear1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='insurance_purpose8'){
+				$insurance_purpose8=array(
+				'Proteksi Pendapatan'=>'insurance_purpose8',
+				'Proteksi Kredit'=>'insurance_purpose9',
+				'Lain-lain'=>'insurance_purpose10',
+				''=>''
+				);	
+				$content=str_replace("{".$insurance_purpose8[$val['value']]."}","V",$content);
+				unset($insurance_purpose8[$val['value']]);
+				foreach($insurance_purpose8 as $insurance_purpose8_key=>$insurance_purpose8_val){
+					$content=str_replace("{".$insurance_purpose8_val."}","",$content);
+				}
+				
+			}else{
+				$val['value']=isset($val['value']) ? $val['value']:"";
+				if(in_array($val['name'],array('date_of_birth1','date_of_birth2'))){
+					$content=str_replace("{".$val['name']."}",$this->fix_date($val['value']),$content);
+				}else{
+					$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				}
+			}
+		}
+		
+		foreach($decode2 as $key1=>$val1){
+			//echo $key1."|".$val1;
+			if(!in_array($key1,array('data_tabel'))){
+			$content=str_replace("{".$key1."}",$val1,$content);
+			}
+		}
+		
+		$dompdf = new DOMPDF();
+		//{IMG_BG}
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/CPP1.png")),$content);
+		$dompdf->load_html($content);
+		$dompdf->set_paper("A4", "portrait");
+		$dompdf->render();
+		$output = $dompdf->output();
+		if(!is_dir(realpath(".")."/xtemp/".$rows['spaj_code'])){
+			@mkdir(realpath(".")."/xtemp/".$rows['spaj_code']);
+		}
+		file_put_contents(realpath(".")."/xtemp/".$rows['spaj_code']."/".$rows['spaj_code']."_1.pdf", $output);
+		//$dompdf->stream("cpp_page1.pdf",array("Attachment"=>0));
+	}
+	
+	private function cpp2()
+	{
+		include(realpath(".").'/application/libraries/phpqrcode/qrlib.php');
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,s.agen_code,p.kode_agen,
+				case when k.agency_team_code in('151','078','079') then k.agency_team_name else 'Jakarta' end as nama_kota	
+				from tbl_spaj s 
+				join tbl_pfa p on p.pfa_code=s.pfa_code
+				left join sw_agency_team k on cast(k.agency_team_code as int)=cast(s.branch_code as int)
+				where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		
+		$full_name1="";
+		$full_name2="";
+		
+		//DATA PENGAJUAN		
+		$json1 =$this->other_doc($trx_id,'DATA');
+		
+		//DATA SPAJ
+		$json2 = $this->other_doc($trx_id,'SPAJ');
+		
+		//DATA AHLIWARIS
+		$json3 = $this->other_doc($trx_id,'AHLI');
+		
+		$decode1 = json_decode($json1,true);
+		$decode2 = json_decode($json2,true);
+		$decode3 = json_decode($json3,true);
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/cpp_page2.html");
+		ob_end_clean();
+		
+		$q_yes1="";
+		$q_yes2="";
+		$q_yes3="";
+		
+		$explain1="";
+		$explain2="";
+		$explain3="";
+		
+		$q_no1="";
+		$q_no2="";
+		$q_no3="";
+		
+		foreach($decode1 as $key=>$val){
+			if($val['name']=="full_name1"){
+			$full_name1=$val['value'];
+			}
+			
+			if($val['name']=="full_name2"){
+			$full_name2=$val['value'];
+			}
+			
+			if($val['name']=="q_yes1"){ 
+				$q_yes1=$val['value'];
+			}
+			
+			if($val['name']=="q_yes2"){ 
+				$q_yes2=$val['value'];
+			}
+			
+			if($val['name']=="q_yes3"){ 
+				$q_yes3=$val['value'];
+			}
+			
+			if($val['name']=="explain1"){ 
+				$explain1=$val['value'];
+			}
+			if($val['name']=="explain2"){ 
+				$explain2=$val['value'];
+			}
+			if($val['name']=="explain3"){ 
+				$explain3=$val['value'];
+			}
+			
+			if($val['name']=="q_no1"){ 
+				$q_no1=$val['value'];
+			}
+			if($val['name']=="q_no2"){ 
+				$q_no2=$val['value'];
+			}
+			if($val['name']=="q_no3"){ 
+				$q_no3=$val['value'];
+			}
+			if ($val['name']=='account_holder_name'){
+				if(strlen($val['value'])>34){
+					$content=str_replace("{style_".$val['name']."}"," style=\"font-size:6.5pt;top:119pt\" ",$content);
+					$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				}else{
+					$content=str_replace("{style_".$val['name']."}","",$content);
+					$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				}
+				
+			}
+			$val['value']=isset($val['value']) ? $val['value']:"";
+			$content=str_replace("{".$val['name']."}",$val['value'],$content);
+		}
+		
+		
+		foreach($decode2 as $key=>$val){
+			if(!in_array($key,array('data_tabel'))){
+			if ($key=='cpp_periode'){
+				$cpp_periode=array(
+				'6 Bulan'=>'investment_payment_period1',
+				'12 Bulan'=>'investment_payment_period2',
+				''=>''
+				);
+				$content=str_replace("{".$cpp_periode[$val]."}","V",$content);
+				unset($cpp_periode[$val]);
+				foreach($cpp_periode as $cpp_periode_key=>$cpp_periode_val){
+					$content=str_replace("{".$cpp_periode_val."}","",$content);
+				}
+				
+			}
+			
+			if ($key=='cpp_currency'){
+				$cpp_currency=array(
+				'IDR'=>'currency1',
+				'USD'=>'currency2',
+				''=>''
+				);
+				$content=str_replace("{".$cpp_currency[$val]."}","V",$content);
+				unset($cpp_currency[$val]);
+				foreach($cpp_currency as $cpp_currency_key=>$cpp_currency_val){
+					$content=str_replace("{".$cpp_currency_val."}","",$content);
+				}
+				
+			}
+			
+			if ($key=='yes1'){
+				$yes1=array(
+				'Yes'=>'yes1',
+				'No'=>'no1',
+				''=>''
+				);
+				$content=str_replace("{".$yes1[$val]."}","V",$content);
+				unset($yes1[$val]);
+				foreach($yes1 as $yes1_key=>$yes1_val){
+					$content=str_replace("{".$yes1_val."}","",$content);
+				}
+				
+			}
+			
+			if ($key=='yes2'){
+				$yes2=array(
+				'Yes'=>'yes2',
+				'No'=>'no2',
+				''=>''
+				);
+				$content=str_replace("{".$yes2[$val]."}","V",$content);
+				unset($yes2[$val]);
+				foreach($yes2 as $yes2_key=>$yes2_val){
+					$content=str_replace("{".$yes2_val."}","",$content);
+				}
+				
+			}
+			
+			if ($key=='yes3'){
+				$yes3=array(
+				'Yes'=>'yes3',
+				'No'=>'no3',
+				''=>''
+				);
+				$content=str_replace("{".$yes3[$val]."}","V",$content);
+				unset($yes3[$val]);
+				foreach($yes3 as $yes3_key=>$yes3_val){
+					$content=str_replace("{".$yes3_val."}","",$content);
+				}
+				
+			}else{
+				$content=str_replace("{".$key."}",str_replace("%","",$val),$content);
+			}
+			
+			}
+		}
+		$jj=0;
+		foreach($decode3 as $bn){
+			$jj++;
+			foreach ($bn as $key=>$val){
+				$content=str_replace("{no".$jj."}",$jj,$content);
+				if($key=="nama"){
+					$content=str_replace("{beneficiary".$jj."}",$val,$content);
+				}
+				
+				if($key=="hubungan"){
+					$content=str_replace("{relationship".$jj."}",$val,$content);
+				}
+				
+				if($key=="pct"){
+					$content=str_replace("{benefit".$jj."}",number_format($val,2),$content);
+				}
+				
+				if($key=="jenis_kelamin"){
+					$content=str_replace("{gen".$jj."}",(($val=="PRIA" or $val=="L") ? "P":"W" ),$content);
+				}
+				
+				if($key=="tanggal_lahir"){
+					$content=str_replace("{birth_date".$jj."}",$this->fix_date($val),$content);
+				}
+				
+				if($key=="tempat_lahir"){
+					$content=str_replace("{place".$jj."}",$val,$content);
+					
+				}
+			}
+		}
+		$content=str_replace("{beneficiary1}","",$content);
+		$content=str_replace("{beneficiary2}","",$content);
+		$content=str_replace("{beneficiary3}","",$content);
+		$content=str_replace("{beneficiary4}","",$content);
+		$content=str_replace("{beneficiary5}","",$content);
+		$content=str_replace("{beneficiary6}","",$content);
+		
+		$content=str_replace("{relationship1}","",$content);
+		$content=str_replace("{relationship2}","",$content);
+		$content=str_replace("{relationship3}","",$content);
+		$content=str_replace("{relationship4}","",$content);
+		$content=str_replace("{relationship5}","",$content);
+		$content=str_replace("{relationship6}","",$content);
+		
+		$content=str_replace("{benefit1}","",$content);
+		$content=str_replace("{benefit2}","",$content);
+		$content=str_replace("{benefit3}","",$content);
+		$content=str_replace("{benefit4}","",$content);
+		$content=str_replace("{benefit5}","",$content);
+		$content=str_replace("{benefit6}","",$content);
+		
+		$content=str_replace("{gen1}","",$content);
+		$content=str_replace("{gen2}","",$content);
+		$content=str_replace("{gen3}","",$content);
+		$content=str_replace("{gen4}","",$content);
+		$content=str_replace("{gen5}","",$content);
+		$content=str_replace("{gen6}","",$content);
+		
+		$content=str_replace("{birth_date1}","",$content);
+		$content=str_replace("{birth_date2}","",$content);
+		$content=str_replace("{birth_date3}","",$content);
+		$content=str_replace("{birth_date4}","",$content);
+		$content=str_replace("{birth_date5}","",$content);
+		$content=str_replace("{birth_date6}","",$content);
+		
+		$content=str_replace("{place1}","",$content);
+		$content=str_replace("{place2}","",$content);
+		$content=str_replace("{place3}","",$content);
+		$content=str_replace("{place4}","",$content);
+		$content=str_replace("{place5}","",$content);
+		$content=str_replace("{place6}","",$content);
+		
+		$content=str_replace("{no1}","",$content);
+		$content=str_replace("{no2}","",$content);
+		$content=str_replace("{no3}","",$content);
+		$content=str_replace("{no4}","",$content);
+		$content=str_replace("{no5}","",$content);
+		$content=str_replace("{no6}","",$content);
+		
+		$q_yes1="";
+		$q_yes2="";
+		$q_yes3="";
+		
+		$explain1="";
+		$explain2="";
+		$explain3="";
+		
+		$q_no1="";
+		$q_no2="";
+		$q_no3="";
+		
+		if($q_yes1=="" and $q_no1==""){
+			$content=str_replace("{q_yes1}","V",$content);
+		}
+		if($q_yes2=="" and $q_no2==""){
+			$content=str_replace("{q_yes2}","V",$content);
+		}
+		if($q_yes3=="" and $q_no3==""){
+			$content=str_replace("{q_yes3}","V",$content);
+		}
+		
+		if($explain1==""){
+			$content=str_replace("{explain1}","2 Tahun",$content);
+		}
+		
+		
+		$content=str_replace("{explain1}","",$content);
+		$content=str_replace("{explain2}","",$content);
+		$content=str_replace("{explain3}","",$content);
+		
+		$content=str_replace("{q_yes1}","",$content);
+		$content=str_replace("{q_yes2}","",$content);
+		$content=str_replace("{q_yes3}","",$content);
+		
+		$content=str_replace("{q_no1}","",$content);
+		$content=str_replace("{q_no2}","",$content);
+		$content=str_replace("{q_no3}","",$content);
+		
+		
+		
+		//TTD PEMPOL
+		ob_start();
+		QRCode::png($full_name1."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_policy_holder_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD TT
+		ob_start();
+		QRCode::png($full_name2."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_insured_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD PR
+		ob_start();
+		QRCode::png($rows['agen_code']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_reff_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD AGEN 
+		QRCode::png($rows['kode_agen']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		
+		$exp_date=explode("-",$rows['effective_dt']);
+		
+		
+		$content=str_replace("{policy_holder_name_ttd}","data:image/png;base64,".$imageString_policy_holder_name_ttd,$content);
+		$content=str_replace("{insured_name_ttd}","data:image/png;base64,".$imageString_insured_name_ttd,$content);
+		$content=str_replace("{agen_reff_name_ttd}","data:image/png;base64,".$imageString_agen_reff_name_ttd,$content);
+		$content=str_replace("{agen_name_ttd}","data:image/png;base64,".$imageString_agen_name_ttd,$content);
+		
+		$content=str_replace("{agen_reff_code}",$rows['agen_code'],$content);
+		$content=str_replace("{agen_code}",$rows['kode_agen'],$content);
+		
+		$content=str_replace("{place_of_signature}",$rows['nama_kota'],$content);
+		
+		$content=str_replace("{date}",$exp_date[2],$content);
+		$content=str_replace("{month}",$exp_date[1],$content);
+		$content=str_replace("{year}",$exp_date[0],$content);
+		
+		
+		
+		
+		
+		
+		
+		$dompdf = new DOMPDF();
+		//{IMG_BG}
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/CPP2.png")),$content);
+		$dompdf->load_html($content);
+		$dompdf->set_paper("A4", "portrait");
+		$dompdf->render();
+		$output = $dompdf->output();
+		if(!is_dir(realpath(".")."/xtemp/".$rows['spaj_code'])){
+			@mkdir(realpath(".")."/xtemp/".$rows['spaj_code']);
+		}
+		file_put_contents(realpath(".")."/xtemp/".$rows['spaj_code']."/".$rows['spaj_code']."_2.pdf", $output);
+		//$dompdf->stream("cpp_page2.pdf",array("Attachment"=>0));
+	}
+	
+	private function cpl1()
+	{
+		
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir from tbl_spaj s where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		
+		
+		
+		//DATA PENGAJUAN		
+		$json1 =$this->other_doc($trx_id,'DATA');
+		
+		//DATA SPAJ
+		$json2 = $this->other_doc($trx_id,'SPAJ');
+	
+		$decode1=json_decode($json1,true);
+		$decode2=json_decode($json2,true);
+		
+		
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/cpl_page1.html");
+		ob_end_clean();
+		foreach($decode1 as $key=>$val){
+			if($val['name']=='gen_pria1'){
+			$gen_pria1=array(
+				'PRIA'=>'gen_pria1',
+				'WANITA'=>'gen_wanita1',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria1[$val['value']]."}","V",$content);
+				unset($gen_pria1[$val['value']]);
+				foreach($gen_pria1 as $gen_pria1_key=>$gen_pria1_val){
+					$content=str_replace("{".$gen_pria1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='identity_type_ktp1'){
+			$identity_type_ktp1=array(
+				'KTP'=>'identity_type_ktp1',
+				'PASPORT'=>'identity_type_paspor1',
+				'AKTE'=>'identity_type_akte1',
+				'LAINNYA'=>'identity_type_lain1'
+				);
+				$content=str_replace("{".$identity_type_ktp1[$val['value']]."}","V",$content);
+				unset($identity_type_ktp1[$val['value']]);
+				foreach($identity_type_ktp1 as $identity_type_ktp1_key=>$identity_type_ktp1_val){
+					$content=str_replace("{".$identity_type_ktp1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='status_menikah1'){
+				$status_menikah1=array(
+				'MENIKAH'=>'status_menikah1',
+				'BELUM MENIKAH'=>'status_belum1',
+				'JANDA/DUDA'=>'status_janda_duda1',
+				'LAINNYA'=>'status_janda_duda1',
+				''=>''
+				);
+				$content=str_replace("{".$status_menikah1[$val['value']]."}","V",$content);
+				unset($status_menikah1[$val['value']]);
+				foreach($status_menikah1 as $status_menikah1_key=>$status_menikah1_val){
+					$content=str_replace("{".$status_menikah1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='religion_islam1'){
+				$religion_islam1=array(
+				'ISLAM'=>'religion_islam1',
+				'KRISTEN'=>'religion_kristen1',
+				'KATHOLIK'=>'religion_katholik1',
+				'BUDHA'=>'religion_budha1',
+				'HINDU'=>'religion_hindu1',
+				'LAINNYA'=>'religion_lainnya1',
+				''=>''
+				);
+				$content=str_replace("{".$religion_islam1[$val['value']]."}","V",$content);
+				unset($religion_islam1[$val['value']]);
+				foreach($religion_islam1 as $religion_islam1_key=>$religion_islam1_val){
+					$content=str_replace("{".$religion_islam1_val."}","",$content);
+				}
+				
+			}
+			
+			if ($val['name']=='citizenship_wni1'){
+				$citizenship1=array(
+				'WNI'=>'citizenship_wni1',
+				'WNA'=>'citizenship_wna1',
+				''=>''
+				);
+				$content=str_replace("{".$citizenship1[$val['value']]."}","V",$content);
+				unset($citizenship1[$val['value']]);
+				foreach($citizenship1 as $citizenship1_key=>$citizenship1_val){
+					$content=str_replace("{".$citizenship1_val."}","",$content);
+				}
+				
+			}
+			
+			if ($val['name']=='profession1'){
+				$profession1=array(
+				' KARYAWAN SWASTA'=>'profession_karyawan1',
+				'PELAJAR/MAHASISWA'=>'profession_pelajar1',
+				'PEGAWAI BUMN/BUMD'=>'profession_pegawai1',
+				'LAINNYA'=>'profession_lainnya1',
+				'IBU RUMAH TANGGA'=>'profession_irt1',
+				'TNI/POLRI'=>'profession_tni1',
+				'WIRASWASTA/PENGUSAHA'=>'profession_wiraswasta1',
+				'PNS'=>'profession_pns1',
+				'PENSIUNAN'=>'profession_pensiunan1',
+				'PEJABAT PEMERINTAH/DPR/DPRD'=>'profession_pejabat1',
+				''=>''
+				);
+				//{profession_jelaskan1}
+				//{profession_jelaskan2}
+				//$val['value']=in_array($val['value'],$profession1) ? $val['value']:"LAINNYA";
+				
+				$content=str_replace("{profession_jelaskan1}",$val['value'],$content);
+				
+				$profession1[$val['value']]=isset($profession1[$val['value']]) ? $profession1[$val['value']]:"";
+				$val['value']=$profession1[$val['value']]!="" ? $val['value']:"LAINNYA";
+				$content=str_replace("{".$profession1[$val['value']]."}","V",$content);
+				
+				unset($profession1[$val['value']]);
+				foreach($profession1 as $profession1_key=>$profession1_val){
+					$content=str_replace("{".$profession1_val."}","",$content);
+				}
+				
+				
+			}
+			
+			if($val['name']=='relationship_diri2'){
+				$relationship_diri2=array(
+				'DIRI SENDIRI'=>'relationship_diri2',
+				'SUAMI/ISTRI'=>'relationship_suami2',
+				'ANAK'=>'relationship_anak2',
+				'ORANG TUA'=>'relationship_orangtua2',
+				'LAINNYA'=>'relationship_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$relationship_diri2[$val['value']]."}","V",$content);
+				unset($relationship_diri2[$val['value']]);
+				foreach($relationship_diri2 as $relationship_diri2_key=>$relationship_diri2_val){
+					$content=str_replace("{".$relationship_diri2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='gen_pria2'){
+			$gen_pria2=array(
+				'PRIA'=>'gen_pria2',
+				'WANITA'=>'gen_wanita2',
+				''=>''
+				);
+				$content=str_replace("{".$gen_pria2[$val['value']]."}","V",$content);
+				unset($gen_pria2[$val['value']]);
+				foreach($gen_pria2 as $gen_pria2_key=>$gen_pria2_val){
+					$content=str_replace("{".$gen_pria2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='identity_type_ktp2'){
+				$identity_type_ktp2=array(
+				'KTP'=>'identity_type_ktp2',
+				'PASPORT'=>'identity_type_paspor2',
+				'AKTE'=>'identity_type_akte2',
+				'LAINNYA'=>'identity_type_lain2',
+				''=>''
+				);
+				$content=str_replace("{".$identity_type_ktp2[$val['value']]."}","V",$content);
+				unset($identity_type_ktp2[$val['value']]);
+				foreach($identity_type_ktp2 as $identity_type_ktp2_key=>$identity_type_ktp2_val){
+					$content=str_replace("{".$identity_type_ktp2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='status_menikah2'){
+				$status_menikah2=array(
+				'MENIKAH'=>'status_menikah2',
+				'BELUM MENIKAH'=>'status_belum2',
+				'JANDA/DUDA'=>'status_janda_duda2',
+				'LAINNYA'=>'status_janda_duda2',
+				''=>''
+				);
+				$content=str_replace("{".$status_menikah2[$val['value']]."}","V",$content);
+				unset($status_menikah2[$val['value']]);
+				foreach($status_menikah2 as $status_menikah2_key=>$status_menikah2_val){
+					$content=str_replace("{".$status_menikah2_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='religion_islam2'){
+				$religion_islam2=array(
+				'ISLAM'=>'religion_islam2',
+				'KRISTEN'=>'religion_kristen2',
+				'KATHOLIK'=>'religion_katholik2',
+				'BUDHA'=>'religion_budha2',
+				'HINDU'=>'religion_hindu2',
+				'LAINNYA'=>'religion_lainnya2',
+				''=>''
+				);
+				$content=str_replace("{".$religion_islam2[$val['value']]."}","V",$content);
+				unset($religion_islam2[$val['value']]);
+				foreach($religion_islam2 as $religion_islam2_key=>$religion_islam2_val){
+					$content=str_replace("{".$religion_islam2_val."}","",$content);
+				}
+				
+			}
+			
+			if ($val['name']=='citizenship_wni2'){
+				$citizenship2=array(
+				'WNI'=>'citizenship_wni2',
+				'WNA'=>'citizenship_wna2',
+				''=>''
+				);
+				$content=str_replace("{".$citizenship2[$val['value']]."}","V",$content);
+				unset($citizenship2[$val['value']]);
+				foreach($citizenship1 as $citizenship2_key=>$citizenship2_val){
+					$content=str_replace("{".$citizenship2_val."}","",$content);
+				}
+				
+			}
+			
+			if ($val['name']=='citizenship_wni2'){
+				$citizenship2=array(
+				'WNI'=>'citizenship_wni2',
+				'WNA'=>'citizenship_wna2',
+				''=>''
+				);
+				$content=str_replace("{".$citizenship2[$val['value']]."}","V",$content);
+				unset($citizenship2[$val['value']]);
+				foreach($citizenship2 as $citizenship2_key=>$citizenship2_val){
+					$content=str_replace("{".$citizenship2_val."}","",$content);
+				}
+				
+			}
+			
+			if ($val['name']=='profession2'){
+				$profession2=array(
+				' KARYAWAN SWASTA'=>'profession_karyawan2',
+				'PELAJAR/MAHASISWA'=>'profession_pelajar2',
+				'PEGAWAI BUMN/BUMD'=>'profession_pegawai2',
+				'LAINNYA'=>'profession_lainnya2',
+				'IBU RUMAH TANGGA'=>'profession_irt2',
+				'TNI/POLRI'=>'profession_tni2',
+				'WIRASWASTA/PENGUSAHA'=>'profession_wiraswasta2',
+				'PNS'=>'profession_pns2',
+				'PENSIUNAN'=>'profession_pensiunan2',
+				'PEJABAT PEMERINTAH/DPR/DPRD'=>'profession_pejabat2',
+				''=>''
+				);
+				
+				$content=str_replace("{profession_jelaskan2}",$val['value'],$content);
+				
+				$profession2[$val['value']]=isset($profession2[$val['value']]) ? $profession2[$val['value']]:"";
+				$val['value']=$profession2[$val['value']]!="" ? $val['value']:"LAINNYA";
+				$content=str_replace("{".$profession2[$val['value']]."}","V",$content);
+				unset($profession2[$val['value']]);
+				foreach($profession2 as $profession2_key=>$profession2_val){
+					$content=str_replace("{".$profession2_val."}","",$content);
+				}
+				
+				
+			}
+			
+			if($val['name']=='insurance_purpose1'){
+				$insurance_purpose1=array(
+				'PROTEKSI'=>'insurance_purpose1',
+				'INVESTASI'=>'insurance_purpose2',
+				'PROTEKSI DAN INVESTASI'=>'insurance_purpose3',
+				'LAINNYA'=>'insurance_purpose4',
+				''=>''
+				);
+				$content=str_replace("{".$insurance_purpose1[$val['value']]."}","V",$content);
+				unset($insurance_purpose1[$val['value']]);
+				foreach($insurance_purpose1 as $insurance_purpose1_key=>$insurance_purpose1_val){
+					$content=str_replace("{".$insurance_purpose1_val."}","",$content);
+				}
+				
+			}
+			
+			if($val['name']=='premium_payer1'){
+				$premium_payer1=array(
+				'PEMEGANG POLIS'=>'premium_payer1',
+				'TERTANGGUNG'=>'premium_payer2',
+				'LAINNYA'=>'premium_payer3',
+				''=>''
+				);
+				$content=str_replace("{".$premium_payer1[$val['value']]."}","V",$content);
+				unset($premium_payer1[$val['value']]);
+				foreach($premium_payer1 as $ipremium_payer1_key=>$premium_payer1_val){
+					$content=str_replace("{".$premium_payer1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='income1'){
+				$income1=array(
+				'GAJI'=>'income1',
+				'HASIL INVESTASI'=>'income2',
+				'BISNIS PRIBADI'=>'income3',
+				'BONUS/KOMISI'=>'income4',
+				'LAINNYA'=>'income5',
+				''=>''
+				);
+				$content=str_replace("{".$income1[$val['value']]."}","V",$content);
+				unset($income1[$val['value']]);
+				foreach($income1 as $income1_key=>$income1_val){
+					$content=str_replace("{".$income1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='gross_income1'){
+				$gross_income1=array(
+				'&lt;60Juta'=>'gross_income1',
+				'<60Juta'=>'gross_income1',
+				'60Juta-180Juta'=>'gross_income2',
+				'180Juta-360Juta'=>'gross_income3',
+				'360Juta-600Juta'=>'gross_income4',
+				'>600Juta'=>'gross_income5',
+				'&gt;600Juta'=>'gross_income5',
+				''=>''
+				);	
+				$content=str_replace("{".$gross_income1[$val['value']]."}","V",$content);
+				unset($gross_income1[$val['value']]);
+				foreach($gross_income1 as $vincome1_key=>$gross_income1_val){
+					$content=str_replace("{".$gross_income1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='assets1'){
+				$assets1=array(
+				'<100Jt'=>'assets1',
+				'100Juta-1Milyar'=>'assets2',
+				'>1Milyar-10Milyar'=>'assets3',
+				'>10Milyar-100Milyar'=>'assets4',
+				'>100Milyar-500Milyar'=>'assets5',
+				'>500Milyar'=>'assets6',
+				''=>''
+				);	
+				$content=str_replace("{".$assets1[$val['value']]."}","V",$content);
+				unset($assets1[$val['value']]);
+				foreach($assets1 as $assets1_key=>$assets1_val){
+					$content=str_replace("{".$assets1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='income_peryear1'){
+				$income_peryear1=array(
+				'<100Jt'=>'income_peryear1',
+				'100Juta-500Juta'=>'income_peryear2',
+				'>500Juta-1Milyar'=>'income_peryear3',
+				'>1Milyar-10Milyar'=>'income_peryear4',
+				'>10Milyar'=>'income_peryear5',
+				''=>''
+				);	
+				$content=str_replace("{".$income_peryear1[$val['value']]."}","V",$content);
+				unset($income_peryear1[$val['value']]);
+				foreach($income_peryear1 as $income_peryear1_key=>$income_peryear1_val){
+					$content=str_replace("{".$income_peryear1_val."}","",$content);
+				}	
+				
+			}
+			
+			if($val['name']=='insurance_purpose8'){
+				$insurance_purpose8=array(
+				'Proteksi Pendapatan'=>'insurance_purpose8',
+				'Proteksi Kredit'=>'insurance_purpose9',
+				'Lain-lain'=>'insurance_purpose10',
+				''=>''
+				);	
+				$content=str_replace("{".$insurance_purpose8[$val['value']]."}","V",$content);
+				unset($insurance_purpose8[$val['value']]);
+				foreach($insurance_purpose8 as $insurance_purpose8_key=>$insurance_purpose8_val){
+					$content=str_replace("{".$insurance_purpose8_val."}","",$content);
+				}	
+				
+			}else{
+				if(in_array($val['name'],array('date_of_birth1','date_of_birth2'))){
+					$content=str_replace("{".$val['name']."}",$this->fix_date($val['value']),$content);
+				}else{
+					$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				}
+			}
+		}
+		/*
+		foreach($decode2 as $key=>$val){
+			$content=str_replace("{".$key."}",$val,$content);
+		}
+		*/
+		$content=str_replace("{cpp_no_spaj}",$decode2['No_SPAJ'],$content);
+		
+		$dompdf = new DOMPDF();
+		//{IMG_BG}
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/CPL1.png")),$content);
+		$dompdf->load_html($content);
+		$dompdf->set_paper("A4", "portrait");
+		$dompdf->render();
+		$output = $dompdf->output();
+		if(!is_dir(realpath(".")."/xtemp/".$rows['spaj_code'])){
+			@mkdir(realpath(".")."/xtemp/".$rows['spaj_code']);
+		}
+		file_put_contents(realpath(".")."/xtemp/".$rows['spaj_code']."/".$rows['spaj_code']."_1.pdf", $output);
+		//$dompdf->stream("cpl_page1.pdf",array("Attachment"=>0));
+	}
+	private function cpl2()
+	{
+		include(realpath(".").'/application/libraries/phpqrcode/qrlib.php');
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,s.agen_code,p.kode_agen,
+				case when k.agency_team_code in('151','078','079') then k.agency_team_name else 'Jakarta' end as nama_kota	
+				from tbl_spaj s 
+				join tbl_pfa p on p.pfa_code=s.pfa_code
+				left join sw_agency_team k on cast(k.agency_team_code as int)=cast(s.branch_code as int)
+				where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		
+		
+		//DATA PENGAJUAN		
+		$json1 =$this->other_doc($trx_id,'DATA');
+		
+		//DATA SPAJ
+		$json2 = $this->other_doc($trx_id,'SPAJ');
+		$json3 = $this->other_doc($trx_id,'AHLI');
+	
+		$decode1=json_decode($json1,true);
+		$decode2=json_decode($json2,true);
+		$decode3=json_decode($json3,true);
+		
+		$full_name1="";
+		$full_name2="";
+		
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/cpl_page2.html");
+		ob_end_clean();
+		foreach($decode1 as $key=>$val){
+			if($val['name']=="full_name1"){
+			$full_name1=$val['value'];
+			}
+			
+			if($val['name']=="full_name2"){
+			$full_name2=$val['value'];
+			}
+
+			if ($val['name']=='account_holder_name'){
+				if(strlen($val['value'])>34){
+					$content=str_replace("{style_".$val['name']."}"," style=\"font-size:6.5pt;top:71pt\" ",$content);
+					$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				}else{
+					$content=str_replace("{style_".$val['name']."}","",$content);
+					$content=str_replace("{".$val['name']."}",$val['value'],$content);
+				}
+				
+			}
+			
+			
+			$content=str_replace("{".$val['name']."}",$val['value'],$content);
+		}
+		foreach ($decode2 as $key=>$val){
+			if($key=='Mata_Uang'){
+				$currency1=array(
+				'IDR'=>'currency1',
+				'USD'=>'currency2',
+				''=>''
+				);	
+				$content=str_replace("{".$currency1[$val]."}","V",$content);
+				unset($currency1[$val]);
+				foreach($currency1 as $currency1_key=>$currency1_val){
+					$content=str_replace("{".$currency1_val."}","",$content);
+				}
+
+			}
+			if($key=='Mata_Uang'){
+				$fund_type1=array(
+				'IDR'=>'fund_type1',
+				'USD'=>'fund_type2',
+				''=>''
+				);	
+				$content=str_replace("{".$fund_type1[$val]."}","V",$content);
+				unset($fund_type1[$val]);
+				foreach($fund_type1 as $fund_type1_key=>$fund_type1_val){
+					$content=str_replace("{".$fund_type1_val."}","",$content);
+				}
+
+			}
+			
+			if($key=='Masa_Target_Investasi'){
+				$investment_period1=array(
+				'6 Bulan'=>'investment_period1',
+				'12 Bulan'=>'investment_period2',
+				''=>''
+				);	
+				$content=str_replace("{".$investment_period1[$val]."}","V",$content);
+				unset($investment_period1[$val]);
+				foreach($investment_period1 as $investment_period1_key=>$investment_period1_val){
+					$content=str_replace("{".$investment_period1_val."}","",$content);
+				}	
+				
+			}
+			if($key=='option_at_maturity1'){
+				$option_at_maturity1=array(
+				'ROLLOVER KESELURUHAN NILAI POLIS'=>'option_at_maturity1',
+				'ROLLOVER PREMI SAJA DAN MENARIK TARGET INVESTASI'=>'option_at_maturity2',
+				'MENARIK KESELURUHAN NILAI POLIS'=>'option_at_maturity3',
+				''=>''
+				);	
+				$content=str_replace("{".$option_at_maturity1[$val]."}","V",$content);
+				unset($option_at_maturity1[$val]);
+				foreach($option_at_maturity1 as $option_at_maturity1_key=>$option_at_maturity1_val){
+					$content=str_replace("{".$option_at_maturity1_val."}","",$content);
+				}	
+				
+			}else{
+				$content=str_replace("{".$key."}",$val,$content);
+			}
+		}
+		$jj=0;
+		foreach($decode3 as $bn){
+			$jj++;
+			foreach ($bn as $key=>$val){
+				$content=str_replace("{no".$jj."}",$jj,$content);
+				if($key=="nama"){
+					$content=str_replace("{beneficiary".$jj."}",$val,$content);
+				}
+				
+				if($key=="hubungan"){
+					$content=str_replace("{relationship".$jj."}",$val,$content);
+				}
+				
+				if($key=="pct"){
+					$content=str_replace("{benefit".number_format($jj,2)."}",$val,$content);
+				}
+				
+				if($key=="jenis_kelamin"){
+					$content=str_replace("{gen".$jj."}",(($val=="PRIA" or $val=="L") ? "L":"P"),$content);
+				}
+				
+				if($key=="tanggal_lahir"){
+					$content=str_replace("{birth_date".$jj."}",$this->fix_date($val),$content);
+				}
+				
+				if($key=="tempat_lahir"){
+					$content=str_replace("{place".$jj."}",$val,$content);
+					
+				}
+			}
+		}
+		$content=str_replace("{beneficiary1}","",$content);
+		$content=str_replace("{beneficiary2}","",$content);
+		$content=str_replace("{beneficiary3}","",$content);
+		$content=str_replace("{beneficiary4}","",$content);
+		$content=str_replace("{beneficiary5}","",$content);
+		$content=str_replace("{beneficiary6}","",$content);
+		
+		$content=str_replace("{relationship1}","",$content);
+		$content=str_replace("{relationship2}","",$content);
+		$content=str_replace("{relationship3}","",$content);
+		$content=str_replace("{relationship4}","",$content);
+		$content=str_replace("{relationship5}","",$content);
+		$content=str_replace("{relationship6}","",$content);
+		
+		$content=str_replace("{benefit1}","",$content);
+		$content=str_replace("{benefit2}","",$content);
+		$content=str_replace("{benefit3}","",$content);
+		$content=str_replace("{benefit4}","",$content);
+		$content=str_replace("{benefit5}","",$content);
+		$content=str_replace("{benefit6}","",$content);
+		
+		$content=str_replace("{gen1}","",$content);
+		$content=str_replace("{gen2}","",$content);
+		$content=str_replace("{gen3}","",$content);
+		$content=str_replace("{gen4}","",$content);
+		$content=str_replace("{gen5}","",$content);
+		$content=str_replace("{gen6}","",$content);
+		
+		$content=str_replace("{birth_date1}","",$content);
+		$content=str_replace("{birth_date2}","",$content);
+		$content=str_replace("{birth_date3}","",$content);
+		$content=str_replace("{birth_date4}","",$content);
+		$content=str_replace("{birth_date5}","",$content);
+		$content=str_replace("{birth_date6}","",$content);
+		
+		$content=str_replace("{place1}","",$content);
+		$content=str_replace("{place2}","",$content);
+		$content=str_replace("{place3}","",$content);
+		$content=str_replace("{place4}","",$content);
+		$content=str_replace("{place5}","",$content);
+		$content=str_replace("{place6}","",$content);
+		
+		$content=str_replace("{no1}","",$content);
+		$content=str_replace("{no2}","",$content);
+		$content=str_replace("{no3}","",$content);
+		$content=str_replace("{no4}","",$content);
+		$content=str_replace("{no5}","",$content);
+		$content=str_replace("{no6}","",$content);
+		
+		//TTD PEMPOL
+		ob_start();
+		QRCode::png($full_name1."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_policy_holder_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD TT
+		ob_start();
+		QRCode::png($full_name2."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_insured_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD PR
+		ob_start();
+		QRCode::png($rows['agen_code']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_reff_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD AGEN 
+		ob_start();
+		QRCode::png($rows['kode_agen']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		$exp_date=explode("-",$rows['effective_dt']);
+		
+		
+		$content=str_replace("{policy_holder_name_ttd}","data:image/png;base64,".$imageString_policy_holder_name_ttd,$content);
+		$content=str_replace("{insured_name_ttd}","data:image/png;base64,".$imageString_insured_name_ttd,$content);
+		$content=str_replace("{agen_reff_name_ttd}","data:image/png;base64,".$imageString_agen_reff_name_ttd,$content);
+		
+		
+		$content=str_replace("{agen_name_ttd}","data:image/png;base64,".$imageString_agen_name_ttd,$content);
+		
+		$content=str_replace("{agen_reff_code}",$rows['agen_code'],$content);
+		$content=str_replace("{agen_code}",$rows['kode_agen'],$content);
+		
+		$content=str_replace("{place_of_signature}",$rows['nama_kota'],$content);
+		
+		$content=str_replace("{date_of_signing}",$exp_date[2]."/".$exp_date[1]."/".$exp_date[0],$content);
+		
+		
+		
+		$dompdf = new DOMPDF();
+		//{IMG_BG}
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/CPL2.png")),$content);
+		$dompdf->load_html($content);
+		$dompdf->set_paper("A4", "portrait");
+		$dompdf->render();
+		$output = $dompdf->output();
+		if(!is_dir(realpath(".")."/xtemp/".$rows['spaj_code'])){
+			@mkdir(realpath(".")."/xtemp/".$rows['spaj_code']);
+		}
+		file_put_contents(realpath(".")."/xtemp/".$rows['spaj_code']."/".$rows['spaj_code']."_2.pdf", $output);
+		
+		//$dompdf->stream("cpl_page2.pdf",array("Attachment"=>0));
+	}
+	private function cpl3()
+	{
+		//include(realpath(".").'/application/libraries/phpqrcode/qrlib.php');
+		if($this->input->get("id",true)==""){
+			exit;
+		}
+		
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,s.agen_code,p.kode_agen,
+				case when k.agency_team_code in('151','078','079') then k.agency_team_name else 'Jakarta' end as nama_kota	
+				from tbl_spaj s 
+				join tbl_pfa p on p.pfa_code=s.pfa_code
+				left join sw_agency_team k on cast(k.agency_team_code as int)=cast(s.branch_code as int)
+				where s.ID=?";
+		$query=$this->db->query($str,array(base64_decode($this->input->get("id",true))));
+		$rows=$query->row_array();
+		$trx_id=$rows['docdir']."/".$rows['trx_id'];
+		
+		
+		$full_name1="";
+		$full_name2="";
+		
+		
+		//DATA SPAJ
+		$json2 = $this->other_doc($trx_id,'SPAJ');
+	
+		$decode1=json_decode($json1,true);
+		$decode2=json_decode($json2,true);
+		
+		foreach($decode1 as $key=>$val){
+			if($val['name']=="full_name1"){
+			$full_name1=$val['value'];
+			}
+			
+			if($val['name']=="full_name2"){
+			$full_name2=$val['value'];
+			}
+		}
+
+		require_once(realpath(".").'/application/libraries/dompdf/autoload.inc.php');
+		ob_start();
+		$content=file_get_contents(realpath(".")."/template/cpl_page3.html");
+		ob_end_clean();
+		/*
+		foreach($decode2 as $key=>$val){
+			$content=str_replace("{".$key."}",$val,$content);
+		}
+		*/
+		$content=str_replace("{cpp_no_spaj}",$decode2['No_SPAJ'],$content);
+		
+		
+		//TTD PEMPOL
+		ob_start();
+		QRCode::png($full_name1."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_policy_holder_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD TT
+		ob_start();
+		QRCode::png($full_name2."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_insured_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD PR
+		ob_start();
+		QRCode::png($rows['agen_code']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_reff_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		//TTD AGEN 
+		ob_start();
+		QRCode::png($rows['kode_agen']."|".$rows['spaj_code']."|".$rows['effective_dt'], null);
+		$imageString_agen_name_ttd = base64_encode( ob_get_contents() );
+		ob_end_clean();
+		
+		$exp_date=explode("-",$rows['effective_dt']);
+		
+		
+		$content=str_replace("{policy_holder_name_ttd}","data:image/png;base64,".$imageString_policy_holder_name_ttd,$content);
+		$content=str_replace("{insured_name_ttd}","data:image/png;base64,".$imageString_insured_name_ttd,$content);
+		$content=str_replace("{agen_reff_name_ttd}","data:image/png;base64,".$imageString_agen_reff_name_ttd,$content);
+		
+		
+		$content=str_replace("{agen_name_ttd}","data:image/png;base64,".$imageString_agen_name_ttd,$content);
+		
+		$content=str_replace("{agen_reff_code}",$rows['agen_code'],$content);
+		$content=str_replace("{agen_code}",$rows['kode_agen'],$content);
+		
+		$content=str_replace("{place_of_signature}",$rows['nama_kota'],$content);
+		
+		$content=str_replace("{date_of_signing}",$exp_date[2]."/".$exp_date[1]."/".$exp_date[0],$content);
+		
+		
+		$dompdf = new DOMPDF();
+		//{IMG_BG}
+		$content=str_replace("{IMG_BG}","data:image/png;base64,".base64_encode(file_get_contents(realpath(".")."/template/CPL3.png")),$content);
+		$dompdf->load_html($content);
+		$dompdf->set_paper("A4", "portrait");
+		$dompdf->render();
+		$output = $dompdf->output();
+		if(!is_dir(realpath(".")."/xtemp/".$rows['spaj_code'])){
+			@mkdir(realpath(".")."/xtemp/".$rows['spaj_code']);
+		}
+		file_put_contents(realpath(".")."/xtemp/".$rows['spaj_code']."/".$rows['spaj_code']."_3.pdf", $output);
+		//$dompdf->stream("cpl_page3.pdf",array("Attachment"=>0));
+	}
+	
+	private function other_doc($q,$type){
+		$dir=realpath(".")."/submission/".$q;
+		
+		$arr="";
+		if (is_dir($dir)){
+		  if ($dh = opendir($dir)){
+			while (($file = readdir($dh)) !== false){
+			  $split=explode("_",$file);
+			  if($split[0]==$type){
+				
+				$arr=file_get_contents($dir."/".$file);
+			  }
+			}
+			closedir($dh);
+		  }
+		}
+		return $arr;
+	}
+	
+	private function other_doc_fname($q,$type){
+		$dir=realpath(".")."/submission/".$q;
+		
+		$arr="";
+		if (is_dir($dir)){
+		  if ($dh = opendir($dir)){
+			while (($file = readdir($dh)) !== false){
+			  $split=explode("_",$file);
+			  if($split[0]==$type){
+				
+				$arr=$dir."/".$file;
+			  }
+			}
+			closedir($dh);
+		  }
+		}
+		return $arr;
+	}
+	
+	private function fix_date($s){
+		//$exp=explode("-",$str);
+		//return $exp[2]."/".$exp[1]."/".$exp[0]; 
+		if($s!=""){
+			if(preg_match("/\-/i",$s)==true){
+				$s=explode("T",$s);
+				$s=explode("-",$s[0]);
+				return $s[2]."/".$s[1]."/".$s[0];
+			}else{
+				$m=substr($s, 0, 3);
+				$d=substr($s, 4, 2);
+				$y=substr($s, 7, 4);
+				
+				return $d."/".$this->fix_month($m)."/".$y;
+			}
+		}
+	}
+	
+	private function fix_month($d){
+				switch($d){
+							case 'Jan':
+								return "01";
+								break;
+							case 'Feb':
+								return "02";
+								break;
+							case 'Mar':
+								return "03";
+								break;
+							case 'Apr':
+								return "04";
+								break;
+							case 'May':
+								return "05";
+								break;
+							case 'Jun':
+								return "06";
+								break;
+							case 'Jul':
+								return "07";
+								break;
+							case 'Aug':
+								return "08";
+								break;
+							case 'Sep':
+								return "09";
+								break;
+							case 'Oct':
+								return "10";
+								break;
+							case 'Nov':
+								return "11";
+								break;
+							case 'Dec':
+								return "12";
+								break;
+
+						}
+			}
+	
+	public function check_pengajuan(){
+		//phpinfo();
+		
+		//$dbDB = new PDO("dblib:host=10.17.50.90:1433;version=7.0;charset=UTF-8;dbname=CAPITALLIFE_INDIVIDU_PROD","admin", "asdasd");
+		/*
+		$dbDB = new PDO("dblib:host=10.17.50.90:1433;version=7.0;charset=UTF-8;dbname=CAPITALLIFE_INDIVIDU_PROD","admin", "asdasd");
+		$sql_core="exec SP_API_CPP_3BLN '2024-02-12',460000000,'3','3/12','IDR'";
+		$stmt =$dbDB->prepare($sql_core);
+		$stmt->execute();	
+		$rows = $stmt->fetch(PDO::FETCH_ASSOC);
+		echo"<pre>";
+		print_r($rows);
+		
+		exit;
+		*/
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,s.birth_dt from tbl_spaj s where cast(s.effective_dt as date)='2024-02-13'";
+		$query=$this->db->query($str);
+		$rows=$query->result_array();
+		echo"<pre>";
+		echo "SPAJ|DOB PP|DOB TT|NAMA PP|NAMA TT|DOB DB|TRXID\n";
+		foreach($rows as $row){
+			$trx_id=$row['docdir']."/".$row['trx_id'];
+			$json1 =$this->other_doc($trx_id,'DATA');
+			$decode1=json_decode($json1,true);
+			
+			//18 -> PP
+			//48 -> TT
+			//print_r($decode1);
+			if($decode1[18]['value']==""){
+			echo $row['spaj_code']."|".$decode1[18]['value']."|".$decode1[48]['value']."|".$row['nama_pp']."|".$row['nama_pp']."|".$row['birth_dt']."|".$trx_id."\n";
+			}
+		}
+		
+	}	
+	
+	public function fix_pengajuan(){
+		//phpinfo();
+		
+		//$dbDB = new PDO("dblib:host=10.17.50.90:1433;version=7.0;charset=UTF-8;dbname=CAPITALLIFE_INDIVIDU_PROD","admin", "asdasd");
+		/*
+		$dbDB = new PDO("dblib:host=10.17.50.90:1433;version=7.0;charset=UTF-8;dbname=CAPITALLIFE_INDIVIDU_PROD","admin", "asdasd");
+		$sql_core="exec SP_API_CPP_3BLN '2024-02-12',460000000,'3','3/12','IDR'";
+		$stmt =$dbDB->prepare($sql_core);
+		$stmt->execute();	
+		$rows = $stmt->fetch(PDO::FETCH_ASSOC);
+		echo"<pre>";
+		print_r($rows);
+		
+		exit;
+		*/
+		$this->load->database();
+		$str="select s.ID,s.trx_id,s.spaj_code,s.no_polis,s.product_code,s.nama_pp,s.effective_dt,s.last_change_dt,s.status_qc,
+				DATE_FORMAT(s.last_change_dt,'%Y%m%d') as docdir,s.birth_dt from tbl_spaj s where cast(s.effective_dt as date)='2024-02-12' and s.spaj_code in(
+				'PP11405214',
+				'PP11415362',
+				'PP11403425',
+				'PP11424310',
+				'PP11414961',
+				'PP11384876',
+				'PP11372174',
+				'PP11396303',
+				'PP11417271',
+				'PP11393424',
+				'PP11413684',
+				'PP11422517',
+				'PP11429855',
+				'PP11396332',
+				'PP11393425',
+				'PP11419360',
+				'PP11393478',
+				'PP11396333',
+				'PP11365587',
+				'PP11393499',
+				'PP11422514',
+				'PP11422585',
+				'PP11371459',
+				'PP11411823',
+				'PP11402157',
+				'PP11402159'
+				)";
+		$query=$this->db->query($str);
+		$rows=$query->result_array();
+		echo"<pre>";
+		foreach($rows as $row){
+			$trx_id=$row['docdir']."/".$row['trx_id'];
+			$json1 =$this->other_doc($trx_id,'DATA');
+			$decode1=json_decode($json1,true);
+			
+			//$decode1[18]['value']=$row['birth_dt'];
+			//$decode1[48]['value']=$row['birth_dt'];
+			//file_put_contents($this->other_doc_fname($trx_id,'DATA'),json_encode($decode1));
+			
+			
+			echo $this->other_doc_fname($trx_id,'DATA')."\n";
+			//18 -> PP
+			//48 -> TT
+			print_r($decode1);
+			
+		}
+		
+	}	
+	
+	private function convertStringTonumberMonth($month)
+	{
+		$map = array( '12' => 'Desember', '11' => 'November', '10' => 'Oktober', '09' => 'September', '08' => 'Agustus', '07' => 'Juli', '06' => 'Juni', '05' => 'Mei', '04' => 'April', '03' => 'Maret', '02' => 'Februari', '01' => 'Januari');
+		$returnValue = '';
+			foreach ($map as $roman => $string) {
+
+				if($month == $string){
+					$returnValue .= $roman;
+					break;
+				}
+			}
+
+		return $returnValue;
+	}
+	
+}

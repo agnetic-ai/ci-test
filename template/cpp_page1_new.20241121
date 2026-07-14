@@ -1,0 +1,405 @@
+<html>
+<head>
+    <title></title><style>
+
+@page { margin: 0px; }
+        body {
+            font-size: 8pt;
+            font-family: 'Helvetica'
+        }
+			#img_bg{
+				margin:0pt;
+				padding:0pt;
+				position:absolute;
+				left:0pt;
+				top:0pt;
+				width:100%;
+				height:auto;
+			}
+
+			.page_break { page-break-before: always; }
+    </style>
+</head>
+x
+<body>
+	<img src="{IMG_BG}" id="img_bg" />
+	
+	<!-- DATA PEMPOL-->
+	<div id="spaj_no" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 495pt; top: 85pt; position: absolute;">{cpp_no_spaj}</div>
+
+	<!-- Point 1 -->
+	<div id="full_name1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 160pt; position: absolute;">{full_name1}</div>
+
+	<!-- Point 2 -->
+	<div id="gen_pria1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165.5pt; top: 180pt; position: absolute;">{gen_pria1}</div>
+	<div id="gen_wanita1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 221.5pt; top: 180pt; position: absolute;">{gen_wanita1}</div>
+
+	<!-- Point 3 -->
+	<div id="place_of_birth1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 205pt; top: 194pt; position: absolute;">{place_of_birth1}</div>
+	<div id="date_of_birth1_d" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 409pt; top: 194pt; position: absolute;">{date_of_birth1_d}</div>
+	<div id="date_of_birth1_m" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 435pt; top: 194pt; position: absolute;">{date_of_birth1_m}</div>
+	<div id="date_of_birth1_y" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 457.5pt; top: 194pt; position: absolute;">{date_of_birth1_y}</div>
+	
+
+	<!-- Point 4 -->
+	<div id="identity_type_ktp1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 206.5pt; position: absolute;">{identity_type_ktp1}</div>
+	<div id="identity_type_paspor1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 221.5pt; top: 206.5pt; position: absolute;">{identity_type_paspor1}</div>
+	<div id="identity_type_akte1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 206.5pt; position: absolute;">{identity_type_akte1}</div>
+	<div id="identity_type_lain1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 343pt; top: 206.5pt; position: absolute;">{identity_type_lain1}</div>
+	<div id="identity_type_jelaskan1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 380pt; top: 205pt; position: absolute;"></div>
+
+	<!-- Point 5 -->
+	<div id="identity_no1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 221.5pt; position: absolute;">{identity_no1}</div>
+	
+	<!-- Point 6 -->
+	<div id="status_menikah1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165.3pt; top: 237pt; position: absolute;">{status_menikah1}</div>
+	<div id="status_belum1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 222pt; top: 237pt; position: absolute;">{status_belum1}</div>
+	<div id="status_janda_duda1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 237pt; position: absolute;">{status_janda_duda1}</div>
+
+	<!-- Point 7 -->
+	<div id="religion_islam1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165.3pt; top: 250.5pt; position: absolute;">{religion_islam1}</div>
+	<div id="religion_kristen1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 221.8pt; top: 250.5pt; position: absolute;">{religion_kristen1}</div>
+	<div id="religion_katholik1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 276.8pt; top: 250.5pt; position: absolute;">{religion_katholik1}</div>
+	<div id="religion_budha1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 343pt; top: 250.5pt; position: absolute;">{religion_budha1}</div>
+	<div id="religion_hindu1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 392.5pt; top: 250.5pt; position: absolute;">{religion_hindu1}</div>
+	<div id="religion_lainnya1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 499.5pt; top: 250.5pt; position: absolute;">{religion_lainnya1}</div>
+	<div id="religion_jelaskan1"></div>
+
+	<!-- Point 8-->
+	<div id="address1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 263.7pt; position: absolute;">{address1}</div>
+	<div id="districts1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 197pt; top: 275pt; position: absolute;">{sub_districts1}</div>
+	<div id="sub_districts1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 197pt; top: 286pt; position: absolute;">{districts1}</div>
+	<div id="phone_number1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 397pt; top: 275pt; position: absolute;">{phone_number1}</div>
+	<div id="city1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 197pt; top: 298pt; position: absolute;">{city1}</div>
+	<div id="handphone1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 397pt; top: 286pt; position: absolute;">{handphone1}</div>
+	<div id="postal_code1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 397pt; top: 298pt; position: absolute;">{postal_code1}</div>
+	<div id="province1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 197pt; top: 310pt; position: absolute;">{province1}</div>
+	<div id="email1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 397pt; top: 308.8pt; position: absolute;">{email1}</div>
+
+	<!-- Point 9 -->
+	<div id="citizenship_wni1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165.3pt; top: 329pt; position: absolute;">{citizenship_wni1}</div>
+	<div id="citizenship_wna1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277.3pt; top: 329pt; position: absolute;">{citizenship_wna1}</div>
+	<div id="citizenship_sebutkan1"></div>
+
+	<!-- Point 10 -->
+	<div id="mother_name1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 341.3pt; position: absolute;">{mother_name1}</div>
+	
+	<!-- Point 11 -->
+	 <div id="profession_karyawan1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 355.5pt; position: absolute;">{profession_karyawan1}</div>
+	<div id="profession_pelajar1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 355.5pt; position: absolute;">{profession_pelajar1}</div>
+	<div id="profession_pegawai1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 357pt; top: 355.5pt; position: absolute;">{profession_pegawai1}</div>
+	<div id="profession_lainnya1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 445.7pt; top: 355.5pt; position: absolute;">{profession_lainnya1}</div>
+	<div id="profession_jelaskan1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 484.7pt; top: 353.5pt; position: absolute;">{profession1}</div>
+	<div id="profession_wiraswasta1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 357pt; top: 366.7pt; position: absolute;">{profession_wiraswasta1}</div>
+	<div id="profession_irt1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 366.7pt; position: absolute;">{profession_irt1}</div>
+	<!-- 
+	<div id="profession_tni1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 366.7pt; position: absolute;">{profession_tni1}</div>
+	
+
+	<div id="profession_pns1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 379pt; position: absolute;">{profession_pns1}</div>
+	<div id="profession_pensiunan1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 379pt; position: absolute;">{profession_pensiunan1}</div>
+	<div id="profession_pejabat1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 357pt; top: 379pt; position: absolute;">{profession_pejabat1}</div> -->
+	
+	<div id="company_name1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 392pt; position: absolute;">{company_name1}</div>
+	<div id="job_description1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 404pt; position: absolute;">{job_description1}</div>
+	<div id="position1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 415pt; position: absolute;">{position1}</div>
+
+	<div id="company_address1_part1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 392pt; position: absolute;">{company_address1_part1},{company_address1_part2}</div>
+	<div id="company_subdistricts1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 404pt; position: absolute;">{company_subdistricts1},{company_districts1}</div>
+	<div id="company_city1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 414pt; position: absolute;">{company_city1},{company_postal_code1}</div>
+
+	<!-- Point 12 -->
+	<div id="npwp1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 428pt; position: absolute;">{npwp1}</div>
+	<!-- <div id="country1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 441pt; position: absolute;"></div> -->
+
+	<!-- Point 13 -->
+	<div id="tax_other_country1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 441pt; position: absolute;">{tax_other_country1}</div>
+	<div id="tax_other_country_name1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 441pt; position: absolute;">{tax_other_country_name1}</div>
+
+	<!-- Point 14 -->
+	<div id="full_name2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 492.5pt; position: absolute;">{full_name2}</div>
+	
+	<!-- Point 15 -->
+	<div id="relationship_diri2"style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165.5pt; top: 511.5pt; position: absolute;">{relationship_diri2}</div>
+	<div id="relationship_suami_istri2"style="font-size: 10px; margin: 0pt; padding: 0pt; left: 221.7pt; top: 511.5pt; position: absolute;">{relationship_suami2}</div>
+	<div id="relationship_anak2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 511.5pt; position: absolute;">{relationship_anak2}</div>
+	<div id="relationship_orang_tua2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 324.3pt; top: 511.5pt; position: absolute;">{relationship_orangtua2}</div>
+	<div id="relationship_lainnya2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 378pt; top: 511.5pt; position: absolute;">{relationship_lain2}</div>
+	<div id="relationship_jelaskan2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 443pt; top: 510.5pt; position: absolute;"></div>
+	
+	<!-- Point 16 -->
+	<div id="gen_pria2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 529pt; position: absolute;">{gen_pria2}</div>
+	<div id="gen_wanita2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 222pt; top: 529pt; position: absolute;">{gen_wanita2}</div>
+
+	<!-- Point 17 -->
+	<div id="place_of_birth2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 205pt; top: 541pt; position: absolute;">{place_of_birth2}</div>
+
+	<div id="date_of_birth2_d"style="font-size: 10px; margin: 0pt; padding: 0pt; left: 408.7pt; top: 541pt; position: absolute;">{date_of_birth2_d}</div>
+	<div id="date_of_birth2_m"style="font-size: 10px; margin: 0pt; padding: 0pt; left: 435pt; top: 541pt; position: absolute;">{date_of_birth2_m}</div>
+	<div id="date_of_birth2_y"style="font-size: 10px; margin: 0pt; padding: 0pt; left: 458pt; top: 541pt; position: absolute;">{date_of_birth2_y}</div>
+
+	<!-- Point 18 -->
+	<div id="identity_type_ktp2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 554pt; position: absolute;">{identity_type_ktp2}</div>
+	<div id="identity_type_paspor2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 221.5pt; top: 554pt; position: absolute;">{identity_type_paspor2}</div>
+	<div id="identity_type_akte2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277.5pt; top: 554pt; position: absolute;">{identity_type_akte2}</div>
+	<div id="identity_type_lain2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 342.5pt; top: 554pt; position: absolute;">{identity_type_lain2}</div>
+	<div id="identity_type_jelaskan2"></div>
+
+	<!-- Point 19 -->
+	<div id="identity_no2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 165pt; top: 567.3pt; position: absolute;">{identity_no2}</div>
+
+	<!-- Point 120 -->
+	<div id="status_menikah2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 583pt; position: absolute;">{status_menikah2}</div>
+	<div id="status_belum2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 221.5pt; top: 583pt; position: absolute;">{status_belum2}</div>
+	<div id="status_janda_duda2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277.8pt; top: 583pt; position: absolute;">{status_janda_duda2}</div>
+
+	<!-- Point 21 -->
+	<div id="religion_islam2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 599pt; position: absolute;">{religion_islam2}</div>
+	<div id="religion_kristen2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 221.5pt; top: 599pt; position: absolute;">{religion_kristen2}</div>
+	<div id="religion_katholik2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277.8pt; top: 599pt; position: absolute;">{religion_katholik2}</div>
+	<div id="religion_budha2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 342.8pt; top: 599pt; position: absolute;">{religion_budha2}</div>
+	<div id="religion_hindu2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 392.8pt; top: 599pt; position: absolute;">{religion_hindu2}</div>
+	<div id="religion_lainnya2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 500.6pt; top: 599pt; position: absolute;">{religion_lainnya2}</div>
+	<div id="religion_jelaskan2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 535.6pt; top: 598pt; position: absolute;"></div>
+	
+	<!-- Point 22 -->
+	<div id="address2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 611pt; position: absolute;">{address2}</div>
+	<div id="sub_districts2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 196pt; top: 620.5pt; position: absolute;">{sub_districts2}</div>
+	<div id="districts2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 196pt; top: 632pt; position: absolute;">{districts2}</div>
+	<div id="city2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 196pt; top: 644pt; position: absolute;">{city2}</div>
+	<div id="phone_number2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 399pt; top: 620.5pt; position: absolute;">{phone_number2}</div>
+	<div id="postal_code2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 399pt; top: 644pt; position: absolute;">{postal_code2}</div>
+	<div id="handphone2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 399pt; top: 632pt; position: absolute;">{handphone2}</div>
+	<div id="province2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 196pt; top: 655pt; position: absolute;">{province2}</div>
+	<div id="email2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 399pt; top: 654.4pt; position: absolute;">{email2}</div>
+
+	<!-- Point 23 -->
+	<div id="citizenship_wni2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 676.5pt; position: absolute;">{citizenship_wni2}</div>
+	<div id="citizenship_wna2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 676.5pt; position: absolute;">{citizenship_wna2}</div>
+	<div id="citizenship_sebutkan2"></div>
+	
+	<!-- Point 24 -->
+	<div id="profession_karyawan2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 687pt; position: absolute;">{profession_karyawan2}</div>
+	<div id="profession_pelajar2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 687pt; position: absolute;">{profession_pelajar2}</div>
+	<div id="profession_pegawai2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354.7pt; top: 687pt; position: absolute;">{profession_pegawai2}</div>
+	<div id="profession_lainnya2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 444.7pt; top: 687pt; position: absolute;">{profession_lainnya2}</div>
+	<div id="profession_irt2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 698.6pt; position: absolute;">{profession_irt2}</div>
+	<div id="profession_wiraswasta2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354.7pt; top: 698.6pt; position: absolute;">{profession_wiraswasta2}</div>
+	<div id="profession2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 484.7pt; top: 686pt; position: absolute;">{profession2}</div>
+
+	<!-- 
+	<div id="profession_tni2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 698.6pt; position: absolute;">{profession_tni2}</div>
+	<div id="profession_wiraswasta2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354.7pt; top: 698.6pt; position: absolute;">{profession_wiraswasta2}</div>
+
+	<div id="profession_pns2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 710.6pt; position: absolute;">{profession_pns2}</div>
+	<div id="profession_pensiunan2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 277pt; top: 710.6pt; position: absolute;">{profession_pensiunan2}</div>
+	<div id="profession_pejabat2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354.7pt; top: 710.6pt; position: absolute;">{profession_pejabat2}</div> -->
+	
+	<div id="company_name2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 722.3pt; position: absolute;">{company_name2}</div>
+	<div id="job_description2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 734.3pt; position: absolute;">{job_description2}</div>
+	<div id="position2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 746.2pt; position: absolute;">{position2}</div>
+
+	<div id="company_address2_part1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 722.3pt; position: absolute;">{company_address2_part1},{company_address2_part2}</div>
+	<div id="company_subdistricts2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 734.3pt; position: absolute;">{company_subdistricts2},{company_districts1}</div>
+	<div id="company_city2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 745pt; position: absolute;">{company_city2},{company_postal_code2}</div>
+
+	<!-- <div id="company_address2_part1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 722.3pt; position: absolute;">{company_address2_part1}</div>
+	<div id="company_address2_part2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 734.3pt; position: absolute;">{company_address2_part2}</div>
+	<div id="country2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 771pt; position: absolute;"></div> -->
+
+	<!-- Point 25 -->
+	<div id="npwp2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 163pt; top: 760.3pt; position: absolute;">{npwp2}</div>
+
+	<!-- Point 26 -->
+	<div id="tax_other_country2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 771.5pt; position: absolute;">{tax_other_country2}</div>
+	<div id="tax_other_country_name2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 354pt; top: 771.5pt; position: absolute;">{tax_other_country_name2}</div>
+	
+	<!-- PEMBAYAR PREMI-->
+	<!-- INSURANCE PURPOSE-->
+	<!-- <div id="insurance_purpose1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 163pt; top: 760.3pt; position: absolute;">{insurance_purpose1}</div> -->
+	<!-- <div id="insurance_purpose2">{insurance_purpose2}</div> -->
+	<!-- <div id="insurance_purpose3">{insurance_purpose3}</div> -->
+	<!-- <div id="insurance_purpose4">{insurance_purpose4}</div> -->
+	<div id="insurance_purpose_jelaskan"></div>
+	
+	<!-- Point 27 -->
+	<div id="premium_payer1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 828.3pt; position: absolute;">{premium_payer1}</div>
+	<div id="premium_payer2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 235.5pt; top: 828.3pt; position: absolute;">{premium_payer2}</div>
+	<div id="premium_payer3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 317pt; top: 828.3pt; position: absolute;">{premium_payer3}</div>
+	
+	<!-- Point 28 -->
+	<div id="source_income1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 841pt; position: absolute;">{income1}</div>
+	<div id="source_income2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 235.5pt; top: 841pt; position: absolute;">{income2}</div>
+	<div id="source_income3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 317pt; top: 841pt; position: absolute;">{income3}</div>
+	<div id="source_income4" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 407pt; top: 841pt; position: absolute;">{income4}</div>
+	<div id="source_income5" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 407pt; top: 841pt; position: absolute;">{income5}</div>
+	<div id="source_income_lainnya"></div>
+	
+	<!-- Point 29 -->
+	<div id="gross_income1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 853.5pt; position: absolute;">{gross_income1}</div>
+	<div id="gross_income2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 235.5pt; top: 853.5pt; position: absolute;">{gross_income2}</div>
+	<div id="gross_income3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 317pt; top: 853.5pt; position: absolute;">{gross_income3}</div>
+	<div id="gross_income4" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 407pt; top: 853.5pt; position: absolute;">{gross_income4}</div>
+	<div id="gross_income5" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 495.5pt; top: 853.5pt; position: absolute;">{gross_income5}</div>
+
+	<!-- Point 30 -->
+	<div id="premium_payer_other_income1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 867pt; position: absolute;">{premium_payer_other_income1}</div>
+	<div id="premium_payer_other_income2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 235.5pt; top: 867pt; position: absolute;">{premium_payer_other_income2}</div>
+	<div id="premium_payer_other_income3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 317pt; top: 867pt; position: absolute;">{premium_payer_other_income3}</div>
+	<div id="premium_payer_other_income4" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 407pt; top: 867pt; position: absolute;">{premium_payer_other_income4}</div>
+	<div id="premium_payer_other_income5" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 495.5pt; top: 867pt; position: absolute;">{premium_payer_other_income5}</div>
+
+	<!-- Point 31 -->
+	<div id="premium_payer_other_income_value1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 166pt; top: 879.3pt; position: absolute;">{premium_payer_other_income_value1}</div>
+	<div id="premium_payer_other_income_value2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 235.5pt; top: 879.3pt; position: absolute;">{premium_payer_other_income_value2}</div>
+	<div id="premium_payer_other_income_value3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 317pt; top: 879.3pt; position: absolute;">{premium_payer_other_income_value3}</div>
+	<div id="premium_payer_other_income_value4" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 407pt; top: 879.3pt; position: absolute;">{premium_payer_other_income_value4}</div>
+	<div id="premium_payer_other_income_value5" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 496pt; top: 879.3pt; position: absolute;">{premium_payer_other_income_value5}</div>
+	
+	<div class="page_break">
+		<img src="{IMG_BG2}" id="img_bg" />
+
+		<div id="cpp_no_spaj" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 493pt; top: 13pt; position: absolute;">{cpp_no_spaj}</div>
+
+		<!-- Point 32 -->
+		<div id="company_name2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 48.8pt; position: absolute;">{company_name2}</div>
+
+		<!-- Point 33 -->
+		<div id="policy_holder_legal_entity1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 62.8pt; position: absolute;">{policy_holder_legal_entity1}</div>
+		<div id="policy_holder_legal_entity2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 233.7pt; top: 62.8pt; position: absolute;">{policy_holder_legal_entity2}</div>
+		<div id="policy_holder_legal_entity3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 318.5pt; top: 62.8pt; position: absolute;">{policy_holder_legal_entity3}</div>
+		<div id="policy_holder_legal_entity4" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 408.5pt; top: 62.8pt; position: absolute;">{policy_holder_legal_entity4}</div>
+		<div id="policy_holder_legal_entity5" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 497.5pt; top: 62.5pt; position: absolute;">{policy_holder_legal_entity5}</div>
+
+		<!-- Point 34 -->
+		<div id="policy_holder_asset_company1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 75.5pt; position: absolute;">{policy_holder_asset_company1}</div>
+		<div id="policy_holder_asset_company2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 233.7pt; top: 75.5pt; position: absolute;">{policy_holder_asset_company2}</div>
+		<div id="policy_holder_asset_company3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 318.5pt; top: 75.5pt; position: absolute;">{policy_holder_asset_company3}</div>
+		<div id="policy_holder_asset_company4" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 408.5pt; top: 75.5pt; position: absolute;">{policy_holder_asset_company4}</div>
+		<div id="policy_holder_asset_company5" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 497.5pt; top: 75.5pt; position: absolute;">{policy_holder_asset_company5}</div>
+		<!-- Asset -->
+
+		<!-- Point 35 -->
+		<div id="policy_holder_income_company1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 164pt; top: 88.1pt; position: absolute;">{policy_holder_income_company1}</div>
+		<div id="policy_holder_income_company2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 233.7pt; top: 88.1pt; position: absolute;">{policy_holder_income_company2}</div>
+		<div id="policy_holder_income_company3" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 318.5pt; top: 88.1pt; position: absolute;">{policy_holder_income_company3}</div>
+		<div id="policy_holder_income_company4" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 408.5pt; top: 88.1pt; position: absolute;">{policy_holder_income_company4}</div>
+		<div id="policy_holder_income_company5" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 497.5pt; top: 88.1pt; position: absolute;">{policy_holder_income_company5}</div>
+		<!-- <div id="policy_holder_income_company6" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 497.5pt; top: 88.1pt; position: absolute;">{policy_holder_income_company6}</div> -->
+		<!-- Income -->
+
+		<!-- COVERAGE 36 -->
+		<div id="insurance_purpose8" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 173pt; top: 178.6pt; position: absolute;">{insurance_purpose8}</div>
+		<div id="insurance_purpose9" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 237.7pt; top: 178.6pt; position: absolute;">{insurance_purpose9}</div>
+		<div id="insurance_purpose10" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 325.5pt; top: 178.6pt; position: absolute;">{insurance_purpose10}</div>
+		<div id="insurance_purpose_jelaskan" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 390pt; top: 177pt; position: absolute;">{insurance_purpose_jelaskan}</div>
+		<!-- COVERAGE -->
+
+		<!-- DATE OF COVERAGE 37 cpp_tgl_asu -->
+		<div id="date_of_coverage_d" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 178pt; top: 188.6pt; position: absolute;">{date_of_coverage_d}</div>
+		<div id="date_of_coverage_m" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 200.7pt; top: 188.6pt; position: absolute;">{date_of_coverage_m}</div>
+		<div id="date_of_coverage_y" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 224pt; top: 188.6pt; position: absolute;">{date_of_coverage_y}</div>
+		<!-- DATE OF COVERAGE -->
+
+		<!-- CURRENCY 38-->
+		<div id="currency1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 174.5pt; top: 208pt; position: absolute;">{currency1}</div>
+		<div id="currency2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 239pt; top: 208pt; position: absolute;">{currency2}</div>
+		<!-- CURRENCY -->
+
+		<!-- PREMI 39-->
+		<div id="cpp_premi" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 174.5pt; top: 220pt; position: absolute;">{cpp_premi}</div>
+		<!-- PREMI -->
+
+		<!-- INVESTMENT PERIOD-->
+		<!-- Point 40 -->
+		<div id="investment_period1" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 174.5pt; top: 234pt; position: absolute;">{investment_period1}</div>
+		<div id="investment_period2" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 239pt; top: 234pt; position: absolute;">{investment_period2}</div>
+		<!-- INVESTMENT PERIOD -->
+
+		<!-- INVESTMENT GUARANTEE -->
+		<!-- Point 41 -->
+		<div id="cpp_mti_pa" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 175p.5pt; top: 248pt; position: absolute;">{cpp_mti_pa}</div>
+		<!-- INVESTMENT GUARANTEE -->
+
+		<!-- BENEFITS POLICY -->
+		<!-- Point 42 -->
+		<div id="account_holder_name" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 390pt; top: 212.3pt; position: absolute;">{account_holder_name}</div>
+		<div id="bank_name" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 390pt; top: 223.5pt; position: absolute;">{bank_name}</div>
+		<div id="account_holder_number" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 390pt; top: 235.5pt; position: absolute;">{account_holder_number}</div>
+		<!-- BENEFITS POLICY -->
+
+		<!-- HEIR -->
+		<!-- Point 43 -->
+
+		<!-- Number -->
+		{NUMBER}
+		<!-- Number -->
+
+		<!-- Heir Name -->
+		{HEIRNAME}
+		<!-- Heir Name -->
+
+		<!-- Heir Relationship -->
+		{HEIRRELATIONSHIP}
+		<!-- Heir Relationship -->
+
+		<!-- Heir Gender -->
+		{HEIRGENDER}
+		<!-- Heir Gender -->
+
+		<!-- Date Of Birth -->
+		{DATEOFBIRTH1}
+		{DATEOFBIRTH2}
+		{DATEOFBIRTH3}
+		<!-- Date Of Birth -->
+
+		<!-- pct -->
+		{PCT}
+		<!-- HEIR -->
+
+		<!-- SUBSCRIBE -->
+
+		<!-- Point 44 -->
+		<div id="q_yes4_y" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 487pt; top: 402.7pt; position: absolute;">{q_yes4_y}</div>
+		<div id="q_yes4_n" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 533pt; top: 402.7pt; position: absolute;">{q_yes4_n}</div>
+
+		<!-- Point 45 -->
+		<div id="q_yes5_y" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 487pt; top: 423pt; position: absolute;">{q_yes5_y}</div>
+		<div id="q_yes5_n" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 533pt; top: 423pt; position: absolute;">{q_yes5_n}</div>
+
+		<!-- Point 46 -->
+		<div id="q_yes6_y" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 487pt; top: 446.5pt; position: absolute;">{q_yes6_y}</div>
+		<div id="q_yes6_n" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 533pt; top: 446.5pt; position: absolute;">{q_yes6_n}</div>
+		<!-- SUBSCRIBE -->
+
+		<!-- SIGNATURE PLACE -->
+		<div id="signature_place" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 87pt; top: 814pt; position: absolute;">{signature_place}</div>
+
+		<!-- SIGNATURE DATE -->
+		<div id="signature_date_d" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 290pt; top: 814pt; position: absolute;">{signature_date_d}</div>
+		<div id="signature_date_m" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 316pt; top: 814pt; position: absolute;">{signature_date_m}</div>
+		<div id="signature_date_y" style="font-size: 10px; margin: 0pt; padding: 0pt; left: 340pt; top: 814pt; position: absolute;">{signature_date_y}</div>
+
+		<!-- Signature -->
+		<img src="{IMG_SIGNATURE_1}" id="img_bg1" style="width: 55px; height: 55px; margin: 0pt; padding: 0pt; left: 57pt; top: 870pt; position: absolute;" />
+		<div id="policy_holder_name" style="font-size: 6px; margin: 0pt; padding: 0pt; left: 68.2pt; top: 921.5pt; position: absolute;">{policy_holder_name}</div>
+
+		<img src="{IMG_SIGNATURE_2}" id="img_bg2" style="width: 55px; height: 55px; margin: 0pt; padding: 0pt; left: 167pt; top: 870spt; position: absolute;" />
+		<div id="insured_name" style="font-size: 6px; margin: 0pt; padding: 0pt; left: 178.5pt; top: 921.5pt; position: absolute;">{insured_name}</div>
+
+		<img src="{IMG_SIGNATURE_3}" id="img_bg3" style="width: 55px; height: 55px; margin: 0pt; padding: 0pt; left: 278pt; top: 870spt; position: absolute;" />
+		<div id="premium_payer_name3" style="font-size: 6px; margin: 0pt; padding: 0pt; left: 289.5pt; top: 921.5pt; position: absolute;">{premium_payer_name3}</div>
+
+		<img src="{IMG_SIGNATURE_4}" id="img_bg4" style="width: 55px; height: 55px; margin: 0pt; padding: 0pt; left: 389pt; top: 870spt; position: absolute;" />
+		<div id="refferal_name" style="font-size: 6px; margin: 0pt; padding: 0pt; left: 399.6pt; top: 921.5pt; position: absolute;">{refferal_name}</div>
+		<div id="refferal_code" style="font-size: 6px; margin: 0pt; padding: 0pt; left: 387.5pt; top: 851.8pt; position: absolute;">{refferal_code}</div>
+
+		<img src="{IMG_SIGNATURE_5}" id="img_bg5" style="width: 55px; height: 55px; margin: 0pt; padding: 0pt; left: 498pt; top: 870spt; position: absolute;" />
+		<div id="pfa_name" style="font-size: 6px; margin: 0pt; padding: 0pt; left: 511pt; top: 921.5pt; position: absolute;">{pfa_name}</div>
+		<div id="pfa_code" style="font-size: 6px; margin: 0pt; padding: 0pt; left: 510pt.7; top: 851.8pt; position: absolute;">{pfa_code}</div>
+
+	</div>
+
+</body>
+
+</html>

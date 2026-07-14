@@ -1,0 +1,72 @@
+declare
+@NO_TERTANGGUNG nvarchar(60),
+@TGL_MULAI datetime,
+@NO_POLIS nvarchar(60),
+@NO_APLIKASI nvarchar(60),
+@KD_VALUTA nvarchar(10),
+@UP decimal(18,4),
+@current_tt nvarchar(60)='',
+@current_UP decimal(18,4)=0.0,
+@limit_up decimal(18,4)=2000000000
+
+create table #AKUMULASI_UP(
+NO_TERTANGGUNG nvarchar(60),
+TGL_MULAI datetime,
+NO_POLIS nvarchar(60),
+NO_APLIKASI nvarchar(60),
+KD_VALUTA nvarchar(10),
+UP_PERPOLIS decimal(18,4),
+UP decimal(18,4),
+last_change_date datetime,
+last_change_by nvarchar(50)
+)
+
+DECLARE db_cursor CURSOR FOR 
+
+select 
+a.NO_TERTANGGUNG,
+a.TGL_MULAI,
+p.NO_POLIS,
+a.NO_APLIKASI,
+a.KD_VALUTA,
+pr.UP
+from polis p
+join aplikasi a on p.NO_APLIKASI=a.NO_APLIKASI
+join APLIKASI_PRODUK pr on p.NO_APLIKASI=pr.NO_APLIKASI and p.NO_APLIKASI=pr.NO_APLIKASI
+where a.KD_VALUTA='IDR' and p.STATUS_POLIS=1 and a.NO_TERTANGGUNG='0000000754'
+order by a.NO_TERTANGGUNG,a.TGL_MULAI
+
+OPEN db_cursor  
+FETCH NEXT FROM db_cursor INTO @NO_TERTANGGUNG,@TGL_MULAI,@NO_POLIS,@NO_APLIKASI,@KD_VALUTA,@UP 
+
+WHILE @@FETCH_STATUS = 0  
+BEGIN  
+      
+      if @current_tt<>@NO_TERTANGGUNG
+      begin
+		set @current_tt=@NO_TERTANGGUNG
+		set @current_UP=@UP
+		
+      end
+      else
+		begin
+			set @current_UP=case when @current_UP>=@limit_up then @limit_up 
+			else case when (@limit_up-@UP)<=0 then 0 else (@limit_up-@UP) end  
+			end
+			
+		end
+      
+      
+      
+      insert #AKUMULASI_UP select @NO_TERTANGGUNG,@TGL_MULAI,@NO_POLIS,@NO_APLIKASI,@KD_VALUTA,@UP,@current_UP,GETDATE(),'Sys' 
+      
+		
+      FETCH NEXT FROM db_cursor INTO @NO_TERTANGGUNG,@TGL_MULAI,@NO_POLIS,@NO_APLIKASI,@KD_VALUTA,@UP 
+END 
+
+CLOSE db_cursor  
+DEALLOCATE db_cursor 
+
+select curr_tt=@current_tt,curr_up=@current_UP,* from #AKUMULASI_UP where NO_TERTANGGUNG='0000000754'
+
+drop table #AKUMULASI_UP

@@ -1,0 +1,31 @@
+select * from (
+					select
+					reff_no=a.no_aplikasi,
+					spaj_code=a.no_spaj,
+					agen_code=a.no_agen_reff,
+					agen_name=ag.nama_agen,
+					policy_holder_no=a.no_pemegang_polis,
+					policy_holder_name=k.nama_klien,
+					product_code=case when a.KD_PRODUK='CPPID01' then 'CPP_IDR' else 'CPP_USD' end,
+					ag.NAMA_KANTOR_CABANG,
+					ag.KD_KANTOR_CABANG  
+					from capitallife_individu_prod.dbo.aplikasi a 
+					join capitallife_individu_prod.dbo.klien k on k.no_klien=a.no_pemegang_polis
+					join capitallife_individu_prod.dbo.vw_ms_agen ag on a.no_agen_reff=ag.NO_AGEN
+					union all
+					select 
+					reff_no=a.application_no,
+					spaj_code=a.form_no,
+					agen_code=a.intermediary_code_reff,
+					agen_name=ag.nama_agen,
+					policy_holder_no=a.policy_holder_no,
+					policy_holder_name=k.nama_klien,
+					product_code=case when a.package_code='CP001' then 'CPL_IDR' 
+					when a.package_code='1211104170' then 'CPL3' 
+					else 'CPL_USD' end,
+					ag.NAMA_KANTOR_CABANG,
+					ag.KD_KANTOR_CABANG  
+					from capitallife_ul_prod.dbo.nb_application a 
+					 join capitallife_ul_prod.dbo.vw_cd_klien k  on k.no_klien=a.policy_holder_no
+					join capitallife_individu_prod.dbo.vw_ms_agen ag on a.intermediary_code_reff=ag.NO_AGEN 
+					) as data where data.spaj_code='$spaj_code'

@@ -1,0 +1,1196 @@
+<html>
+<head>
+    <title></title><style>
+        body {
+            font-size: 8pt;
+            font-family: 'Helvetica'
+        }
+			#img_bg{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:0pt;
+				top:0pt;
+				width:100%;
+				height:auto;
+			}
+			#spaj_no{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:420pt;
+				top:30pt;
+			}
+			#full_name1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:89pt;
+			}
+			#gen_pria1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:100pt;
+			}
+			#gen_wanita1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:100pt;
+			}
+			#place_of_birth1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:179pt;
+				top:110pt;
+			}
+			#date_of_birth1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:435pt;
+				top:110pt;
+			}
+			#identity_type_ktp1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:120pt;
+			}
+			#identity_type_paspor1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:120pt;
+			}
+			#identity_type_akte1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:263pt;
+				top:120pt;
+			}
+			#identity_type_lain1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:120pt;
+			}
+			#identity_type_jelaskan1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:388pt;
+				top:120pt;
+			}
+			#status_menikah1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:141pt;
+			}
+			#status_belum1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:141pt;
+			}
+			#status_janda_duda1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:263pt;
+				top:141pt;
+			}
+			#religion_islam1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:141pt;
+				top:152pt;
+			}
+			#religion_kristen1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:152pt;
+			}
+			#religion_katholik1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:263pt;
+				top:152pt;
+			}
+			#religion_budha1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:309pt;
+				top:152pt;
+			}
+			#religion_hindu1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:152pt;
+			}
+			#religion_lainnya1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:405pt;
+				top:152pt;
+			}
+			#religion_jelaskan1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:439pt;
+				top:152pt;
+			}
+			#address1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:163pt;
+			}
+			#sub_districts1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:173pt;
+			}
+			#phone_number1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:173pt;
+			}
+			#districts1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:183pt;
+			}
+			#handphone1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:183pt;
+			}
+			#city1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:193pt;
+			}
+			#postal_code1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:193pt;
+			}
+			#province1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:203pt;
+			}
+			#email1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:203pt;
+			}
+			#citizenship_wni1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:215pt;
+			}
+			#citizenship_wna1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:215pt;
+			}
+			#citizenship_sebutkan1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:245pt;
+				top:215pt;
+			}
+			#profession_karyawan1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:226pt;
+			}
+			#profession_pelajar1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:216pt;
+				top:226pt;
+			}
+			#profession_pegawai1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:300pt;
+				top:226pt;
+			}
+			#profession_lainnya1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:384pt;
+				top:226pt;
+			}
+			#profession_jelaskan1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:413pt;
+				top:226pt;
+			}
+			#profession_irt1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:237pt;
+			}
+			#profession_tni1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:216pt;
+				top:237pt;
+			}
+			#profession_wiraswasta1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:300pt;
+				top:237pt;
+			}
+			#profession_pns1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:248pt;
+			}
+			#profession_pensiunan1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:216pt;
+				top:248pt;
+			}
+			#profession_pejabat1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:300pt;
+				top:248pt;
+			}
+			
+			#identity_no1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:131pt;
+			}
+			#company_name1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:259pt;
+			}
+			#job_description1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:268pt;
+			}
+			#position1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:278pt;
+			}
+			#npwp1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:288pt;
+			}
+			#company_address1_part1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:355pt;
+				top:259pt;
+			}
+			#company_address1_part2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:355pt;
+				top:268pt;
+			}
+			#country1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:355pt;
+				top:296pt;
+			}
+			#other_tax_number1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:296pt;
+			}
+			#full_name2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:328pt;
+			}
+			#relationship_suami_istri2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:339pt;
+			}
+			#relationship_anak2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:339pt;
+			}
+			#relationship_orang_tua2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:263pt;
+				top:339pt;
+			}
+			#relationship_lainnya2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:327pt;
+				top:339pt;
+			}
+			#relationship_jelaskan2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:339pt;
+			}
+			#gen_pria2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:350pt;
+			}
+			#gen_wanita2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:350pt;
+			}
+			#place_of_birth2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:179pt;
+				top:360pt;
+			}
+			#date_of_birth2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:435pt;
+				top:360pt;
+			}
+			#identity_type_ktp2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:371pt;
+			}
+			#identity_type_paspor2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:371pt;
+			}
+			#identity_type_akte2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:263pt;
+				top:371pt;
+			}
+			#identity_type_lain2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:371pt;
+			}
+			#identity_type_jelaskan2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:388pt;
+				top:371pt;
+			}
+			#identity_no2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:381pt;
+			}
+			#status_menikah2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:392pt;
+			}
+			#status_belum2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:392pt;
+			}
+			#status_janda_duda2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:263pt;
+				top:392pt;
+			}
+			#religion_islam2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:141pt;
+				top:403pt;
+			}
+			#religion_kristen2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:403pt;
+			}
+			#religion_katholik2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:263pt;
+				top:403pt;
+			}
+			#religion_budha2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:309pt;
+				top:403pt;
+			}
+			#religion_hindu2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:403pt;
+			}
+			#religion_lainnya2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:407pt;
+				top:403pt;
+			}
+			#religion_jelaskan2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:439pt;
+				top:403pt;
+			}
+			#address2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:413pt;
+			}
+			#sub_districts2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:423pt;
+			}
+			#phone_number2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:423pt;
+			}
+			#districts2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:433pt;
+			}
+			#handphone2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:433pt;
+			}
+			#city2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:443pt;
+			}
+			#postal_code2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:443pt;
+			}
+			#province2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:453pt;
+			}
+			#email2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:359pt;
+				top:453pt;
+			}
+			#citizenship_wni2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:466pt;
+			}
+			#citizenship_wna2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:199pt;
+				top:466pt;
+			}
+			#citizenship_sebutkan2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:245pt;
+				top:466pt;
+			}
+			#profession_karyawan2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:476pt;
+			}
+			#profession_pelajar2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:216pt;
+				top:476pt;
+			}
+			#profession_pegawai2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:300pt;
+				top:476pt;
+			}
+			#profession_lainnya2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:384pt;
+				top:476pt;
+			}
+			#profession_jelaskan2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:413pt;
+				top:476pt;
+			}
+			#profession_irt2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:487pt;
+			}
+			#profession_tni2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:216pt;
+				top:487pt;
+			}
+			#profession_wiraswasta2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:300pt;
+				top:487pt;
+			}
+			#profession_pns2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:498pt;
+			}
+			#profession_pensiunan2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:216pt;
+				top:498pt;
+			}
+			#profession_pejabat2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:300pt;
+				top:498pt;
+			}
+			#company_name2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:508pt;
+			}
+			#job_description2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:518pt;
+			}
+			#position2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:528pt;
+			}
+			#npwp2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:538pt;
+			}
+			#other_tax_number2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:548pt;
+			}
+			#company_address2_part1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:355pt;
+				top:508pt;
+			}
+			#company_address2_part2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:355pt;
+				top:518pt;
+			}
+			#country2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:355pt;
+				top:548pt;
+			}
+			#insurance_purpose1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:578pt;
+			}
+			#insurance_purpose2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:189pt;
+				top:578pt;
+			}
+			#insurance_purpose3{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:235pt;
+				top:578pt;
+			}
+			#insurance_purpose4{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:304pt;
+				top:578pt;
+			}
+			#insurance_purpose_jelaskan{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:355pt;
+				top:578pt;
+			}
+			#premium_payer1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:589pt;
+			}
+			#premium_payer2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:235pt;
+				top:589pt;
+			}
+			#premium_payer3{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:304pt;
+				top:589pt;
+			}
+			#source_income1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:165pt;
+				top:609pt;
+			}
+			#source_income2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:205pt;
+				top:609pt;
+			}
+			#source_income3{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:267pt;
+				top:609pt;
+			}
+			#source_income4{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:332pt;
+				top:609pt;
+			}
+			#source_income5{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:400pt;
+				top:609pt;
+			}
+			#source_income_lainnya{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:432pt;
+				top:609pt;
+			}
+			#nominal_income1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:167pt;
+				top:621pt;
+			}
+			#nominal_income2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:205pt;
+				top:621pt;
+			}
+			#nominal_income3{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:267pt;
+				top:621pt;
+			}
+			#nominal_income4{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:332pt;
+				top:621pt;
+			}
+			#nominal_income5{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:400pt;
+				top:621pt;
+			}
+			#assets1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:640pt;
+			}
+			#assets2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:182pt;
+				top:640pt;
+			}
+			#assets3{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:245pt;
+				top:640pt;
+			}
+			#assets4{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:310pt;
+				top:640pt;
+			}
+			#assets5{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:376pt;
+				top:640pt;
+			}
+			#assets6{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:453pt;
+				top:640pt;
+			}
+			#income_peryear1{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:142pt;
+				top:652pt;
+			}
+			#income_peryear2{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:182pt;
+				top:652pt;
+			}
+			#income_peryear3{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:245pt;
+				top:652pt;
+			}
+			#income_peryear4{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:310pt;
+				top:652pt;
+			}
+			#income_peryear5{
+				margin:0pt;
+				paddding:0pt;
+				position:absolute;
+				left:376pt;
+				top:652pt;
+			}
+    </style>
+</head>
+x
+<body>
+	<img src="{IMG_BG}" id="img_bg" />
+	
+	<!-- DATA PEMPOL-->
+	<div id="spaj_no">{cpp_no_spaj}</div>
+	<div id="full_name1">{full_name1}</div>
+	<div id="place_of_birth1">{place_of_birth1}</div>
+	<div id="date_of_birth1">{date_of_birth1}</div>
+	
+	<!-- POLICY HOLDER GEN-->
+	<div id="gen_pria1">{gen_pria1}</div>
+	<div id="gen_wanita1">{gen_wanita1}</div>
+	
+	<!-- POLICY HOLDER IDENTITY TYPE-->
+	<div id="identity_type_ktp1">{identity_type_ktp1}</div>
+	<div id="identity_type_paspor1">{identity_type_paspor1}</div>
+	<div id="identity_type_akte1">{identity_type_akte1}</div>
+	<div id="identity_type_lain1">{identity_type_lain1}</div>
+	<div id="identity_type_jelaskan1"></div>
+	
+	<div id="identity_no1">{identity_no1}</div>
+	
+	<!-- POLICY HOLDER MARITAL STATUS-->
+	<div id="status_menikah1">{status_menikah1}</div>
+	<div id="status_belum1">{status_belum1}</div>
+	<div id="status_janda_duda1">{status_janda_duda1}</div>
+	
+	<!-- POLICY HOLDER RELIGION-->
+	<div id="religion_islam1">{religion_islam1}</div>
+	<div id="religion_kristen1">{religion_kristen1}</div>
+	<div id="religion_katholik1">{religion_katholik1}</div>
+	<div id="religion_budha1">{religion_budha1}</div>
+	<div id="religion_hindu1">{religion_hindu1}</div>
+	<div id="religion_lainnya1">{religion_lainnya1}</div>
+	<div id="religion_jelaskan1"></div>
+	
+	<div id="address1">{address1}</div>
+	<div id="sub_districts1">{sub_districts1}</div>
+	<div id="districts1">{districts1}</div>
+	<div id="phone_number1">{phone_number1}</div>
+	<div id="city1">{city1}</div>
+	<div id="postal_code1">{postal_code1}</div>
+	<div id="handphone1">{handphone1}</div>
+	<div id="province1"></div>
+	<div id="email1">{email1}</div>
+	
+	<!-- POLICY HOLDER CITIZENSHIP-->
+	<div id="citizenship_wni1">{citizenship_wni1}</div>
+	<div id="citizenship_wna1">{citizenship_wna1}</div>
+	<div id="citizenship_sebutkan1"></div>
+	
+	<!-- POLICY HOLDER PROFESSION-->
+	<div id="profession_karyawan1">{profession_karyawan1}</div>
+	<div id="profession_pelajar1">{profession_pelajar1}</div>
+	<div id="profession_pegawai1">{profession_pegawai1}</div>
+	<div id="profession_lainnya1">{profession_lainnya1}</div>
+	<div id="profession_jelaskan1">{profession_jelaskan1}</div>
+	<div id="profession_irt1">{profession_irt1}</div>
+	<div id="profession_tni1">{profession_tni1}</div>
+	<div id="profession_wiraswasta1">{profession_wiraswasta1}</div>
+	<div id="profession_pns1">{profession_pns1}</div>
+	<div id="profession_pensiunan1">{profession_pensiunan1}</div>
+	<div id="profession_pejabat1">{profession_pejabat1}</div>
+	
+	<div id="company_name1">{company_name1}</div>
+	<div id="position1">{position1}</div>
+	<div id="job_description1">{job_description1}</div>
+	<div id="company_address1_part1">{company_address1_part1}</div>
+	<div id="company_address1_part2">{company_address1_part2}</div>
+	<div id="country1"></div>
+	<div id="npwp1">{npwp1}</div>
+	<div id="other_tax_number1"></div>
+	
+	<!-- DATA TERTANGGUNG-->
+	<div id="full_name2">{full_name2}</div>
+	
+	<!-- INSURED RELATIONSHIP-->
+	<div id="relationship_suami_istri2">{relationship_suami2}</div>
+	<div id="relationship_anak2">{relationship_anak2}</div>
+	<div id="relationship_orang_tua2">{relationship_orangtua2}</div>
+	<div id="relationship_lainnya2">{relationship_lain2}</div>
+	<div id="relationship_jelaskan2"></div>
+	
+	<!-- INSURED GEN-->
+	<div id="gen_pria2">{gen_pria2}</div>
+	<div id="gen_wanita2">{gen_wanita2}</div>
+	
+	<div id="place_of_birth2">{place_of_birth2}</div>
+	<div id="date_of_birth2">{date_of_birth2}</div>
+	<div id="address2">{address2}</div>
+	
+	<!-- INSURED INDENTITY TYPE-->
+	<div id="identity_type_ktp2">{identity_type_ktp2}</div>
+	<div id="identity_type_paspor2">{identity_type_paspor2}</div>
+	<div id="identity_type_akte2">{identity_type_akte2}</div>
+	<div id="identity_type_lain2">{identity_type_lain2}</div>
+	<div id="identity_type_jelaskan2"></div>
+	
+	<div id="identity_no2">{identity_no2}</div>
+	
+	<!-- INSURED MARITASL STATUS-->
+	<div id="status_menikah2">{status_menikah2}</div>
+	<div id="status_belum2">{status_belum2}</div>
+	<div id="status_janda_duda2">{status_janda_duda2}</div>
+	
+	<!-- INSURED RELIGION-->
+	<div id="religion_islam2">{religion_islam2}</div>
+	<div id="religion_kristen2">{religion_kristen2}</div>
+	<div id="religion_katholik2">{religion_katholik2}</div>
+	<div id="religion_budha2">{religion_budha2}</div>
+	<div id="religion_hindu2">{religion_hindu2}</div>
+	<div id="religion_lainnya2">{religion_lainnya2}</div>
+	<div id="religion_jelaskan2"></div>
+	
+	<div id="sub_districts2">{sub_districts2}</div>
+	<div id="districts2">{districts2}</div>
+	<div id="phone_number2">{phone_number2}</div>
+	<div id="city2">{city2}</div>
+	<div id="postal_code2">{postal_code2}</div>
+	<div id="handphone2">{handphone2}</div>
+	<div id="province2"></div>
+	<div id="email2">{email2}</div>
+	
+	<!-- INSURED CITIZENSHIP-->
+	<div id="citizenship_wni2">{citizenship_wni2}</div>
+	<div id="citizenship_wna2">{citizenship_wna2}</div>
+	<div id="citizenship_sebutkan2"></div>
+	
+	<!-- INSURED PROFESSION-->
+	<div id="profession_karyawan2">{profession_karyawan2}</div>
+	<div id="profession_pelajar2">{profession_pelajar2}</div>
+	<div id="profession_pegawai2">{profession_pegawai2}</div>
+	<div id="profession_lainnya2">{profession_lainnya2}</div>
+	<div id="profession_jelaskan2">{profession_jelaskan2}</div>
+	<div id="profession_irt2">{profession_irt2}</div>
+	<div id="profession_tni2">{profession_tni2}</div>
+	<div id="profession_wiraswasta2">{profession_wiraswasta2}</div>
+	<div id="profession_pns2">{profession_pns2}</div>
+	<div id="profession_pensiunan2">{profession_pensiunan2}</div>
+	<div id="profession_pejabat2">{profession_pejabat2}</div>
+	
+	<div id="company_name2">{company_name2}</div>
+	<div id="position2">{position2}</div>
+	<div id="job_description2">{job_description2}</div>
+	<div id="company_address2_part1">{company_address2_part1}</div>
+	<div id="company_address2_part2">{company_address2_part2}</div>
+	<div id="country2"></div>
+	<div id="npwp2">{npwp2}</div>
+	<div id="other_tax_number2"></div>
+	
+	<!-- PEMBAYAR PREMI-->
+	<!-- INSURANCE PURPOSE-->
+	<div id="insurance_purpose1">{insurance_purpose1}</div>
+	<div id="insurance_purpose2">{insurance_purpose2}</div>
+	<div id="insurance_purpose3">{insurance_purpose3}</div>
+	<div id="insurance_purpose4">{insurance_purpose4}</div>
+	<div id="insurance_purpose_jelaskan"></div>
+	
+	<!-- PREMIUM PAYER-->
+	<div id="premium_payer1">{premium_payer1}</div>
+	<div id="premium_payer2">{premium_payer2}</div>
+	<div id="premium_payer3">{premium_payer3}</div>
+	
+	<!-- INCOME-->	<>
+	<div id="source_income1">{income1}</div>
+	<div id="source_income2">{income2}</div>
+	<div id="source_income3">{income3}</div>
+	<div id="source_income4">{income4}</div>
+	<div id="source_income5">{income5}</div>
+	<div id="source_income_lainnya"></div>
+	
+	<!-- GROSS INCOME-->
+	<div id="nominal_income1">{gross_income1}</div>
+	<div id="nominal_income2">{gross_income2}</div>
+	<div id="nominal_income3">{gross_income3}</div>
+	<div id="nominal_income4">{gross_income4}</div>
+	<div id="nominal_income5">{gross_income5}</div>
+	
+	<!-- ASSETS-->
+	<div id="assets1">{assets1}</div>
+	<div id="assets2">{assets2}</div>
+	<div id="assets3">{assets3}</div>
+	<div id="assets4">{assets4}</div>
+	<div id="assets5">{assets5}</div>
+	<div id="assets6">{assets6}</div>
+	
+	<!-- INCOME PERYEAR-->
+	<div id="income_peryear1">{income_peryear1}</div>
+	<div id="income_peryear2">{income_peryear2}</div>
+	<div id="income_peryear3">{income_peryear3}</div>
+	<div id="income_peryear4">{income_peryear4}</div>
+	<div id="income_peryear5">{income_peryear5}</div>
+	
+</body>
+
+</html>

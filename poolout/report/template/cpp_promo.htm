@@ -1,0 +1,145 @@
+<style>
+#data_grid{
+font-size:11px;
+}
+#data_grid tbody tr td{
+	border:1px #000 solid;
+}
+#data_grid .kotak{
+	border:1px #000 solid;
+}
+#data_grid tbody .header{
+	background:#0070c0;
+	color:#fff;
+}
+#keterangan{
+font-size:11px;
+}
+#detailpp{
+	font-size:11px;
+}
+</style><br>
+<img src="{LOGO}" /><br><br>
+<strong>KALKULATOR PERHITUNGAN MANFAAT CAPITAL PROTEKSI PLUS</strong><br><br>
+<table border="0" cellpadding="3" cellspacing="0" id="detailpp">
+	<tbody>
+		<tr>
+			<td style="width:470px;">
+			Nama Pemegang Polis
+			</td>
+			<td>:</td>
+			<td style="width:270px;text-align:right;">{cpp_nama_pp}</td>
+		</tr>
+		<tr>
+			<td style="width:470px;">
+			Nama Tertanggung
+			</td>
+			<td>:</td>
+			<td style="width:270px;text-align:right;">{cpp_nama_tt}</td> 
+		</tr>
+		<tr>
+			<td style="width:470px;">
+			Tanggal Lahir Tertanggung
+			</td>
+			<td>:</td>
+			<td style="width:270px;text-align:right;">{cpp_dbo}</td>
+		</tr>
+
+		<tr>
+			<td style="width:470px;">
+			Usia Tertanggung (tahun)
+			</td>
+			<td>:</td>
+			<td style="width:270px;text-align:right;">{cpp_age}</td>
+		</tr>
+
+		
+
+		
+
+		<tr>
+			<td>
+			Tanggal Mulai Asuransi (Tanggal/Bulan/Tahun)
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_tgl_asu}</td>
+		</tr>
+		<tr>
+			<td>
+			Premi Yang Dibayar
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_premi}</td>
+		</tr>
+		<tr>
+			<td>
+			Uang Pertanggungan *)
+			</td>
+			<td>:</td>
+			<td align="right">{cpp_up}</td>
+		</tr>
+		
+		
+		{PROMO}
+		
+	</tbody>
+</table><br>
+
+<table border="0" cellpadding="3px" cellspacing="0" id="data_grid">
+	<tbody>
+		<tr>
+			<td class="header" style="text-align:center; width:50px">Periode</td>
+			<td class="header" style="text-align:center; width:80px">Tanggal Pembayaran<br>Manfaat</td>
+			<td class="header" style="text-align:center; width:60px">Jumlah<br />
+			Hari</td>
+			<td class="header" style="text-align:center; width:125px">Manfaat Investasi<br>(Sesuai jumlah hari)</td>
+			<td class="header" style="text-align:center; width:125px">Pembayaran Manfaat<br>Investasi **)</td>
+			<td class="header" style="text-align:center; width:130px">Manfaat Akhir<br>Periode Asuransi **)</td>
+			<td class="header" style="text-align:center; width:130px">Klaim Meninggal<br />
+			Karena Kecelakaan</td>
+		</tr>
+		{data_tabel}
+	</tbody>
+	<tfoot>
+		<tr>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+			<td class="kotak" align="center">{total_days}</td>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+			<td>
+			
+			</td>
+		</tr>
+	</tfoot>
+</table>
+
+<table id="keterangan" style="width:400pt">
+<tr>
+<td ><br><br><br>
+(*  Dalam hal Tertanggung dilindungi oleh lebih dari 1 (satu) Polis, maka total akumulasi Uang Pertanggungan yang dapat dibayarkan adalah sebesar <br>&nbsp;&nbsp;&nbsp;&nbsp;{CLAIM_UP}<br>
+(** Sesuai cara bayar manfaat yang dipilih. <br>							
+<br><strong>Catatan :</strong><br><br>
+<ol style="margin:0pt;padding:0pt;margin-left:-15pt;margin-top:-10pt;">
+<li style="margin:0pt;padding:0pt;">Kalkulator perhitungan ini dibuat berdasarkan rencana keuangan yang disampaikan calon Pemegang polis kepada Tenaga Pemasar/Pemberi Referensi.</li>
+<li style="margin:0pt;padding:0pt;">Kalkulator perhitungan ini bukan merupakan bukti pembayaran dan bukan merupakan kontrak perjanjian,</li>								
+<li style="margin:0pt;padding:0pt;">Rencana pembayaran manfaat dilakukan pada hari kerja, dalam hal jatuh tempo pembayaran manfaat jatuh dihari libur (diluar hari kerja) maka proses pembayaran manfaat dilakukan pada hari kerja berikutnya.</li>								
+<li style="margin:0pt;padding:0pt;">Dokumen ini tidak memerlukan tanda tangan karena dicetak secara komputerisasi.</li>								
+</ol>
+ 
+</td>
+</tr>
+
+
+</table>

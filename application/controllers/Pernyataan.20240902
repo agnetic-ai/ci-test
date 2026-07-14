@@ -1,0 +1,383 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Pernyataan extends CI_Controller {
+
+	
+	public function index()
+	{
+		if(!$_POST){
+			exit;
+		}
+		$data=$this->input->post('data');
+		if($data==""){
+			exit;
+		}
+		$data=json_decode(base64_decode($data),true);
+		$product=isset($data['product']) ? $data['product']:"";
+		$id=isset($data['id']) ? $data['id']:"";
+		
+		
+		
+		if($product==""){
+			exit;
+		}
+		
+		$str='';
+		if($product=="CPP"){
+			
+			$str.='<form >
+		  <div class="list">
+		  <ul>
+		  <li class="list-group-title">PERTANYAAN PENUTUP/AGEN/PEMASAR</li>
+		  <li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes1" id="q_yes1">
+					  <option value="Ya" selected>Ya</option>
+					  <option value="Tidak">Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">1. Apakah Anda mengenal Calon Pemengang Polis dan atau Calon Tertanggung ? "Ya", sudah berapa lama anda mengenal Calon Tertanggung?</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input explain1 item-input-focused">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (1)</div>
+				<div class="item-input-wrap">
+				  <input name="explain1" id="explain1" type="text" placeholder="" value="2 Tahun">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes2" id="q_yes2">
+					  <option value="Ya" selected>Ya</option>
+					  <option value="Tidak">Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">2. Apakah Anda bertemu dan melihat Calon Tertanggung dalam keadaan sehat?</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input ">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (2)</div>
+				<div class="item-input-wrap">
+				  <input name="explain2" id="explain2" type="text" placeholder="">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes3" id="q_yes3">
+					  <option value="Ya" selected>Ya</option>
+					  <option value="Tidak">Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">3. Apakah Anda sudah menjelaskan kepada Calon Pemegang Polis bahwa jawaban yang tidak benar akan mengakibatkan batalnya perjanjian?</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input explain3 ">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (3)</div>
+				<div class="item-input-wrap">
+				  <input name="explain3" id="explain3" type="text" placeholder="">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+		  </ul>
+		  </div>
+		  
+		  ';
+			
+		}else{
+			
+			$str.='<form >
+		  <div class="list">
+		  <ul>
+		  <li class="list-group-title">KETERANGAN KESEHATAN CALON TERTANGGUNG</li>
+		  <li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes1" id="q_yes1">
+					  <option value="Ya" >Ya</option>
+					  <option value="Tidak" selected>Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">1. Apakah dalam 5 tahun terakhir Anda pernah dioperasi/dirawat dirumah sakit/dalam masa pengobatan/dianjurkan untuk berobat/melakukan pemeriksaan kesehatan tertentu? Jika "Ya", Jelaskan</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input question1">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (1)</div>
+				<div class="item-input-wrap">
+				  <input name="question1" id="question1" type="text" placeholder="">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes2" id="q_yes2">
+					  <option value="Ya" >Ya</option>
+					  <option value="Tidak" selected>Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">2. Apakah Anda pernah atau menderita salah satu atau beberapa penyakit: cacat tubuh, tumor/kanker, TBC, asma, kencing manis, hati, ginjal, jantung, stroke, tekanan darah tinggi, gangguan jiwa, atau penyakit lainnya? Jiak "Ya", Jelaskan</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input question2">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (2)</div>
+				<div class="item-input-wrap">
+				  <input name="question2" id="question2" type="text" placeholder="">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes3" id="q_yes3">
+					  <option value="Ya" >Ya</option>
+					  <option value="Tidak" selected>Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">3. Apakah Pengajuan Asuransi Anda pernah ditolak, ditunda atau dikenakan exra premi saat mengajukan Asuransi Jiwa/Kecelakaan/Kesehatan baik di PT Capital Life Indonesia maupun di perusahaan asuransi lainnya, bila "Ya" mohon jelaskan</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input question3">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (3)</div>
+				<div class="item-input-wrap">
+				  <input name="question3" id="question3" type="text" placeholder="">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+		  
+		  
+		  <li class="list-group-title">PERTANYAAN PENUTUP/AGEN/PEMASAR</li>
+		  <li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes4" id="q_yes4">
+					  <option value="Ya" selected>Ya</option>
+					  <option value="Tidak">Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">1. Apakah Anda mengenal Calon Pemengang Polis dan atau Calon Tertanggung ? "Ya", sudah berapa lama anda mengenal Calon Tertanggung?</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input jelaskan4 item-input-focused">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (1)</div>
+				<div class="item-input-wrap">
+				  <input name="jelaskan4" id="jelaskan4" type="text" placeholder="" value="2 Tahun">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes5" id="q_yes5">
+					  <option value="Ya" selected>Ya</option>
+					  <option value="Tidak">Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">2. Apakah Anda bertemu dan melihat Calon Tertanggung dalam keadaan sehat?</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input ">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (2)</div>
+				<div class="item-input-wrap">
+				  <input name="jelaskan5" id="jelaskan5" type="text" placeholder="">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes6" id="q_yes6">
+					  <option value="Ya" selected>Ya</option>
+					  <option value="Tidak">Tidak</option>
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						<div class="item-title">3. Apakah Anda sudah menjelaskan kepada Calon Pemegang Polis bahwa jawaban yang tidak benar akan mengakibatkan batalnya perjanjian?</div>
+					  </div>
+					</div>
+				  </a>
+			</li>
+			<li class="item-content item-input  ">
+			  <div class="item-inner">
+				<div class="item-title item-floating-label">Penjelasan (3)</div>
+				<div class="item-input-wrap">
+				  <input name="jelaskan6" id="jelaskan6" type="text" placeholder="">
+				  <span class="input-clear-button"></span>
+				  
+				</div>
+			  </div>
+			</li>
+			
+			<li class="list-group-title">PENILAIAN PROFIL RESIKO NASABAH</li>	
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes6" id="q_yes6">
+					  <option value="1" selected>Likuiditas dan keamanan investasi</option>
+						<option value="2" >Pendapatan dan perlindungan terhadap inflasi</option>
+						<option value="3" >Pendapatan dan perlindungan dalam jangka pendek</option>
+						<option value="4" >Pendapatan dan perlindungan dalam jangka panjang</option>
+
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						Apakah tujuan Investasi Anda
+					  </div>
+					</div>
+				  </a>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes7" id="q_yes7">
+					  <option value="1" selected>Tidak berisiko, keuntungan tidak terlalu diharapkan</option>
+						<option value="2" >Risiko rendah, keuntungan rendah</option>
+						<option value="3" >Risiko menengah, keuntungan menengah</option>
+						<option value="4" >Risiko tinggi, keuntungan tinggi</option>
+
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						Seberapa besar tingkat risiko yang sanggup Anda tanggung
+					  </div>
+					</div>
+				  </a>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes8" id="q_yes8">
+					  <option value="1" selected> < 1 tahun </option>
+						<option value="2" > 1 - 3 tahun </option>
+						<option value="3" > 3 - 5 tahun 3</option>
+						<option value="4" > > 5 tahun</option>
+
+
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						Jangka waktu dalam berinvestasi
+					  </div>
+					</div>
+				  </a>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes9" id="q_yes9">
+					  <option value="1" selected>< 10% </option>
+						<option value="2" >10 - 15% </option>
+						<option value="3" >15 - 30% </option>
+						<option value="4" >> 30%</option>
+
+
+
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						Jumlah dana yang sanggup untuk membayar premi dari pendapatan
+					  </div>
+					</div>
+				  </a>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes10" id="q_yes10">
+					  <option value="1" selected>Terbatas </option>
+					<option value="2" >Cukup </option>
+					<option value="3" >Mampu </option>
+					<option value="4" >Ahli</option>
+
+
+
+
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						Pengetahuan mengenai instrumen investasi
+					  </div>
+					</div>
+				  </a>
+			</li>
+			
+			<li>
+			  <a class="item-link smart-select smart-select-init " data-open-in="popover" data-close-on-select="true">
+					<select name="q_yes11" id="q_yes11">
+					  <option value="1" >< 1 tahun </option>
+						<option value="2" >1 - 3 tahun </option>
+						<option value="3" >3 - 5 tahun </option>
+						<option value="4" >> 5 tahun</option>
+
+					</select>
+					<div class="item-content">
+					  <div class="item-inner">
+						Dalam instrumen investasi seperti apa diantara 4 pilihan berikut untuk investasi sebagian besar uang Anda
+					  </div>
+					</div>
+				  </a>
+			</li>
+			
+			
+		  </ul>
+		  </div>
+		  
+		  ';
+			
+		}
+		
+		echo $str;
+		
+		
+	}
+}

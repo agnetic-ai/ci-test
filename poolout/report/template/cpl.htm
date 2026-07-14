@@ -1,0 +1,243 @@
+<style>
+#box_border{
+border:2px #000 solid;
+}
+#tbl_header{
+	color:#fff;
+	
+}
+#tbl_header .tbl_header_blue{
+	background:#44546b;
+}
+#tbl_header .tbl_header_red{
+	background:#c00002;
+}
+#tbl_info{
+	font-size:11px;
+}
+#tbl_dana{
+	font-size:9px;
+}
+#tbl_dana .tbl_dana_header{
+ background:#d9d9d9;
+}
+#tbl_mti{
+	font-size:9px;
+}
+#tbl_mti .tbl_mti_header{
+background:#c00000;
+color:#fff;
+}
+#tbl_ttd{
+font-size:10px;
+}
+</style>
+<div id="box_border">
+
+<table border=0 id="tbl_header" cellpadding=0 cellspacing=0 style="margin:5px;">
+	<tr>
+		<td class="tbl_header_blue" style="width:833px;">
+		<strong style="font-size:16px;">PROPOSAL/ILUSTRASI<br>ASURANSI CAPITAL PROTEKSI LINK</strong>
+		</td>
+		<td class="tbl_header_blue"><img src="{LOGO}" /></td>
+	</tr>
+	<tr>
+		<td colspan="2"  class="tbl_header_red" style="border-bottom:1px #000 solid;border-top:1px #000 solid;"><strong>No SPAJ : {No_SPAJ}</strong></td>
+	</tr>
+</table>
+
+<table border="0" cellpadding="1" cellspacing="0" id="tbl_info" style="margin:5px;">
+	<tbody>
+		<tr>
+			<td style="width:200px;">Nama Pemegang Polis</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1" style="width:853px;">{Nama_Pemegang_Polis}</td>
+		</tr>
+		<tr>
+			<td>Nama Tertanggung</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Nama_Tertanggung}</td>
+		</tr>
+		<tr>
+			<td>Usia Tertanggung</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Usia_Tertanggung}</td>
+		</tr>
+		<tr>
+			<td>Masa Pertanggungan</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Masa_Pertanggungan}</td>
+		</tr>
+		<tr>
+			<td>Uang Pertanggungan ( UP )</td>
+			<td>:</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>{Uang_Pertanggungan}</td>
+		</tr>
+		<tr>
+			<td>Masa Target Investasi&nbsp;</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Masa_Target_Investasi}</td>
+		</tr>
+		<tr>
+			<td>Tingkat Target Investasi&nbsp;</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Tingkat_Target_Investasi} perTahun</td>
+		</tr>
+		<tr>
+			<td>Tanggal Awal Masa Target Investasi&nbsp;</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Tanggal_Awal_MTI}</td>
+		</tr>
+		<tr>
+			<td>Premi Sekaligus&nbsp;</td>
+			<td>:</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>{Premi_Sekaligus}</td>
+		</tr>
+		<tr>
+			<td>Premi Top Up Sekaligus&nbsp;</td>
+			<td>:</td>
+			<td ></td>
+			<td ></td>
+			<td><div style="border-bottom:1px #000 solid;width:100px;">{Premi_Top_Up_Sekaligus}</div></td>
+		</tr>
+		<tr>
+			<td>Total Premi&nbsp;</td>
+			<td>:</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>{Premi}</td>
+		</tr>
+		<tr>
+			<td>Jenis Dana Investasi&nbsp;</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Jenis_Dana_Investasi} ({Alokasi_Premi})</td>
+		</tr>
+		<!--
+		<tr>
+			<td >Alokasi Premi&nbsp;</td>
+			<td>:</td>
+			<td colspan="3" rowspan="1">{Alokasi_Premi}</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:1px #000 solid;"></td>
+			<td style="border-bottom:1px #000 solid;"></td>
+			<td colspan="3" rowspan="1" style="border-bottom:1px #000 solid;">&nbsp;</td>
+		</tr> -->
+	</tbody>
+</table>
+
+<span style="margin-left:5px;font-weight:bold;font-size:11px;">ILUSTRASI PERKEMBANGAN HASIL INVESTASI</span>
+<table border="1" cellpadding="1" cellspacing="0" id="tbl_dana" style="margin:0px 5px 5px 5px;">
+	<tbody>
+		<tr>
+			<td colspan="1" rowspan="2" style="width:117px;" align="center" class="tbl_dana_header">Tanggal Jatuh Tempo<br />
+			Masa Target Investasi</td>
+			<td colspan="2" rowspan="1" style="width:110px;" align="center" class="tbl_dana_header">Usia Polis</td>
+			<td colspan="1" rowspan="2" style="width:95px;" align="center" valign="middle" class="tbl_dana_header">Premi Sekaligus</td>
+			<td colspan="1" rowspan="2" style="width:95px;" align="center" valign="middle" class="tbl_dana_header">Premi Top Up Sekaligus</td>
+			<td colspan="3" rowspan="1" align="center" class="tbl_dana_header">Estimasi Nilai Polis (akhir periode) *</td>
+			<td colspan="3" rowspan="1" align="center" class="tbl_dana_header">Estimasi Manfaat Meninggal (akhir periode) **</td>
+		</tr>
+		<tr>
+			<td align="center" class="tbl_dana_header">Tahun</td>
+			<td align="center" class="tbl_dana_header">Bulan</td>
+			<td style="width:95px;" align="center" class="tbl_dana_header">Rendah</td>
+			<td style="width:95px;" align="center" class="tbl_dana_header">Sedang</td>
+			<td style="width:95px;" align="center" class="tbl_dana_header">Tinggi</td>
+			<td style="width:95px;" align="center" class="tbl_dana_header">Rendah</td>
+			<td style="width:95px;" align="center" class="tbl_dana_header">Sedang</td>
+			<td style="width:95px;" align="center" class="tbl_dana_header">Tinggi</td>
+		</tr>
+		{data_tabel}
+	</tbody>
+</table>
+<p style="margin-top:0px;margin-left:5px;font-size:9px;">* Estimasi Nilai Polis (akhir periode) merupakan estimasi Nilai Polis yang terbentuk dan belum memperhitungkan Biaya Pengelolaan. <br>
+** Estimasi Manfaat Meninggal (akhir periode) merupakan estimasi Manfaat Meninggal yang akan diterima oleh Pemegang Polis dan sudah memperhitungkan Biaya Pengelolaan. <br>
+*** Perhitungan dalam ilustrasi diatas diasumsikan tidak memperhitungkan hari libur (termasuk hari sabtu, minggu, atau hari libur nasional yang ditetapkan sewaktu-waktu oleh Pemerintah sebagai bukan hari kerja).
+</p>
+
+<table border="1" cellpadding="1" cellspacing="0" style="margin:0px 5px 5px 5px;" id="tbl_mti">
+	<tbody>
+		<tr>
+			<td colspan="1" rowspan="2" class="tbl_mti_header" valign="middle" align="center" style="width:203px;">Jenis Dana Investasi</td>
+			<td colspan="1" rowspan="2" class="tbl_mti_header" valign="middle" align="center" style="width:200px;">Alokasi Investasi</td>
+			<td colspan="3" rowspan="1" class="tbl_mti_header" align="center" >Asumsi Hasil Investasi per tahun</td>
+			<td colspan="3" rowspan="1" class="tbl_mti_header" align="center">Alokasi Investasi x Asumsi Hasil Investasi</td>
+		</tr>
+		<tr>
+			<td class="tbl_mti_header" align="center" style="width:100px;">Rendah</td>
+			<td class="tbl_mti_header" align="center" style="width:100px;">Sedang</td>
+			<td class="tbl_mti_header" align="center" style="width:100px;">Tinggi</td>
+			<td class="tbl_mti_header" align="center" style="width:100px;">Rendah</td>
+			<td class="tbl_mti_header" align="center" style="width:100px;">Sedang</td>
+			<td class="tbl_mti_header" align="center" style="width:100px;">Tinggi</td>
+		</tr>
+		<tr>
+			<td>Capital Managed Fund</td>
+			<td align="center">100,00%</td>
+			<td align="center">7,00%</td>
+			<td align="center">9,00%</td>
+			<td align="center">11,00%</td>
+			<td align="center">7,00%</td>
+			<td align="center">9,00%</td>
+			<td align="center">11,00%</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td align="center">100,00%</td>
+			<td colspan=3>&nbsp;</td>
+			<td align="center">7,00%</td>
+			<td align="center">9,00%</td>
+			<td align="center">11,00%</td>
+		</tr>
+		
+	</tbody>
+</table>
+
+<p style="margin-top:0px;margin-left:5px;font-size:9px;">Proposal/ Ilustrasi ini hanya sebuah ILUSTRASI, BUKAN SUATU KONTRAK ASURANSI, untuk penjelasan lebih lengkapnya lihat dokumen Polis. </p>
+
+<table border="0" cellpadding="1" cellspacing="0" id="tbl_ttd" style="margin:5px;">
+	<tbody>
+		<tr>
+			<td>Jakarta, {DATE_PRINT}</td>
+			<td style="width:200px;">&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>Pernyataan Pemohon :&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Kode Tenaga Pemasar :</td>
+			<td>&nbsp;</td>
+			<td>Saya menyatakan telah membaca dan mengerti isi Proposal/Ilustrasi terlampir</td>
+		</tr>
+		<tr>
+			<td>Tanda Tangan Tenaga Pemasar :&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>Tanda Tangan Pemegang Polis :</td>
+		</tr>
+		<tr>
+			<td><img src="{SignAgen}" style='width:50px;' /></td>
+			<td>&nbsp;</td>
+			<td><img src="{SignNasabah}" style='width:50px;' /></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><i>Proposal/ Ilustrasi ini merupakan sebuah ILUSTRASI, BUKAN SUATU KONTRAK ASURANSI, untuk penjelasan lebih lengkapnya mengacu kepada dokumen Polis.</i></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+
+</div>

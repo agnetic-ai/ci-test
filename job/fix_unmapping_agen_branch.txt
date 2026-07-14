@@ -1,0 +1,8 @@
+insert tbl_agen_mapping select null,p.agen_code,
+(select distinct bbc_code from tbl_agen_mapping where branch_code=p.branch_code) as bbc,
+(select distinct pfa_code from tbl_agen_mapping where branch_code=p.branch_code) as pfa,
+p.branch_code,now(),'Admin'
+from tbl_spaj_pending p
+left join tbl_agen_mapping m on m.agen_code=p.agen_code
+where m.pfa_code is null
+
