@@ -7,6 +7,7 @@ class RiplayPersonal extends CI_Controller
     {
         parent::__construct();
         $this->load->helper('riplay-personal/cpp_pdf');
+        $this->load->database();
     }
 
     /**
@@ -28,11 +29,8 @@ class RiplayPersonal extends CI_Controller
             . '<h1>Generate PDF RIPLAY Personal</h1>'
             . '<div class="actions">'
             . '<form method="get" action="' . site_url('riplaypersonal/generate') . '">'
-            . '<input type="hidden" name="sample" value="IDR">'
-            . '<button type="submit">Generate PDF IDR</button></form>'
-            . '<form method="get" action="' . site_url('riplaypersonal/generate') . '">'
-            . '<input type="hidden" name="sample" value="USD">'
-            . '<button class="usd" type="submit">Generate PDF USD</button></form>'
+            . '<input type="text" name="no_sppaj" placeholder="No SPPAJ" required>'
+            . '<button type="submit">Generate PDF</button></form>'
             . '</div></body></html>';
 
         $this->output
@@ -42,6 +40,7 @@ class RiplayPersonal extends CI_Controller
 
     /**
      * Generate & stream PDF.
+     * URL: /riplaypersonal/generate?no_sppaj=XX
      */
     public function generate()
     {
@@ -73,51 +72,147 @@ class RiplayPersonal extends CI_Controller
     }
 
     /**
-     * Tentukan sumber data: query ?sample=IDR|USD, body JSON, atau query ?data={...}.
+     * Tentukan sumber data: query ?no_sppaj=, body JSON, atau query ?data={...}.
      */
     private function resolve_request_data()
     {
-        $sample = $this->input->get('sample');
-        if (is_string($sample) && trim($sample) !== '') {
-            return $this->data_from_sample($sample);
+        // Primary: no_sppaj parameter -> query DB -> ambil JSON dari submission/
+        $no_sppaj = $this->input->get('no_sppaj');
+        if (is_string($no_sppaj) && trim($no_sppaj) !== '') {
+            return $this->data_from_sample($no_sppaj);
         }
 
+        // Fallback: raw JSON body
         $rawJson = $this->input->raw_input_stream;
         if (is_string($rawJson) && trim($rawJson) !== '') {
             return $this->data_from_json($rawJson);
         }
 
+        // Fallback: query ?data={...}
         $queryData = $this->input->get('data');
         if (is_string($queryData) && trim($queryData) !== '') {
             return $this->data_from_json($queryData);
         }
 
         throw new InvalidArgumentException(
-            'Request data kosong. Kirim JSON body, query ?data={...}, atau ?sample=IDR|USD.'
+            'Request data kosong. Kirim ?no_sppaj=XX, JSON body, atau ?data={...}.'
         );
     }
 
     /**
-     * Baca sample JSON dari template/riplay-personal/sample-{IDR|USD}.json.
+     * Query tbl_spaj + tbl_bank_data_ms, lalu ambil JSON dari folder submission/.
      */
-    private function data_from_sample($sample)
+    private function data_from_sample($no_sppaj)
     {
-        $sample = strtoupper(trim($sample));
-        $files = array(
-            'IDR' => cpp_template_dir() . '/sample-IDR.json',
-            'USD' => cpp_template_dir() . '/sample-USD.json',
-        );
+        $no_sppaj = trim($no_sppaj);
 
-        if (!array_key_exists($sample, $files)) {
-            throw new InvalidArgumentException('Sample JSON tidak dikenal. Gunakan IDR atau USD.');
+        $str = "SELECT SP.ID,
+                SP.trx_id,
+                SP.spaj_code,
+                SP.no_polis,
+                SP.product_code,
+                SP.nama_pp,
+                SP.effective_dt,
+                SP.last_change_dt,
+                SP.status_qc,
+                DATE_FORMAT(SP.last_change_dt, '%Y%m%d') as docdir,
+                MS.NAMA_AREA,
+                MS.PIC_CLI,
+                SP.pfa_code
+            FROM tbl_spaj SP
+                LEFT JOIN tbl_bank_data_ms MS
+                    ON MS.KODE_RM = SP.agen_code
+            WHERE SP.spaj_code = ?";
+
+        $query = $this->db->query($str, array($no_sppaj));
+        $rows = $query->row_array();
+
+        if (empty($rows)) {
+            throw new InvalidArgumentException('Data SPAJ tidak ditemukan untuk no_sppaj: ' . $no_sppaj);
         }
 
-        $json = @file_get_contents($files[$sample]);
-        if ($json === false) {
-            throw new RuntimeException('Sample JSON tidak ditemukan: ' . basename($files[$sample]));
+        $trx_id = $rows['docdir'] . "/" . $rows['trx_id'];
+
+        // Ambil DATA PENGAJUAN dari submission/
+        $json1 = $this->other_doc($trx_id, 'DATA');
+        if (empty($json1)) {
+            throw new RuntimeException('File DATA tidak ditemukan di submission/' . $trx_id);
         }
 
-        return $this->data_from_json($json);
+        // Ambil DATA SPAJ dari submission/
+        $json2 = $this->other_doc($trx_id, 'SPAJ');
+        if (empty($json2)) {
+            throw new RuntimeException('File SPAJ tidak ditemukan di submission/' . $trx_id);
+        }
+
+        $decode1 = json_decode($json1, true);
+        $decode2 = json_decode($json2, true);
+
+        if (!is_array($decode1)) {
+            throw new RuntimeException('Invalid JSON pada file DATA submission/' . $trx_id);
+        }
+
+        if (!is_array($decode2)) {
+            throw new RuntimeException('Invalid JSON pada file SPAJ submission/' . $trx_id);
+        }
+
+        // Merge data dari kedua JSON + DB row untuk render PDF
+        $data = array();
+
+        // Dari DB row
+        $data['cpp_nama_pp'] = isset($rows['nama_pp']) ? $rows['nama_pp'] : '';
+        $data['cpp_no_spaj'] = isset($rows['spaj_code']) ? $rows['spaj_code'] : '';
+        $data['cpp_no_polis'] = isset($rows['no_polis']) ? $rows['no_polis'] : '';
+        $data['cpp_nama_area'] = isset($rows['NAMA_AREA']) ? $rows['NAMA_AREA'] : '';
+        $data['cpp_pic_cli'] = isset($rows['PIC_CLI']) ? $rows['PIC_CLI'] : '';
+        $data['cpp_pfa_code'] = isset($rows['pfa_code']) ? $rows['pfa_code'] : '';
+
+        // Merge decode1 (DATA PENGAJUAN) dan decode2 (SPAJ) ke data
+        // Format dari Espajcppnew: array of {name, value}
+        if (isset($decode1[0]['name'])) {
+            foreach ($decode1 as $item) {
+                if (isset($item['name']) && isset($item['value'])) {
+                    $data[$item['name']] = $item['value'];
+                }
+            }
+        } else {
+            $data = array_merge($data, $decode1);
+        }
+
+        if (isset($decode2[0]['name'])) {
+            foreach ($decode2 as $item) {
+                if (isset($item['name']) && isset($item['value'])) {
+                    $data[$item['name']] = $item['value'];
+                }
+            }
+        } else {
+            $data = array_merge($data, $decode2);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Ambil file JSON dari folder submission/ berdasarkan prefix type.
+     * Scan directory submission/{$q}/ dan cari file yang prefix-nya == $type.
+     */
+    private function other_doc($q, $type)
+    {
+        $dir = realpath(".") . "/submission/" . $q;
+
+        $arr = "";
+        if (is_dir($dir)) {
+            if ($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    $split = explode("_", $file);
+                    if ($split[0] == $type) {
+                        $arr = file_get_contents($dir . "/" . $file);
+                    }
+                }
+                closedir($dh);
+            }
+        }
+        return $arr;
     }
 
     /**
