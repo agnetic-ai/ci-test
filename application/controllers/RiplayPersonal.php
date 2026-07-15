@@ -6,7 +6,7 @@ class RiplayPersonal extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->helper('cpp_pdf');
+        $this->load->helper('riplay-personal/cpp_pdf');
     }
 
     /**
